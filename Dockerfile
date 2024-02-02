@@ -17,11 +17,11 @@ RUN apt-get update \
         apt-utils \
         dnsmasq \
         net-tools \
-        qemu-efi \
         qemu-utils \
         ca-certificates \
         netcat-openbsd \
         qemu-system-arm \
+        qemu-efi-aarch64 \
     && apt-get clean \
     && novnc="1.4.0" \
     && mkdir -p /usr/share/novnc \
