@@ -55,7 +55,7 @@ fi
 if [[ "${BOOT_MODE,,}" == "windows" ]]; then
 
   [ -n "$CPU_FEATURES" ] && CPU_FEATURES="$CPU_FEATURES,"
-  CPU_FEATURES="$CPU_FEATURES+hypervisor,+invtsc,l3-cache=on,migratable=no,hv_passthrough"
+  CPU_FEATURES="${CPU_FEATURES}l3-cache=on,migratable=no,hv_passthrough"
 
 fi
 
