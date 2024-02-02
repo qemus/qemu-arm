@@ -45,6 +45,7 @@ else
 
   KVM_OPTS=""
   CPU_FEATURES=""
+  MACHINE="$MACHINE,virtualization=on"
 
   if [[ "${CPU_MODEL,,}" == "host"* ]]; then
 
