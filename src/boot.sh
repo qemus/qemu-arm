@@ -53,7 +53,7 @@ if [[ "${BOOT_MODE,,}" != "legacy" ]] && [[ "${BOOT_MODE,,}" != "windows_legacy"
   fi
 
   if [ ! -f "$DEST.vars" ]; then
-    [ ! -f "$AAVVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+    [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
     cp "$AAVMF/$VARS" "$DEST.vars"
   fi
 
