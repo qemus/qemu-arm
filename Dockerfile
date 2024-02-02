@@ -8,10 +8,10 @@ RUN apt-get update \
     && apt-get --no-install-recommends -y install \
         tini \
         wget \
-        ovmf \
         nginx \
         swtpm \
         procps \
+        seabios \        
         iptables \
         iproute2 \
         apt-utils \
@@ -21,6 +21,7 @@ RUN apt-get update \
         ca-certificates \
         netcat-openbsd \
         qemu-system-arm \
+        qemu-efi-aarch64 \
     && apt-get clean \
     && novnc="1.4.0" \
     && mkdir -p /usr/share/novnc \
