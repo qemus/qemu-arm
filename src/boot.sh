@@ -5,24 +5,30 @@ set -Eeuo pipefail
 : "${TPM:="Y"}"         # Enable TPM
 : "${BOOT_MODE:="legacy"}"  # Boot mode
 
+BIOS=""
 SECURE=""
 BOOT_OPTS=""
+DIR="/usr/share/qemu"
 
 case "${BOOT_MODE,,}" in
   uefi)
-    ROM="OVMF_CODE_4M.fd"
+    ROM="OVMF.fd"
+    BIOS="QEMU,VGA.bin"
     VARS="OVMF_VARS_4M.fd"
     ;;
   secure)
-    ROM="OVMF_CODE_4M.secboot.fd"
+    ROM="OVMF.fd"
+    BIOS="QEMU,VGA.bin"
     VARS="OVMF_VARS_4M.secboot.fd"
     ;;
   windows)
-    ROM="OVMF_CODE_4M.ms.fd"
+    ROM="OVMF.fd"
+    BIOS="QEMU,VGA.bin"
     VARS="OVMF_VARS_4M.ms.fd"
     ;;
   windows_legacy)
-    USB="usb-ehci,id=ehci"
+    BIOS="QEMU,VGA.bin"
+    USB="usb-ehci,id=ehci"   
     BOOT_OPTS=""
     ;;
   legacy)
@@ -34,14 +40,17 @@ case "${BOOT_MODE,,}" in
     ;;
 esac
 
+BOOT_OPTS="$BOOT_OPTS -device ramfb"
+[ -n "$BIOS" ] && BOOT_OPTS="$BOOT_OPTS -bios $DIR/$BIOS"
+
 if [[ "${BOOT_MODE,,}" != "legacy" ]] && [[ "${BOOT_MODE,,}" != "windows_legacy" ]]; then
 
   OVMF="/usr/share/OVMF"
   DEST="$STORAGE/${BOOT_MODE,,}"
 
   if [ ! -f "$DEST.rom" ]; then
-    [ ! -f "$OVMF/$ROM" ] && error "UEFI boot file ($OVMF/$ROM) not found!" && exit 44
-    cp "$OVMF/$ROM" "$DEST.rom"
+    [ ! -f "$DIR/$ROM" ] && error "UEFI boot file ($DIR/$ROM) not found!" && exit 44
+    cp "$DIR/$ROM" "$DEST.rom"
   fi
 
   if [ ! -f "$DEST.vars" ]; then
@@ -75,7 +84,7 @@ if [[ "${BOOT_MODE,,}" != "legacy" ]] && [[ "${BOOT_MODE,,}" != "windows_legacy"
       for (( i = 1; i < 20; i++ )); do
 
         [ -S "/run/swtpm-sock" ] && break
-  
+
         if (( i % 10 == 0 )); then
           echo "Waiting for TPM socket to become available..."
         fi
