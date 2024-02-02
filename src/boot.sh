@@ -7,8 +7,8 @@ set -Eeuo pipefail
 : "${BOOT_MODE:="uefi"}"        # Boot mode
 
 SECURE=""
+BOOT_OPTS=""
 DIR="/usr/share/qemu"
-BOOT_OPTS="-device ramfb"
 
 case "${BOOT_MODE,,}" in
   uefi)
@@ -34,30 +34,31 @@ esac
 if [ -n "$BIOS" ]; then
 
   BOOT_OPTS="$BOOT_OPTS -bios $DIR/$BIOS"
-  return 0
+
+else
+
+  AAVMF="/usr/share/AAVMF/"
+  DEST="$STORAGE/${BOOT_MODE,,}"
+  
+  if [ ! -f "$DEST.rom" ]; then
+    [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
+    cp "$AAVMF/$ROM" "$DEST.rom"
+  fi
+  
+  if [ ! -f "$DEST.vars" ]; then
+    [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+    cp "$AAVMF/$VARS" "$DEST.vars"
+  fi
+  
+  if [[ "${BOOT_MODE,,}" != "uefi" ]]; then
+    SECURE=",smm=on"
+    BOOT_OPTS="$BOOT_OPTS -global driver=cfi.pflash01,property=secure,value=on"
+  fi
+  
+  BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
+  BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
 
 fi
-
-AAVMF="/usr/share/AAVMF/"
-DEST="$STORAGE/${BOOT_MODE,,}"
-
-if [ ! -f "$DEST.rom" ]; then
-  [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
-  cp "$AAVMF/$ROM" "$DEST.rom"
-fi
-
-if [ ! -f "$DEST.vars" ]; then
-  [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
-  cp "$AAVMF/$VARS" "$DEST.vars"
-fi
-
-if [[ "${BOOT_MODE,,}" != "uefi" ]]; then
-  SECURE=",smm=on"
-  BOOT_OPTS="$BOOT_OPTS -global driver=cfi.pflash01,property=secure,value=on"
-fi
-
-BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
-BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
 
 if [[ "${BOOT_MODE,,}" == "windows" ]]; then
 
