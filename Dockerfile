@@ -17,6 +17,7 @@ RUN apt-get update \
         apt-utils \
         dnsmasq \
         net-tools \
+        qemu-efi \
         qemu-utils \
         ca-certificates \
         netcat-openbsd \
