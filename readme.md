@@ -209,6 +209,10 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
 
   To skip the download, rename your image to `boot.iso` and place it in an empty `/storage` folder.
 
+* ### How do I boot a x86 image?
+
+  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
+
 * ### How do I provide custom arguments to QEMU?
 
   You can create the `ARGUMENTS` environment variable to provide additional arguments to QEMU at runtime:
@@ -217,10 +221,6 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
   environment:
     ARGUMENTS: "-device usb-tablet"
   ```
-
-* ### How do I run a x86 or x64 machine?
-
-  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 machines on ARM. 
 
 [build_url]: https://github.com/qemus/qemu-arm/
 [hub_url]: https://hub.docker.com/r/qemux/qemu-arm/
