@@ -8,9 +8,7 @@ RUN apt-get update \
     && apt-get --no-install-recommends -y install \
         tini \
         wget \
-        ovmf \
         nginx \
-        swtpm \
         procps \
         iptables \
         iproute2 \
