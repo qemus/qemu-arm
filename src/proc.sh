@@ -51,7 +51,7 @@ else
     if [[ "$ARCH" == "arm"* ]]; then
       CPU_MODEL="max"
     else
-      CPU_MODEL="cortex-a76"
+      CPU_MODEL="cortex-a57"
     fi
 
   fi
