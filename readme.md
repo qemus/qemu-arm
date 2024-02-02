@@ -97,6 +97,19 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
 
   Replace the example path `/var/qemu` with the desired storage folder.
 
+* ### How do I boot a local image?
+
+  To skip the download, rename your image to `boot.iso` and place it in an empty `/storage` folder.
+
+* ### How do I boot with UEFI?
+
+  To enable UEFI booting, add the following line to your compose file:
+
+  ```yaml
+  environment:
+    BOOT_MODE: "uefi"
+  ```
+
 * ### How do I boot Windows?
 
   To enable Windows booting, add the following line to your compose file:
@@ -108,16 +121,9 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
 
   But you might want to give [dockur/windows](https://github.com/dockur/windows) a try instead, as it includes all the drivers required during installation and many other features.
 
-* ### How do I verify if my system supports KVM?
+* ### How do I boot a x86 image?
 
-  To verify if your system supports KVM, run the following commands:
-
-  ```bash
-  sudo apt install cpu-checker
-  sudo kvm-ok
-  ```
-
-  If you receive an error from `kvm-ok` indicating that KVM acceleration can't be used, check the virtualization settings in the BIOS.
+  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
 
 * ### How do I assign an individual IP address to the container?
 
@@ -196,22 +202,16 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
     - /dev/bus/usb
   ```
 
-* ### How do I boot with UEFI?
+* ### How do I verify if my system supports KVM?
 
-  To enable UEFI booting, add the following line to your compose file:
+  To verify if your system supports KVM, run the following commands:
 
-  ```yaml
-  environment:
-    BOOT_MODE: "uefi"
+  ```bash
+  sudo apt install cpu-checker
+  sudo kvm-ok
   ```
 
-* ### How do I boot a local image?
-
-  To skip the download, rename your image to `boot.iso` and place it in an empty `/storage` folder.
-
-* ### How do I boot a x86 image?
-
-  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
+  If you receive an error from `kvm-ok` indicating that KVM acceleration can't be used, check the virtualization settings in the BIOS.
 
 * ### How do I provide custom arguments to QEMU?
 
