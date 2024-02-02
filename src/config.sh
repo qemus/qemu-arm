@@ -8,7 +8,7 @@ set -Eeuo pipefail
 DEF_OPTS="-nodefaults"
 SERIAL_OPTS="-serial $SERIAL"
 MON_OPTS="-monitor $MONITOR"
-USB_OPTS="-device $USB -device usb-tablet"
+USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
 RAM_OPTS=$(echo "-m $RAM_SIZE" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 CPU_OPTS="-cpu $CPU_FLAGS -smp $CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"
 MAC_OPTS="-machine type=${MACHINE}${SECURE},graphics=off,dump-guest-core=off,${KVM_OPTS}"
