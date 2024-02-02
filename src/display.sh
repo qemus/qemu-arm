@@ -3,8 +3,8 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
+: "${VGA:="VGA"}"               # Adaptor
 : "${DISPLAY:="web"}"           # Display
-: "${VGA:="virtio-gpu"}"        # GPU model
 
 case "${DISPLAY,,}" in
   vnc)
