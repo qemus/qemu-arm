@@ -8,11 +8,14 @@ set -Eeuo pipefail
 
 case "${DISPLAY,,}" in
   vnc)
-    DISPLAY_OPTS="-display vnc=:0 -device $VGA"
+    DISPLAY_OPTS="-display vnc=:0 -device virto-gpu"
     ;;
   web)
-    DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device $VGA"
+    DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device virto-gpu"
     ;;
+  boot)
+    DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device ramfb"
+    ;;    
   none)
     DISPLAY_OPTS="-display none"
     ;;
