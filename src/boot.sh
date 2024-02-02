@@ -2,13 +2,11 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${TPM:="Y"}"                 # Enable TPM
 : "${BIOS:=""}"                 # Bios file
 : "${BOOT_MODE:="uefi"}"        # Boot mode
 
-SECURE=""
+BOOT_OPTS=""
 DIR="/usr/share/qemu"
-BOOT_OPTS="-device ramfb"
 
 case "${BOOT_MODE,,}" in
   uefi)
@@ -51,50 +49,7 @@ if [ ! -f "$DEST.vars" ]; then
   cp "$AAVMF/$VARS" "$DEST.vars"
 fi
 
-if [[ "${BOOT_MODE,,}" != "uefi" ]]; then
-  SECURE=",smm=on"
-  BOOT_OPTS="$BOOT_OPTS -global driver=cfi.pflash01,property=secure,value=on"
-fi
-
 BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
 BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
-
-if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-
-  BOOT_OPTS="$BOOT_OPTS -global kvm-pit.lost_tick_policy=discard -global ICH9-LPC.disable_s3=1"
-
-  if [[ "$TPM" == [Yy1]* ]]; then
-
-    rm -rf /run/shm/tpm
-    rm -f /var/run/tpm.pid
-    mkdir -p /run/shm/tpm
-    chmod 755 /run/shm/tpm
-
-    if ! swtpm socket -t -d --tpmstate dir=/run/shm/tpm --ctrl type=unixio,path=/run/swtpm-sock --pid file=/var/run/tpm.pid --tpm2; then
-      error "Failed to start TPM emulator, reason: $?" && exit 19
-    fi
-
-    for (( i = 1; i < 20; i++ )); do
-
-      [ -S "/run/swtpm-sock" ] && break
-
-      if (( i % 10 == 0 )); then
-        echo "Waiting for TPM socket to become available..."
-      fi
-
-      sleep 0.1
-
-    done
-
-    if [ ! -S "/run/swtpm-sock" ]; then
-      TPM="N"
-      error "TPM socket not found? Disabling TPM support..."
-    else
-      BOOT_OPTS="$BOOT_OPTS -chardev socket,id=chrtpm,path=/run/swtpm-sock"
-      BOOT_OPTS="$BOOT_OPTS -tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0"
-    fi
-
-  fi
-fi
 
 return 0

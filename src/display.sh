@@ -3,8 +3,8 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
-: "${DISPLAY:="web"}"           # Display
-: "${VGA:="virtio-gpu"}"        # GPU model
+: "${DISPLAY:="web"}"       # Display type
+: "${VGA:="virtio-gpu"}"    # VGA adaptor
 
 case "${DISPLAY,,}" in
   vnc)
@@ -13,6 +13,9 @@ case "${DISPLAY,,}" in
   web)
     DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device $VGA"
     ;;
+  ramfb)
+    DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device ramfb"
+    ;;    
   none)
     DISPLAY_OPTS="-display none"
     ;;
