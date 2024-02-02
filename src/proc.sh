@@ -35,7 +35,7 @@ if [[ "$KVM" != [Nn]* ]]; then
   CPU_FEATURES="kvm=on"
   KVM_OPTS=",accel=kvm,virtualization=true -enable-kvm"
 
-  if [[ "${BOOT_MODE,,}" == "windows" ]] || [[ "${BOOT_MODE,,}" == "windows_legacy" ]]; then
+  if [[ "${BOOT_MODE,,}" == "windows" ]]; then
 
     CPU_FEATURES="kvm=on,+hypervisor,+invtsc,l3-cache=on,migratable=no,hv_passthrough"
 
