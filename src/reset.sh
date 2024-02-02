@@ -25,6 +25,7 @@ echo
 : "${RAM_SIZE:="1G"}"     # Maximum RAM amount
 : "${DISK_SIZE:="16G"}"   # Initial data disk size
 : "${BOOT_INDEX:="10"}"   # Boot index of CD drive
+: "${BOOT_MODE:="uefi"}" # Boot in UEFI mode
 
 # Helper variables
 

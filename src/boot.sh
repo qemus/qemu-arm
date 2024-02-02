@@ -3,7 +3,6 @@ set -Eeuo pipefail
 
 # Docker environment variables
 : "${BIOS:=""}"                 # Bios file
-: "${BOOT_MODE:="uefi"}"        # Boot mode
 
 BOOT_OPTS=""
 DIR="/usr/share/qemu"

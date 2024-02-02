@@ -7,7 +7,7 @@ set -Eeuo pipefail
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:="host"}"
 
-[[ "$ARCH" != "arm"* ]] && KVM="N"
+[[ "$ARCH" != "arm64" ]] && KVM="N"
 
 if [[ "$KVM" != [Nn]* ]]; then
 

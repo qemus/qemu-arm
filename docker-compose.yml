@@ -2,7 +2,7 @@ version: "3"
 services:
   qemu:
     container_name: qemu
-    image: qemux/qemu-docker
+    image: qemux/qemu-arm
     environment:
       RAM_SIZE: "1G"
       CPU_CORES: "1"
