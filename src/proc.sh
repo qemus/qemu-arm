@@ -52,13 +52,6 @@ else
   fi
 fi
 
-if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-
-  [ -n "$CPU_FEATURES" ] && CPU_FEATURES="$CPU_FEATURES,"
-  CPU_FEATURES="${CPU_FEATURES}l3-cache=on,migratable=no,hv_passthrough"
-
-fi
-
 if [ -z "$CPU_FLAGS" ]; then
   if [ -z "$CPU_FEATURES" ]; then
     CPU_FLAGS="$CPU_MODEL"
