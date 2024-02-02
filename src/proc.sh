@@ -33,7 +33,7 @@ fi
 if [[ "$KVM" != [Nn]* ]]; then
 
   CPU_FEATURES="kvm=on"
-  KVM_OPTS=",accel=kvm,virtualization=true -enable-kvm"
+  KVM_OPTS=",accel=kvm -enable-kvm"
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
 
@@ -51,7 +51,7 @@ else
     if [[ "$ARCH" == "arm"* ]]; then
       CPU_MODEL="max"
     else
-      CPU_MODEL="cortex-a76"
+      CPU_MODEL="cortex-a57"
     fi
 
   fi
