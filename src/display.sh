@@ -4,7 +4,7 @@ set -Eeuo pipefail
 # Docker environment variables
 
 : "${GPU:="N"}"         # GPU passthrough
-: "${VGA:="virtio"}"    # VGA adaptor
+: "${VGA:="std"}"    # VGA adaptor
 : "${DISPLAY:="web"}"   # Display type
 
 case "${DISPLAY,,}" in
