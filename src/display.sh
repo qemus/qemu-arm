@@ -6,6 +6,10 @@ set -Eeuo pipefail
 : "${DISPLAY:="web"}"       # Display type
 : "${VGA:="virtio-gpu"}"    # VGA adaptor
 
+if [[ "${BOOT_MODE,,}" == "windows" ]]; then
+  [[ "$VGA"" == "virtio-gpu" ]] && VGA="VGA"
+fi
+
 case "${DISPLAY,,}" in
   vnc)
     DISPLAY_OPTS="-display vnc=:0 -device $VGA"
