@@ -7,7 +7,7 @@ set -Eeuo pipefail
 : "${VGA:="virtio-gpu"}"    # VGA adaptor
 
 if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-  [[ "$VGA" == "virtio-gpu" ]] && VGA="VGA"
+  [[ "$VGA" == "virtio-gpu" ]] && VGA="ramfb"
 fi
 
 case "${DISPLAY,,}" in
