@@ -4,34 +4,30 @@ set -Eeuo pipefail
 # Docker environment variables
 : "${TPM:="Y"}"         # Enable TPM
 : "${BOOT_MODE:="legacy"}"  # Boot mode
+: "${BIOS:="QEMU,VGA.bin"}" # Bios file
 
 SECURE=""
-BOOT_OPTS=""
-BIOS="QEMU,VGA.bin"
 DIR="/usr/share/qemu"
+BOOT_OPTS="-device ramfb"
 
 case "${BOOT_MODE,,}" in
   uefi)
-    BIOS="QEMU,VGA.bin"
     ROM="AAVMF_CODE.fd"
     VARS="AAVMF_VARS.fd"
     ;;
   secure)
-    BIOS="QEMU,VGA.bin"
     ROM="AAVMF_CODE.fd"
     VARS="AAVMF_VARS.fd"
     ;;
   windows)
-    BIOS="QEMU,VGA.bin"
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     ;;
   windows_legacy)
     USB="usb-ehci,id=ehci"
-    BOOT_OPTS=""
     ;;
   legacy)
-    BOOT_OPTS=""
+    SECURE=""
     ;;
   *)
     info "Unknown boot mode '${BOOT_MODE}', defaulting to 'legacy'"
@@ -39,10 +35,11 @@ case "${BOOT_MODE,,}" in
     ;;
 esac
 
-BOOT_OPTS="$BOOT_OPTS -device ramfb"
-[ -n "$BIOS" ] && BOOT_OPTS="$BOOT_OPTS -bios $DIR/$BIOS"
+if [[ "${BOOT_MODE,,}" == "legacy" ]] || [[ "${BOOT_MODE,,}" == "windows_legacy" ]]; then
 
-if [[ "${BOOT_MODE,,}" != "legacy" ]] && [[ "${BOOT_MODE,,}" != "windows_legacy" ]]; then
+  BOOT_OPTS="$BOOT_OPTS -bios $DIR/$BIOS"
+
+else
 
   AAVMF="/usr/share/AAVMF/"
   DEST="$STORAGE/${BOOT_MODE,,}"
