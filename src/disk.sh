@@ -27,8 +27,7 @@ DRIVERS="$STORAGE/drivers.iso"
 [ ! -f "$DRIVERS" ] && DRIVERS="/run/drivers.iso"
 
 if [ -f "$DRIVERS" ] && [[ "${MACHINE,,}" != "pc-q35-2"* ]]; then
-  DISK_OPTS="$DISK_OPTS -drive id=cdrom1,media=cdrom,if=none,format=raw,readonly=on,file=$DRIVERS"
-  DISK_OPTS="$DISK_OPTS -device ide-cd,drive=cdrom1"
+  DISK_OPTS="$DISK_OPTS -drive id=cdrom1,media=cdrom,if=virtio,format=raw,readonly=on,file=$DRIVERS"
 fi
 
 fmt2ext() {
