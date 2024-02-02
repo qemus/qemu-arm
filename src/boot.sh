@@ -27,7 +27,7 @@ case "${BOOT_MODE,,}" in
     VARS="AAVMF_VARS.ms.fd"
     ;;
   windows_legacy)
-    USB="usb-ehci,id=ehci"   
+    USB="usb-ehci,id=ehci"
     BOOT_OPTS=""
     ;;
   legacy)
@@ -35,7 +35,7 @@ case "${BOOT_MODE,,}" in
     ;;
   *)
     info "Unknown boot mode '${BOOT_MODE}', defaulting to 'legacy'"
-    BOOT_MODE="legacy"    
+    BOOT_MODE="legacy"
     ;;
 esac
 
