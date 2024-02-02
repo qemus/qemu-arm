@@ -15,7 +15,7 @@ case "${DISPLAY,,}" in
     ;;
   ramfb)
     DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device ramfb"
-    ;;    
+    ;;
   none)
     DISPLAY_OPTS="-display none"
     ;;
