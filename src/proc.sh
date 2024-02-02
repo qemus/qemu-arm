@@ -37,7 +37,7 @@ if [[ "$KVM" != [Nn]* ]]; then
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
 
-    CPU_FEATURES="kvm=on,+hypervisor,+invtsc,l3-cache=on,migratable=no,hv_passthrough"
+    CPU_FEATURES="$CPU_FEATURES,+hypervisor,+invtsc,l3-cache=on,migratable=no,hv_passthrough"
 
   fi
 
@@ -45,7 +45,6 @@ else
 
   KVM_OPTS=""
   CPU_FEATURES=""
-  MACHINE="$MACHINE,virtualization=on"
 
   if [[ "${CPU_MODEL,,}" == "host"* ]]; then
 
