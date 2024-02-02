@@ -5,29 +5,28 @@ set -Eeuo pipefail
 : "${TPM:="Y"}"         # Enable TPM
 : "${BOOT_MODE:="legacy"}"  # Boot mode
 
-BIOS=""
 SECURE=""
 BOOT_OPTS=""
+BIOS="QEMU,VGA.bin"
 DIR="/usr/share/qemu"
 
 case "${BOOT_MODE,,}" in
   uefi)
-    ROM="OVMF.fd"
     BIOS="QEMU,VGA.bin"
-    VARS="OVMF_VARS_4M.fd"
+    ROM="AAVMF_CODE.fd"
+    VARS="AAVMF_VARS.fd"
     ;;
   secure)
-    ROM="OVMF.fd"
     BIOS="QEMU,VGA.bin"
-    VARS="OVMF_VARS_4M.secboot.fd"
+    ROM="AAVMF_CODE.fd"
+    VARS="AAVMF_VARS.fd"
     ;;
   windows)
-    ROM="OVMF.fd"
     BIOS="QEMU,VGA.bin"
-    VARS="OVMF_VARS_4M.ms.fd"
+    ROM="AAVMF_CODE.ms.fd"
+    VARS="AAVMF_VARS.ms.fd"
     ;;
   windows_legacy)
-    BIOS="QEMU,VGA.bin"
     USB="usb-ehci,id=ehci"   
     BOOT_OPTS=""
     ;;
@@ -45,17 +44,17 @@ BOOT_OPTS="$BOOT_OPTS -device ramfb"
 
 if [[ "${BOOT_MODE,,}" != "legacy" ]] && [[ "${BOOT_MODE,,}" != "windows_legacy" ]]; then
 
-  OVMF="/usr/share/OVMF"
+  AAVMF="/usr/share/AAVMF/"
   DEST="$STORAGE/${BOOT_MODE,,}"
 
   if [ ! -f "$DEST.rom" ]; then
-    [ ! -f "$DIR/$ROM" ] && error "UEFI boot file ($DIR/$ROM) not found!" && exit 44
-    cp "$DIR/$ROM" "$DEST.rom"
+    [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
+    cp "$AAVMF/$ROM" "$DEST.rom"
   fi
 
   if [ ! -f "$DEST.vars" ]; then
-    [ ! -f "$OVMF/$VARS" ] && error "UEFI vars file ($OVMF/$VARS) not found!" && exit 45
-    cp "$OVMF/$VARS" "$DEST.vars"
+    [ ! -f "$AAVVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+    cp "$AAVMF/$VARS" "$DEST.vars"
   fi
 
   if [[ "${BOOT_MODE,,}" != "uefi" ]]; then
