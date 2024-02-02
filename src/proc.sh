@@ -33,7 +33,7 @@ fi
 if [[ "$KVM" != [Nn]* ]]; then
 
   CPU_FEATURES="kvm=on"
-  KVM_OPTS=",accel=kvm,virtualization=true -enable-kvm"
+  KVM_OPTS=",accel=kvm -enable-kvm"
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
 
