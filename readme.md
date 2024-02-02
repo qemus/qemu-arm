@@ -218,6 +218,10 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
     ARGUMENTS: "-device usb-tablet"
   ```
 
+* ### How do I run a AMD64 machine?
+
+  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run AMD64 machines on ARM. 
+
 [build_url]: https://github.com/qemus/qemu-arm/
 [hub_url]: https://hub.docker.com/r/qemux/qemu-arm/
 [tag_url]: https://hub.docker.com/r/qemux/qemu-arm/tags
