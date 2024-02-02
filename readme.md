@@ -1,4 +1,4 @@
-<h1 align="center">QEMU ARM<br />
+<h1 align="center">Qemu ARM<br />
 <div align="center">
 <img src="https://github.com/qemus/qemu-arm/raw/master/.github/logo.png" title="Logo" style="max-width:100%;" width="128" />
 </div>
