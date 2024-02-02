@@ -2,9 +2,9 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${TPM:="Y"}"         # Enable TPM
-: "${BIOS:=""}"        # Bios file
-: "${BOOT_MODE:="uefi"}"  # Boot mode
+: "${TPM:="Y"}"                 # Enable TPM
+: "${BIOS:=""}"                 # Bios file
+: "${BOOT_MODE:="uefi"}"        # Boot mode
 
 SECURE=""
 DIR="/usr/share/qemu"
@@ -27,15 +27,15 @@ case "${BOOT_MODE,,}" in
     info "Unknown boot mode '${BOOT_MODE}', defaulting to 'uefi'"
     BOOT_MODE="uefi"
     ROM="AAVMF_CODE.fd"
-    VARS="AAVMF_VARS.fd"    
+    VARS="AAVMF_VARS.fd"
     ;;
 esac
 
-if [ -n "$BIOS"]; then
+if [ -n "$BIOS" ]; then
 
   BOOT_OPTS="$BOOT_OPTS -bios $DIR/$BIOS"
   return 0
-  
+
 fi
 
 AAVMF="/usr/share/AAVMF/"
