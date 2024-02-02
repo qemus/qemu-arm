@@ -15,19 +15,14 @@ BOOT="$STORAGE/$BASE"
 
 DISK_OPTS="-object iothread,id=io2"
 DISK_OPTS="$DISK_OPTS -drive id=cdrom0,media=cdrom,if=none,format=raw,readonly=on,file=$BOOT"
-
-if [[ "${MACHINE,,}" != "pc-q35-2"* ]]; then
-  DISK_OPTS="$DISK_OPTS -device virtio-scsi-pci,id=scsi0,iothread=io2,addr=0x5"
-  DISK_OPTS="$DISK_OPTS -device scsi-cd,bus=scsi0.0,drive=cdrom0,bootindex=$BOOT_INDEX"
-else
-  DISK_OPTS="$DISK_OPTS -device ide-cd,drive=cdrom0,bootindex=$BOOT_INDEX"
-fi
+DISK_OPTS="$DISK_OPTS -device virtio-scsi-pci,id=scsi0,iothread=io2,addr=0x5"
+DISK_OPTS="$DISK_OPTS -device scsi-cd,bus=scsi0.0,drive=cdrom0,bootindex=$BOOT_INDEX"
 
 DRIVERS="$STORAGE/drivers.iso"
 [ ! -f "$DRIVERS" ] && DRIVERS="/run/drivers.iso"
 
-if [ -f "$DRIVERS" ] && [[ "${MACHINE,,}" != "pc-q35-2"* ]]; then
-  DISK_OPTS="$DISK_OPTS -drive id=cdrom1,media=cdrom,if=virtio,format=raw,readonly=on,file=$DRIVERS"
+if [ -f "$DRIVERS" ]; then
+  DISK_OPTS="$DISK_OPTS -drive id=cdrom1,media=cdrom,if=none,format=raw,readonly=on,file=$DRIVERS -device usb-storage,drive=cdrom1"
 fi
 
 fmt2ext() {
@@ -356,17 +351,9 @@ createDevice () {
 
   local result="-drive file=$DISK_FILE,if=none,id=drive-$DISK_ID,format=$DISK_FMT,cache=$DISK_CACHE,aio=$DISK_IO,discard=$DISK_DISCARD,detect-zeroes=on"
 
-  if [[ "${MACHINE,,}" == "pc-q35-2"* ]]; then
-
-    result="$result -device virtio-blk-pci,scsi=off,bus=pcie.0,addr=$DISK_ADDRESS,drive=drive-$DISK_ID,id=$DISK_ID,iothread=io2,bootindex=$DISK_INDEX"
-
-  else
-
-    result="$result \
-      -device virtio-scsi-pci,id=hw-$DISK_ID,iothread=io2,bus=pcie.0,addr=$DISK_ADDRESS \
-      -device scsi-hd,bus=hw-$DISK_ID.0,channel=0,scsi-id=0,lun=0,drive=drive-$DISK_ID,id=$DISK_ID,rotation_rate=$DISK_ROTATION,bootindex=$DISK_INDEX"
-
-  fi
+  result="$result \
+    -device virtio-scsi-pci,id=hw-$DISK_ID,iothread=io2,bus=pcie.0,addr=$DISK_ADDRESS \
+    -device scsi-hd,bus=hw-$DISK_ID.0,channel=0,scsi-id=0,lun=0,drive=drive-$DISK_ID,id=$DISK_ID,rotation_rate=$DISK_ROTATION,bootindex=$DISK_INDEX"
 
   echo "$result"
   return 0
