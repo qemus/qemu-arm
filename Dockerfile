@@ -9,7 +9,6 @@ RUN apt-get update \
         tini \
         wget \
         nginx \
-        swtpm \
         procps \
         seabios \        
         iptables \
