@@ -12,6 +12,7 @@ RUN apt-get update \
         nginx \
         swtpm \
         procps \
+        seabios \        
         iptables \
         iproute2 \
         apt-utils \
