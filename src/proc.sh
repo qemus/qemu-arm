@@ -8,7 +8,7 @@ set -Eeuo pipefail
 : "${CPU_MODEL:="host"}"
 : "${MODEL:="cortex-a53"}"
 
-[[ "$ARCH" != "arm64" ]] && KVM="N"
+[[ "$ARCH" != "arm"* ]] && KVM="N"
 
 if [[ "$KVM" != [Nn]* ]]; then
 
@@ -54,7 +54,7 @@ else
 
   if [[ "${CPU_MODEL,,}" == "host"* ]]; then
 
-    if [[ "$ARCH" == "arm64" ]]; then
+    if [[ "$ARCH" == "arm"* ]]; then
       CPU_MODEL="max"
     else
       CPU_MODEL="$MODEL"
