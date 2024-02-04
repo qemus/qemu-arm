@@ -39,9 +39,9 @@ if [[ "$KVM" != [Nn]* ]]; then
 
 else
 
-  KVM_OPTS=""
   CPU_FEATURES=""
   WIN_FEATURES=""
+  KVM_OPTS=" -accel tcg,thread=multi"
 
   if [[ "$ARCH" == "arm"* ]]; then
     CPU_MODEL="max"
