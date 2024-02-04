@@ -33,20 +33,13 @@ fi
 
 if [[ "$KVM" != [Nn]* ]]; then
 
-  CPU_FEATURES="kvm=on"
   KVM_OPTS=",accel=kvm -enable-kvm"
-  
-  if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-
-    [ -n "$CPU_FEATURES" ] && CPU_FEATURES="$CPU_FEATURES,"
-    CPU_FEATURES="$CPU_FEATURES+hypervisor,+invtsc,l3-cache=on,migratable=no,hv_passthrough"
-
-  fi
+  CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
+  WIN_FEATURES="+hypervisor,+invtsc,migratable=no,hv_passthrough"
 
 else
 
   KVM_OPTS=""
-  CPU_FEATURES=""
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
     MACHINE="$MACHINE,virtualization=on"
@@ -54,13 +47,24 @@ else
 
   if [[ "${CPU_MODEL,,}" == "host"* ]]; then
 
-    if [[ "$ARCH" == "arm"* ]]; then
-      CPU_MODEL="max"
-    else
+    if [[ "$ARCH" != "arm"* ]]; then
       CPU_MODEL="$MODEL"
+      CPU_FEATURES="l3-cache=on"
+      WIN_FEATURES="+hypervisor,hv_passthrough"
+    else
+      CPU_MODEL="max"
+      CPU_FEATURES="l3-cache=on,migratable=no"
+      WIN_FEATURES="+hypervisor,hv_passthrough"
     fi
 
   fi
+fi
+
+if [[ "${BOOT_MODE,,}" == "windows" ]]; then
+
+  [ -n "$CPU_FEATURES" ] && CPU_FEATURES="$CPU_FEATURES,"
+  CPU_FEATURES="$CPU_FEATURES${WIN_FEATURES}"
+
 fi
 
 if [ -z "$CPU_FLAGS" ]; then
