@@ -34,8 +34,10 @@ if [[ "$KVM" != [Nn]* ]]; then
 
   CPU_MODEL="host"
   KVM_OPTS=",accel=kvm -enable-kvm"
-  CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
-  WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
+  CPU_FEATURES="kvm=on,migratable=no"
+  WIN_FEATURES=""
+  #CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
+  #WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
 
 else
 
