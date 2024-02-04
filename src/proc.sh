@@ -40,12 +40,12 @@ if [[ "$KVM" != [Nn]* ]]; then
 else
 
   KVM_OPTS=""
+  CPU_FEATURES=""
   WIN_FEATURES=""
-  CPU_FEATURES="l3-cache=on"
 
   if [[ "$ARCH" == "arm"* ]]; then
     CPU_MODEL="max"
-    CPU_FEATURES="$CPU_FEATURES,migratable=no"
+    CPU_FEATURES="migratable=no"
   fi
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
