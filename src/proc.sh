@@ -40,8 +40,8 @@ if [[ "$KVM" != [Nn]* ]]; then
 else
 
   KVM_OPTS=""
+  WIN_FEATURES=""
   CPU_FEATURES="l3-cache=on"
-  WIN_FEATURES="+hypervisor,hv_passthrough"
 
   if [[ "$ARCH" == "arm"* ]]; then
     CPU_MODEL="max"
