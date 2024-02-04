@@ -34,18 +34,20 @@ if [[ "$KVM" != [Nn]* ]]; then
 
   CPU_MODEL="host"
   KVM_OPTS=",accel=kvm -enable-kvm"
-  CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
-  WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
+  CPU_FEATURES="kvm=on,migratable=no"
+  WIN_FEATURES=""
+  #CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
+  #WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
 
 else
 
-  KVM_OPTS=""
-  CPU_FEATURES="l3-cache=on"
-  WIN_FEATURES="+hypervisor,hv_passthrough"
+  CPU_FEATURES=""
+  WIN_FEATURES=""
+  KVM_OPTS=" -accel tcg,thread=multi"
 
   if [[ "$ARCH" == "arm"* ]]; then
     CPU_MODEL="max"
-    CPU_FEATURES="$CPU_FEATURES,migratable=no"
+    CPU_FEATURES="migratable=no"
   fi
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
