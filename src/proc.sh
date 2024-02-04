@@ -39,12 +39,6 @@ if [[ "$KVM" != [Nn]* ]]; then
 
 else
 
-  KVM_OPTS=""
-
-  if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-    MACHINE="$MACHINE,virtualization=on"
-  fi
-
   if [[ "$ARCH" != "arm"* ]]; then
     CPU_FEATURES="l3-cache=on"
   else
@@ -52,7 +46,12 @@ else
     CPU_FEATURES="l3-cache=on,migratable=no"
   fi
 
+  KVM_OPTS=""
   WIN_FEATURES="+hypervisor,hv_passthrough"
+
+  if [[ "${BOOT_MODE,,}" == "windows" ]]; then
+    MACHINE="$MACHINE,virtualization=on"
+  fi
 
 fi
 
