@@ -5,8 +5,7 @@ set -Eeuo pipefail
 
 : "${KVM:="Y"}"
 : "${CPU_FLAGS:=""}"
-: "${CPU_MODEL:="host"}"
-: "${MODEL:="cortex-a53"}"
+: "${CPU_MODEL:="cortex-a53"}"
 
 [[ "$ARCH" != "arm"* ]] && KVM="N"
 
@@ -33,6 +32,7 @@ fi
 
 if [[ "$KVM" != [Nn]* ]]; then
 
+  CPU_MODEL="host"
   KVM_OPTS=",accel=kvm -enable-kvm"
   CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
   WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
@@ -45,19 +45,15 @@ else
     MACHINE="$MACHINE,virtualization=on"
   fi
 
-  if [[ "${CPU_MODEL,,}" == "host"* ]]; then
-
-    if [[ "$ARCH" != "arm"* ]]; then
-      CPU_MODEL="$MODEL"
-      CPU_FEATURES="l3-cache=on"
-      WIN_FEATURES="+hypervisor,hv_passthrough"
-    else
-      CPU_MODEL="max"
-      CPU_FEATURES="l3-cache=on,migratable=no"
-      WIN_FEATURES="+hypervisor,hv_passthrough"
-    fi
-
+  if [[ "$ARCH" != "arm"* ]]; then
+    CPU_FEATURES="l3-cache=on"
+  else
+    CPU_MODEL="max"
+    CPU_FEATURES="l3-cache=on,migratable=no"
   fi
+
+  WIN_FEATURES="+hypervisor,hv_passthrough"
+
 fi
 
 if [[ "${BOOT_MODE,,}" == "windows" ]]; then
