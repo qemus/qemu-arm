@@ -47,7 +47,6 @@ else
 
   if [[ "$ARCH" == "arm"* ]]; then
     CPU_MODEL="max"
-    CPU_FEATURES="migratable=no"
   fi
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
