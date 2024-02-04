@@ -35,7 +35,7 @@ if [[ "$KVM" != [Nn]* ]]; then
 
   KVM_OPTS=",accel=kvm -enable-kvm"
   CPU_FEATURES="kvm=on,l3-cache=on,migratable=no"
-  WIN_FEATURES="+hypervisor,+invtsc,migratable=no,hv_passthrough"
+  WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
 
 else
 
