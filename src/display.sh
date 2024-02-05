@@ -3,11 +3,13 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
+: "${VGA:=""}"              # VGA adaptor
 : "${DISPLAY:="web"}"       # Display type
-: "${VGA:="virtio-gpu"}"    # VGA adaptor
 
 if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-  [[ "$VGA" == "virtio-gpu" ]] && VGA="ramfb"
+  [ -z "$VGA" ] && VGA="ramfb"
+else
+  [ -z "$VGA" ] && VGA="virtio-gpu"
 fi
 
 case "${DISPLAY,,}" in
