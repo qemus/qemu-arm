@@ -24,7 +24,7 @@ if [[ "$KVM" != [Nn]* ]]; then
 
   if [ -n "$KVM_ERR" ]; then
     KVM="N"
-    error "KVM acceleration not detected $KVM_ERR, this will cause a major loss of performance."
+    error "KVM acceleration not available $KVM_ERR, this will cause a major loss of performance."
     error "See the FAQ on how to enable it, or continue without KVM by setting KVM=N (not recommended)."
     [[ "$DEBUG" != [Yy1]* ]] && exit 88
   fi
