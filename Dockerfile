@@ -39,7 +39,7 @@ ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/img/favicon.s
 ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/nginx.conf /etc/nginx/sites-enabled/web.conf
 
 COPY ./src /run/
-RUN chmod +x /run/*.sh
+RUN chmod +x /run/*.sh && chmod 755 -R /var/www/
 
 VOLUME /storage
 EXPOSE 22 5900 8006
