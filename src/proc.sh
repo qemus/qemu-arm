@@ -47,9 +47,10 @@ if [[ "$KVM" != [Nn]* ]]; then
 
 else
 
+  KVM_OPTS=""
   CPU_FEATURES=""
   WIN_FEATURES=""
-  KVM_OPTS=" -accel tcg,thread=multi"
+  #KVM_OPTS=" -accel tcg,thread=multi"
 
   if [ -z "$CPU_MODEL" ]; then
     if [[ "$ARCH" == "arm"* ]]; then
