@@ -5,8 +5,8 @@ set -Eeuo pipefail
 
 : "${KVM:="Y"}"
 : "${CPU_FLAGS:=""}"
+: "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="cortex-a53"}"
-: "${CPU_MODEL:="$DEF_MODEL"}"
 
 [[ "$ARCH" != "arm"* ]] && KVM="N"
 
@@ -33,7 +33,7 @@ fi
 
 if [[ "$KVM" != [Nn]* ]]; then
 
-  if [[ "$CPU_MODEL" == "$DEF_MODEL" ]]; then
+  if [ -z "$CPU_MODEL" ]; then
     CPU_MODEL="host"
   fi
 
@@ -49,9 +49,11 @@ else
   WIN_FEATURES=""
   KVM_OPTS=" -accel tcg,thread=multi"
 
-  if [[ "$ARCH" == "arm"* ]]; then
-    if [[ "$CPU_MODEL" == "$DEF_MODEL" ]]; then
+  if [ -z "$CPU_MODEL" ]; then
+    if [[ "$ARCH" == "arm"* ]]; then
       CPU_MODEL="max"
+    else
+      CPU_MODEL="$DEF_MODEL"
     fi
   fi
 
