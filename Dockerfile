@@ -32,11 +32,14 @@ RUN apt-get update \
     && sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY ./src /run/
-COPY ./web /var/www/
+ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/index.html /var/www/index.html
+ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/js/script.js /var/www/js/script.js
+ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/css/style.css /var/www/css/style.css
+ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/img/favicon.svg /var/www/img/favicon.svg
+ADD https://raw.githubusercontent.com/qemus/qemu-docker/master/web/nginx.conf /etc/nginx/sites-enabled/web.conf
 
+COPY ./src /run/
 RUN chmod +x /run/*.sh
-RUN mv /var/www/nginx.conf /etc/nginx/sites-enabled/web.conf
 
 VOLUME /storage
 EXPOSE 22 5900 8006
