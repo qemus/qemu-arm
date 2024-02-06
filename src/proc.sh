@@ -34,7 +34,7 @@ fi
 if [[ "$KVM" != [Nn]* ]]; then
 
   WIN_FEATURES=""
-  CPU_FEATURES="kvm=on"
+  CPU_FEATURES=""
   KVM_OPTS=",accel=kvm -enable-kvm -global kvm-pit.lost_tick_policy=discard"
 
   #CPU_FEATURES="kvm=on,l3-cache=on"
