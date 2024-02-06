@@ -33,12 +33,8 @@ fi
 
 if [[ "$KVM" != [Nn]* ]]; then
 
-  WIN_FEATURES=""
   CPU_FEATURES=""
-  KVM_OPTS=",accel=kvm -enable-kvm -global kvm-pit.lost_tick_policy=discard"
-
-  #CPU_FEATURES="kvm=on,l3-cache=on"
-  #WIN_FEATURES="+hypervisor,+invtsc,hv_passthrough"
+  KVM_OPTS=",accel=kvm -enable-kvm"
 
   if [ -z "$CPU_MODEL" ]; then
     CPU_MODEL="host"
@@ -47,7 +43,6 @@ if [[ "$KVM" != [Nn]* ]]; then
 else
 
   CPU_FEATURES=""
-  WIN_FEATURES=""
   KVM_OPTS=" -accel tcg,thread=multi"
 
   if [ -z "$CPU_MODEL" ]; then
@@ -61,13 +56,6 @@ else
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
     MACHINE="$MACHINE,virtualization=on"
   fi
-
-fi
-
-if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-
-  [ -n "$CPU_FEATURES" ] && CPU_FEATURES="$CPU_FEATURES,"
-  CPU_FEATURES="$CPU_FEATURES${WIN_FEATURES}"
 
 fi
 
