@@ -42,7 +42,6 @@ if [[ "$KVM" != [Nn]* ]]; then
 
   if [ -z "$CPU_MODEL" ]; then
     CPU_MODEL="host"
-    CPU_FEATURES="$CPU_FEATURES,migratable=no"
   fi
 
 else
