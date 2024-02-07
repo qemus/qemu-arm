@@ -9,7 +9,7 @@ set -Eeuo pipefail
 if [[ "${BOOT_MODE,,}" != "windows" ]]; then
   [ -z "$VGA" ] && VGA="virtio-gpu"
 else
-  [ -z "$VGA" ] && VGA="ramfb -device virtio-gpu"
+  [ -z "$VGA" ] && VGA="ramfb"
 fi
 
 case "${DISPLAY,,}" in
