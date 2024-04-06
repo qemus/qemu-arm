@@ -23,7 +23,7 @@ It uses high-performance QEMU options (like KVM acceleration, kernel-mode networ
 
 ## Usage
 
-Via `docker-compose.yml`
+Via Docker Compose:
 
 ```yaml
 version: "3"
@@ -43,7 +43,7 @@ services:
     restart: on-failure
 ```
 
-Via `docker run`
+Via Docker CLI:
 
 ```bash
 docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device=/dev/kvm --cap-add NET_ADMIN qemux/qemu-arm
