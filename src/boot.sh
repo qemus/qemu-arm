@@ -5,29 +5,32 @@ set -Eeuo pipefail
 : "${BIOS:=""}"                 # Bios file
 
 BOOT_OPTS=""
+SECURE=",secure=off"
 DIR="/usr/share/qemu"
 
 case "${BOOT_MODE,,}" in
   uefi)
-    ROM="AAVMF_CODE.fd"
+    ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
   secure)
-    ROM="AAVMF_CODE.fd"
+    SECURE=",secure=on"
+    ROM="AAVMF_CODE.secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
   windows)
-    ROM="AAVMF_CODE.ms.fd"
-    VARS="AAVMF_VARS.ms.fd"
+    ROM="AAVMF_CODE.no-secboot.fd"
+    VARS="AAVMF_VARS.fd"
     ;;
   windows_secure)
+    SECURE=",secure=on"
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     ;;
   *)
     info "Unknown boot mode '${BOOT_MODE}', defaulting to 'uefi'"
     BOOT_MODE="uefi"
-    ROM="AAVMF_CODE.fd"
+    ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
 esac
