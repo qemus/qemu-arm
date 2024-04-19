@@ -5,25 +5,32 @@ set -Eeuo pipefail
 : "${BIOS:=""}"                 # Bios file
 
 BOOT_OPTS=""
+SECURE=",secure=off"
 DIR="/usr/share/qemu"
 
 case "${BOOT_MODE,,}" in
   uefi)
-    ROM="AAVMF_CODE.fd"
+    ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
   secure)
-    ROM="AAVMF_CODE.fd"
+    SECURE=",secure=on"
+    ROM="AAVMF_CODE.secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
   windows)
+    ROM="AAVMF_CODE.no-secboot.fd"
+    VARS="AAVMF_VARS.fd"
+    ;;
+  windows_secure)
+    SECURE=",secure=on"
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     ;;
   *)
     info "Unknown boot mode '${BOOT_MODE}', defaulting to 'uefi'"
     BOOT_MODE="uefi"
-    ROM="AAVMF_CODE.fd"
+    ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
 esac
@@ -38,15 +45,15 @@ fi
 AAVMF="/usr/share/AAVMF/"
 DEST="$STORAGE/${BOOT_MODE,,}"
 
-if [ ! -s "$DEST.rom" ]; then
-  [ ! -s "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
+if [ ! -s "$DEST.rom" ] || [ ! -f "$DEST.rom" ]; then
+  [ ! -s "$AAVMF/$ROM" ] || [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
   rm -f "$DEST.rom"
   dd if=/dev/zero "of=$DEST.rom" bs=1M count=64 status=none
   dd "if=$AAVMF/$ROM" "of=$DEST.rom" conv=notrunc status=none
 fi
 
-if [ ! -s "$DEST.vars" ]; then
-  [ ! -s "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
+  [ ! -s "$AAVMF/$VARS" ] || [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
   rm -f "$DEST.vars"
   dd if=/dev/zero "of=$DEST.vars" bs=1M count=64 status=none
   dd "if=$AAVMF/$VARS" "of=$DEST.vars" conv=notrunc status=none
