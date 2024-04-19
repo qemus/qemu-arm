@@ -5,6 +5,7 @@ set -Eeuo pipefail
 : "${BIOS:=""}"                 # Bios file
 
 BOOT_OPTS=""
+BOOT_DESC=""
 SECURE=",secure=off"
 DIR="/usr/share/qemu"
 
@@ -15,6 +16,7 @@ case "${BOOT_MODE,,}" in
     ;;
   secure)
     SECURE=",secure=on"
+    BOOT_DESC=" securely"
     ROM="AAVMF_CODE.secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
@@ -24,6 +26,7 @@ case "${BOOT_MODE,,}" in
     ;;
   windows_secure)
     SECURE=",secure=on"
+    BOOT_DESC=" securely"
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     ;;
