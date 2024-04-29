@@ -37,7 +37,7 @@ configureDHCP() {
 
   if (( rc != 0 )); then
     error "Cannot create macvtap interface. Please make sure the network type is 'macvlan' and not 'ipvlan',"
-    error "and that the NET_ADMIN capability has been added to the container: --cap-add NET_ADMIN" && exit 16
+    error "that your kernel is recent (>4), and that the NET_ADMIN capability has been added to the container." && exit 16
   fi
 
   while ! ip link set "$VM_NET_TAP" up; do
@@ -149,6 +149,9 @@ configureNAT() {
     fi
   fi
 
+  local tables="The 'ip_tables' kernel module is not loaded. Try this command: sudo modprobe ip_tables iptable_nat"
+  local tuntap="The 'tun' kernel module is not available. Try this command: 'sudo modprobe tun' or run the container with 'privileged: true'."
+
   # Create a bridge with a static IP for the VM guest
 
   VM_NET_IP='20.20.20.21'
@@ -167,7 +170,9 @@ configureNAT() {
   done
 
   # QEMU Works with taps, set tap to the bridge created
-  ip tuntap add dev "$VM_NET_TAP" mode tap
+  if ! ip tuntap add dev "$VM_NET_TAP" mode tap; then
+    error "$tuntap" && exit 31
+  fi
 
   while ! ip link set "$VM_NET_TAP" up promisc on; do
     info "Waiting for TAP to become available..."
@@ -182,14 +187,17 @@ configureNAT() {
 
   exclude=$(getPorts "$HOST_PORTS")
 
-  iptables -t nat -A POSTROUTING -o "$VM_NET_DEV" -j MASQUERADE
+  if ! iptables -t nat -A POSTROUTING -o "$VM_NET_DEV" -j MASQUERADE; then
+    error "$tables" && exit 30
+  fi
+
   # shellcheck disable=SC2086
   iptables -t nat -A PREROUTING -i "$VM_NET_DEV" -d "$IP" -p tcp${exclude} -j DNAT --to "$VM_NET_IP"
   iptables -t nat -A PREROUTING -i "$VM_NET_DEV" -d "$IP" -p udp  -j DNAT --to "$VM_NET_IP"
 
   if (( KERNEL > 4 )); then
     # Hack for guest VMs complaining about "bad udp checksums in 5 packets"
-    iptables -A POSTROUTING -t mangle -p udp --dport bootpc -j CHECKSUM --checksum-fill || true
+    iptables -A POSTROUTING -t mangle -p udp --dport bootpc -j CHECKSUM --checksum-fill > /dev/null 2>&1 || true
   fi
 
   NET_OPTS="-netdev tap,ifname=$VM_NET_TAP,script=no,downscript=no,id=hostnet0"
@@ -297,8 +305,8 @@ fi
 
 if [[ "$DHCP" == [Yy1]* ]]; then
 
-  if [[ "$GATEWAY" == "172."* ]] && [[ "$DEBUG" != [Yy1]* ]]; then
-    error "You can only enable DHCP while the container is on a macvlan network!" && exit 26
+  if [[ "$GATEWAY" == "172."* ]]; then
+    warn "your gateway IP starts with 172.* which could be a sign that you are not on a macvlan network (required for DHCP)!"
   fi
 
   # Configuration for DHCP IP
