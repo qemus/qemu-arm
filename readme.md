@@ -1,4 +1,4 @@
-<h1 align="center">Qemu ARM<br />
+<h1 align="center">QEMU ARM64<br />
 <div align="center">
 <a href="https://github.com/qemus/qemu-arm"><img src="https://github.com/qemus/qemu-arm/raw/master/.github/logo.png" title="Logo" style="max-width:100%;" width="128" /></a>
 </div>
@@ -87,10 +87,6 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
   
   This can also be used to resize the existing disk to a larger capacity without any data loss.
 
-* ### How do I boot a x86 image?
-
-  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
-
 * ### How do I boot a local image?
 
   You can use a local file directly, and skip the download altogether, by binding it in your compose file in this way:
@@ -101,6 +97,10 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
   ```
 
   Replace the example path `/home/user/example.iso` with the filename of the desired ISO file.
+
+* ### How do I boot a x86 image?
+
+  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
 
 * ### How do I verify if my system supports KVM?
 
@@ -184,8 +184,8 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
 
   ```yaml
   devices:
-    - /dev/sda:/dev/disk1
-    - /dev/sdb:/dev/disk2
+    - /dev/sdb:/dev/disk1
+    - /dev/sdc:/dev/disk2
   ```
 
   Use `/dev/disk1` if you want it to become your main drive, and use `/dev/disk2` and higher to add them as secondary drives.
