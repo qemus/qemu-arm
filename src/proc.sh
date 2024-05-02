@@ -8,7 +8,7 @@ set -Eeuo pipefail
 : "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="neoverse-n1"}"
 
-[[ "$ARCH" != "arm"* ]] && KVM="N"
+[[ "${ARCH,,}" != "arm"* ]] && KVM="N"
 
 if [[ "$KVM" != [Nn]* ]]; then
 

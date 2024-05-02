@@ -1,4 +1,4 @@
-<h1 align="center">Qemu ARM<br />
+<h1 align="center">QEMU ARM64<br />
 <div align="center">
 <a href="https://github.com/qemus/qemu-arm"><img src="https://github.com/qemus/qemu-arm/raw/master/.github/logo.png" title="Logo" style="max-width:100%;" width="128" /></a>
 </div>
@@ -65,29 +65,6 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
 
   Enjoy your brand new machine, and don't forget to star this repo!
 
-* ### How do I increase the amount of CPU or RAM?
-
-  By default, a single CPU core and 1 GB of RAM are allocated to the container.
-
-  To increase this, add the following environment variables:
-
-  ```yaml
-  environment:
-    RAM_SIZE: "4G"
-    CPU_CORES: "4"
-  ```
-
-* ### How do I change the size of the disk?
-
-  To expand the default size of 16 GB, add the `DISK_SIZE` setting to your compose file and set it to your preferred capacity:
-
-  ```yaml
-  environment:
-    DISK_SIZE: "128G"
-  ```
-  
-  This can also be used to resize the existing disk to a larger capacity without any data loss.
-  
 * ### How do I change the storage location?
 
   To change the storage location, include the following bind mount in your compose file:
@@ -99,13 +76,20 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
 
   Replace the example path `/var/qemu` with the desired storage folder.
 
-* ### How do I boot a x86 image?
+* ### How do I change the size of the disk?
 
-  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
+  To expand the default size of 16 GB, add the `DISK_SIZE` setting to your compose file and set it to your preferred capacity:
+
+  ```yaml
+  environment:
+    DISK_SIZE: "128G"
+  ```
+  
+  This can also be used to resize the existing disk to a larger capacity without any data loss.
 
 * ### How do I boot a local image?
 
-  You can use a local file directly, and skip the download, by binding it in your compose file in this way:
+  You can use a local file directly, and skip the download altogether, by binding it in your compose file in this way:
   
   ```yaml
   volumes:
@@ -114,6 +98,33 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
 
   Replace the example path `/home/user/example.iso` with the filename of the desired ISO file.
 
+* ### How do I boot a x86 image?
+
+  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
+
+* ### How do I verify if my system supports KVM?
+
+  To verify if your system supports KVM, run the following commands:
+
+  ```bash
+  sudo apt install cpu-checker
+  sudo kvm-ok
+  ```
+
+  If you receive an error from `kvm-ok` indicating that KVM acceleration can't be used, check the virtualization settings in the BIOS.
+
+* ### How do I increase the amount of CPU or RAM?
+
+  By default, a single CPU core and 1 GB of RAM are allocated to the container.
+
+  If there arises a need to increase this, add the following environment variables:
+
+  ```yaml
+  environment:
+    RAM_SIZE: "4G"
+    CPU_CORES: "4"
+  ```
+ 
 * ### How do I assign an individual IP address to the container?
 
   By default, the container uses bridge networking, which shares the IP address with the host. 
@@ -172,15 +183,12 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
   It is possible to pass-through disk devices directly by adding them to your compose file in this way:
 
   ```yaml
-  environment:
-    DEVICE: "/dev/sda"
-    DEVICE2: "/dev/sdb"
   devices:
-    - /dev/sda
-    - /dev/sdb
+    - /dev/sdb:/dev/disk1
+    - /dev/sdc:/dev/disk2
   ```
 
-  Use `DEVICE` if you want it to become your main drive, and use `DEVICE2` and higher to add them as secondary drives.
+  Use `/dev/disk1` if you want it to become your main drive, and use `/dev/disk2` and higher to add them as secondary drives.
 
 * ### How do I pass-through a USB device?
 
@@ -193,18 +201,7 @@ docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8
     - /dev/bus/usb
   ```
 
-* ### How do I verify if my system supports KVM?
-
-  To verify if your system supports KVM, run the following commands:
-
-  ```bash
-  sudo apt install cpu-checker
-  sudo kvm-ok
-  ```
-
-  If you receive an error from `kvm-ok` indicating that KVM acceleration can't be used, check the virtualization settings in the BIOS.
-
-* ### How do I provide custom arguments to QEMU?
+* ### How can I provide custom arguments to QEMU?
 
   You can create the `ARGUMENTS` environment variable to provide additional arguments to QEMU at runtime:
 
