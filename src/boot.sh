@@ -23,12 +23,14 @@ case "${BOOT_MODE,,}" in
   windows)
     ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
+    BOOT_OPTS="-rtc base=localtime"
     ;;
   windows_secure)
     SECURE=",secure=on"
     BOOT_DESC=" securely"
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
+    BOOT_OPTS="-rtc base=localtime"
     ;;
   *)
     info "Unknown boot mode '${BOOT_MODE}', defaulting to 'uefi'"
