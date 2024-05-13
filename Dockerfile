@@ -38,10 +38,10 @@ RUN set -eu && \
 
 COPY --chmod=755 ./src /run/
 
-ADD --chmod=644 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/index.html /var/www/index.html
-ADD --chmod=644 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/js/script.js /var/www/js/script.js
-ADD --chmod=644 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/css/style.css /var/www/css/style.css
-ADD --chmod=644 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/img/favicon.svg /var/www/img/favicon.svg
+ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/index.html /var/www/index.html
+ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/js/script.js /var/www/js/script.js
+ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/css/style.css /var/www/css/style.css
+ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/img/favicon.svg /var/www/img/favicon.svg
 ADD --chmod=744 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/nginx.conf /etc/nginx/sites-enabled/web.conf
 
 VOLUME /storage
