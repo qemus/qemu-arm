@@ -1,4 +1,4 @@
-name: "\U0001F41E Bug Report"
+name: "\U0001F41E Bug report"
 description: Create a report to help us improve the container
 title: "[Bug]: "
 labels: ["bug"]
@@ -38,7 +38,7 @@ body:
     id: summary
     attributes:
       label: Description
-      description: A clear and concise description of your issue.
+      description: Describe the expected behaviour, the actual behaviour, and the steps to reproduce.
     validations:
       required: true
   - type: textarea
