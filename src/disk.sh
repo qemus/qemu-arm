@@ -17,7 +17,8 @@ DISK_OPTS="$DISK_OPTS -drive id=cdrom0,media=cdrom,if=none,format=raw,readonly=o
 DISK_OPTS="$DISK_OPTS -device virtio-scsi-pci,id=scsi0,iothread=io2,addr=0x5"
 DISK_OPTS="$DISK_OPTS -device scsi-cd,bus=scsi0.0,drive=cdrom0,bootindex=$BOOT_INDEX"
 
-DRIVERS="$STORAGE/drivers.iso"
+DRIVERS="/drivers.iso"
+[ ! -f "$DRIVERS" ] || [ ! -s "$DRIVERS" ] && DRIVERS="$STORAGE/drivers.iso"
 [ ! -f "$DRIVERS" ] || [ ! -s "$DRIVERS" ] && DRIVERS="/run/drivers.iso"
 
 if [ -f "$DRIVERS" ]; then
@@ -497,6 +498,7 @@ fi
 : "${DEVICE3:=""}"
 : "${DEVICE4:=""}"
 
+[ -z "$DEVICE" ] && [ -b "/disk" ] && DEVICE="/disk"
 [ -z "$DEVICE" ] && [ -b "/disk1" ] && DEVICE="/disk1"
 [ -z "$DEVICE2" ] && [ -b "/disk2" ] && DEVICE2="/disk2"
 [ -z "$DEVICE3" ] && [ -b "/disk3" ] && DEVICE3="/disk3"
