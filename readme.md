@@ -28,7 +28,6 @@ Note: for KVM acceleration you need a Linux-based operating system, as it's not 
 Via Docker Compose:
 
 ```yaml
-version: "3"
 services:
   qemu:
     container_name: qemu
