@@ -41,7 +41,6 @@ services:
     ports:
       - 8006:8006
     stop_grace_period: 2m
-    restart: on-failure
 ```
 
 Via Docker CLI:
