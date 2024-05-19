@@ -57,7 +57,7 @@ else
   KVM_OPTS=" -accel tcg,thread=multi"
 
   if [ -z "$CPU_MODEL" ]; then
-    if [[ "$ARCH" == "arm"* ]]; then
+    if [[ "${ARCH,,}" == "arm64" ]]; then
       CPU_MODEL="max,pauth-impdef=on"
     else
       CPU_MODEL="$DEF_MODEL"
