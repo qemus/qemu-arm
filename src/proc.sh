@@ -8,7 +8,10 @@ set -Eeuo pipefail
 : "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="neoverse-n1"}"
 
-[[ "${ARCH,,}" != "arm"* ]] && KVM="N"
+ if [[ "${ARCH,,}" != "arm64" ]]; then
+  KVM="N"
+  warn "your CPU architecture is ${ARCH} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
+fi
 
 if [[ "$KVM" != [Nn]* ]]; then
 
@@ -54,7 +57,7 @@ else
   KVM_OPTS=" -accel tcg,thread=multi"
 
   if [ -z "$CPU_MODEL" ]; then
-    if [[ "$ARCH" == "arm"* ]]; then
+    if [[ "${ARCH,,}" == "arm64" ]]; then
       CPU_MODEL="max,pauth-impdef=on"
     else
       CPU_MODEL="$DEF_MODEL"
