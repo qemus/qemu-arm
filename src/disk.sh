@@ -395,7 +395,7 @@ addMedia () {
 
   case "${DISK_TYPE,,}" in
     "usb" )
-      result="$result \
+      result="$result,media=cdrom \
       -device usb-storage,drive=${DISK_ID}${index},removable=on"
       ;;
     "ide" )
