@@ -391,20 +391,25 @@ addMedia () {
   local index=""
   local DISK_ID="cdrom$DISK_BUS"
   [ -n "$DISK_INDEX" ] && index=",bootindex=$DISK_INDEX"
-  local result="-drive file=$DISK_FILE,id=$DISK_ID,if=none,format=raw,media=cdrom,readonly=on"
+  local result="-drive file=$DISK_FILE,id=$DISK_ID,if=none,format=raw,readonly=on"
 
   case "${DISK_TYPE,,}" in
     "usb" )
       result="$result \
-      -device usb-storage,drive=${DISK_ID}${index}"
+      -device usb-storage,drive=${DISK_ID}${index},removable=off"
       ;;
-    "ide" | "blk" | "virtio-blk" )
-      result="$result \
+    "ide" )
+      result=",media=cdrom $result \
       -device ide-cd,drive=${DISK_ID},bus=ide.${DISK_BUS}${index}"
       echo "$result"
       ;;
-    "scsi" | "virtio-scsi" )
+    "blk" | "virtio-blk" )
       result="$result \
+      -device virtio-blk-pci,drive=${DISK_ID},scsi=off,bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2${index}"
+      echo "$result"
+      ;;
+    "scsi" | "virtio-scsi" )
+      result=",media=cdrom $result \
       -device virtio-scsi-pci,id=${DISK_ID}b,bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2 \
       -device scsi-cd,drive=${DISK_ID},bus=${DISK_ID}b.0${index}"
       echo "$result"
