@@ -396,10 +396,10 @@ addMedia () {
   case "${DISK_TYPE,,}" in
     "usb" )
       result="$result \
-      -device usb-storage,drive=${DISK_ID}${index},removable=off"
+      -device usb-storage,drive=${DISK_ID}${index},removable=on"
       ;;
     "ide" )
-      result=",media=cdrom $result \
+      result="$result,media=cdrom \
       -device ide-cd,drive=${DISK_ID},bus=ide.${DISK_BUS}${index}"
       echo "$result"
       ;;
@@ -409,7 +409,7 @@ addMedia () {
       echo "$result"
       ;;
     "scsi" | "virtio-scsi" )
-      result=",media=cdrom $result \
+      result="$result,media=cdrom \
       -device virtio-scsi-pci,id=${DISK_ID}b,bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2 \
       -device scsi-cd,drive=${DISK_ID},bus=${DISK_ID}b.0${index}"
       echo "$result"
