@@ -514,7 +514,6 @@ case "${DISK_TYPE,,}" in
   * ) error "Invalid DISK_TYPE, value \"$DISK_TYPE\" is unrecognized!" && exit 80 ;;
 esac
 
-DRIVER_TYPE="usb"
 MEDIA_TYPE="$DISK_TYPE"
 
 if [ -f "$BOOT" ] && [ -s "$BOOT" ]; then
