@@ -19,5 +19,4 @@ trap - ERR
 
 info "Booting image${BOOT_DESC}..."
 
-[[ "$DEBUG" == [Yy1]* ]] && set -x
 exec qemu-system-aarch64 ${ARGS:+ $ARGS}
