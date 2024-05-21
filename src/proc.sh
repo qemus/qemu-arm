@@ -10,7 +10,7 @@ set -Eeuo pipefail
 
  if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
-  warn "your CPU architecture is ${ARCH} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
+  warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
 fi
 
 if [[ "$KVM" != [Nn]* ]]; then
