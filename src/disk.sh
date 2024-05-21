@@ -397,6 +397,7 @@ addMedia () {
     "usb" )
       result="$result,media=cdrom \
       -device usb-storage,drive=${DISK_ID}${index},removable=on"
+      echo "$result"
       ;;
     "ide" )
       result="$result,media=cdrom \
