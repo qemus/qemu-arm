@@ -514,7 +514,16 @@ case "${DISK_TYPE,,}" in
   * ) error "Invalid DISK_TYPE, value \"$DISK_TYPE\" is unrecognized!" && exit 80 ;;
 esac
 
+DRIVER_TYPE="ide"
 MEDIA_TYPE="$DISK_TYPE"
+
+case "${MACHINE,,}" in
+  "virt" )
+    DRIVER_TYPE="usb" ;;
+  "pc-q35-2"* )
+    DISK_TYPE="blk"
+    MEDIA_TYPE="ide" ;;
+esac
 
 if [ -f "$BOOT" ] && [ -s "$BOOT" ]; then
   DISK_OPTS=$(addMedia "$BOOT" "$MEDIA_TYPE" "0" "$BOOT_INDEX" "0x5")
