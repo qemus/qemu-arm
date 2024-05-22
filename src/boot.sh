@@ -6,7 +6,6 @@ set -Eeuo pipefail
 
 BOOT_OPTS=""
 BOOT_DESC=""
-DRIVER_TYPE="usb"
 SECURE=",secure=off"
 DIR="/usr/share/qemu"
 
