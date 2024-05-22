@@ -91,7 +91,7 @@ kubectl apply -f kubernetes.yml
   
   This can also be used to resize the existing disk to a larger capacity without any data loss.
 
-* ### How do I boot a local image?
+* ### How do I boot a local ISO?
 
   You can use a local file directly, and skip the download altogether, by binding it in your compose file in this way:
   
@@ -100,7 +100,20 @@ kubectl apply -f kubernetes.yml
     - /home/user/example.iso:/boot.iso
   ```
 
-  Replace the example path `/home/user/example.iso` with the filename of the desired ISO file.
+  Replace the example path `/home/user/example.iso` with the filename of the desired ISO file, the value of `BOOT` will be ignored in this case.
+
+* ### How do I boot without SCSI support?
+
+  By default, the machine makes use of `virtio-scsi` disks for performance reasons, and even though most Linux kernels include drivers for them, there are other operating systems that do not.
+
+  If your ISO fails to boot because of this, you can add this to your compose file:
+
+  ```yaml
+  environment:
+    DISK_TYPE: "blk"
+  ```
+
+   This will use `virtio-blk` devices instead. If it still fails to boot, you can set the value to `ide` or `usb` at the cost of performance.
 
 * ### How do I boot a x86 image?
 
