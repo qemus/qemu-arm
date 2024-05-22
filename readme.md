@@ -102,18 +102,16 @@ kubectl apply -f kubernetes.yml
 
   Replace the example path `/home/user/example.iso` with the filename of the desired ISO file, the value of `BOOT` will be ignored in this case.
 
-* ### How do I boot without SCSI support?
+* ### How do I boot without SCSI drivers?
 
-  By default, the machine makes use of `virtio-scsi` disks for performance reasons, and even though most Linux kernels include drivers for them, there are other operating systems that do not.
+  By default, the machine makes use of `virtio-scsi` disks for performance reasons, and even though most Linux kernels include the necessary driver for this device, for some other operating systems that may not always be the case.
 
-  If your ISO fails to boot because of this, you can add this to your compose file:
+  If your ISO fails to boot because of this, you can modify your compose file to use `virtio-blk` instead:
 
   ```yaml
   environment:
     DISK_TYPE: "blk"
   ```
-
-   This will use `virtio-blk` devices instead. If it still fails to boot, you can set the value to `ide` or `usb` at the cost of performance.
 
 * ### How do I boot a x86 image?
 
