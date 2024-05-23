@@ -4,9 +4,9 @@ set -Eeuo pipefail
 # Docker environment variables
 : "${BIOS:=""}"                 # Bios file
 
+SECURE="off"
 BOOT_OPTS=""
 BOOT_DESC=""
-SECURE=",secure=off"
 DIR="/usr/share/qemu"
 
 case "${BOOT_MODE,,}" in
@@ -15,7 +15,7 @@ case "${BOOT_MODE,,}" in
     VARS="AAVMF_VARS.fd"
     ;;
   secure)
-    SECURE=",secure=on"
+    SECURE="on"
     BOOT_DESC=" securely"
     ROM="AAVMF_CODE.secboot.fd"
     VARS="AAVMF_VARS.fd"
@@ -26,7 +26,7 @@ case "${BOOT_MODE,,}" in
     BOOT_OPTS="-rtc base=localtime"
     ;;
   windows_secure)
-    SECURE=",secure=on"
+    SECURE="on"
     BOOT_DESC=" securely"
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
