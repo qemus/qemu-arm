@@ -33,10 +33,8 @@ case "${BOOT_MODE,,}" in
     BOOT_OPTS="-rtc base=localtime"
     ;;
   *)
-    info "Unknown boot mode '${BOOT_MODE}', defaulting to 'uefi'"
-    BOOT_MODE="uefi"
-    ROM="AAVMF_CODE.no-secboot.fd"
-    VARS="AAVMF_VARS.fd"
+    error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
+    exit 33
     ;;
 esac
 
