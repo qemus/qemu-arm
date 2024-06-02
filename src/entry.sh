@@ -17,7 +17,8 @@ cd /run
 
 trap - ERR
 
-info "Booting image${BOOT_DESC}..."
+version=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1 | awk '{ print $NF }')
+info "Booting image${BOOT_DESC} using QEMU v$version..."
 
 if [ -z "$CPU_PIN" ]; then
   exec qemu-system-aarch64 ${ARGS:+ $ARGS}
