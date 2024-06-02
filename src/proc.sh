@@ -9,8 +9,8 @@ set -Eeuo pipefail
 : "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="neoverse-n1"}"
 
-if [[ "${SYS,,}" == *"-rk35xx" ]]; then
-  # Pin to performance cores on Orange Pi 5
+if [[ "$CPU" == "Cortex A55" ]] || [[ "${SYS,,}" == *"-rk35xx" ]]; then
+  # Pin to big cores on Rockchip Orange Pi 5
   CPU_PIN="4,5,6,7"
 fi
 
