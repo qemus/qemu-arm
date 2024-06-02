@@ -19,4 +19,8 @@ trap - ERR
 
 info "Booting image${BOOT_DESC}..."
 
-exec qemu-system-aarch64 ${ARGS:+ $ARGS}
+if [ -z "$CPU_PIN" ]; then
+  exec qemu-system-aarch64 ${ARGS:+ $ARGS}
+else
+  taskset -c "$CPU_TASK_SET" exec qemu-system-aarch64 ${ARGS:+ $ARGS}
+fi
