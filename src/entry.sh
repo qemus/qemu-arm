@@ -17,7 +17,7 @@ cd /run
 
 trap - ERR
 
-info "Booting image${BOOT_DESC}..."
+info "Booting image${BOOT_DESC} using $VERS..."
 
 if [ -z "$CPU_PIN" ]; then
   exec qemu-system-aarch64 ${ARGS:+ $ARGS}
