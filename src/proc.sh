@@ -4,9 +4,15 @@ set -Eeuo pipefail
 # Docker environment variables
 
 : "${KVM:="Y"}"
+: "${CPU_PIN:=""}"
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="neoverse-n1"}"
+
+if [[ "${SYS,,}" == *"-rk35xx" ]]; then
+  # Pin to performance cores on Orange Pi 5
+  CPU_PIN="4,5,6,7"
+fi
 
  if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
