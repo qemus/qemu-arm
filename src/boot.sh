@@ -40,7 +40,7 @@ esac
 
 if [ -n "$BIOS" ]; then
 
-  BOOT_OPTS="$BOOT_OPTS -bios $DIR/$BIOS"
+  BOOT_OPTS+=" -bios $DIR/$BIOS"
   return 0
 
 fi
@@ -62,7 +62,7 @@ if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
   dd "if=$AAVMF/$VARS" "of=$DEST.vars" conv=notrunc status=none
 fi
 
-BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
-BOOT_OPTS="$BOOT_OPTS -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
+BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
+BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
 
 return 0
