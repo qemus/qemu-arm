@@ -17,7 +17,7 @@ echo "❯ For support visit $SUPPORT"
 
 : "${BOOT:=""}"           # URL of the ISO file
 : "${DEBUG:="N"}"         # Disable debugging
-: "${MACHINE:="virt"}"      # Machine selection
+: "${MACHINE:="virt"}"    # Machine selection
 : "${ALLOCATE:=""}"       # Preallocate diskspace
 : "${ARGUMENTS:=""}"      # Extra QEMU parameters
 : "${CPU_CORES:="1"}"     # Amount of CPU cores
@@ -25,7 +25,7 @@ echo "❯ For support visit $SUPPORT"
 : "${RAM_CHECK:="Y"}"     # Check available RAM
 : "${DISK_SIZE:="16G"}"   # Initial data disk size
 : "${BOOT_INDEX:="10"}"   # Boot index of CD drive
-: "${BOOT_MODE:="uefi"}" # Boot in UEFI mode
+: "${BOOT_MODE:="uefi"}"  # Boot in UEFI mode
 
 # Helper variables
 
