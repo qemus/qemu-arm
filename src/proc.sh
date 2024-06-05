@@ -76,7 +76,7 @@ else
   fi
 
   if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-    MACHINE="$MACHINE,virtualization=on"
+    MACHINE+=",virtualization=on"
   fi
 
 fi
