@@ -23,5 +23,5 @@ info "Booting image${BOOT_DESC} using QEMU v$version..."
 if [ -z "$CPU_PIN" ]; then
   exec qemu-system-aarch64 ${ARGS:+ $ARGS}
 else
-  taskset -c "$CPU_PIN" exec qemu-system-aarch64 ${ARGS:+ $ARGS}
+  exec taskset -c "$CPU_PIN" qemu-system-aarch64 ${ARGS:+ $ARGS}
 fi
