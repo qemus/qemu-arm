@@ -102,6 +102,10 @@ kubectl apply -f kubernetes.yml
 
   Replace the example path `/home/user/example.iso` with the filename of the desired ISO file, the value of `BOOT` will be ignored in this case.
 
+* ### How do I boot Windows?
+
+  Use [dockur/windows-arm](https://github.com/dockur/windows-arm) instead, as it includes all the drivers required during installation, amongst many other features.
+
 * ### How do I boot a x86 image?
 
   You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
