@@ -11,9 +11,11 @@
 
 </div></h1>
 
-QEMU in a Docker container for running ARM-based virtual machines, for devices like the Raspberry Pi 5 and many others.
+Docker container for running ARM-based virtual machines using QEMU, for devices like the Raspberry Pi 5 and many others.
 
-It allows you to turn any operating system into a container and uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
+It allows you to create VM's which behave just like normal containers, meaning you can manage them using all your existing tools (like Portainer) and configure them in a language (YAML) you are already familiar with.
+
+This greatly reduces the learning curve and also eliminates the need for a dedicated Proxmox or ESXi server in many cases. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 
 Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.
 
