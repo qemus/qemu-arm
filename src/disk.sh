@@ -360,7 +360,7 @@ createDevice () {
 
   local index=""
   [ -n "$DISK_INDEX" ] && index=",bootindex=$DISK_INDEX"
-  local result="-drive file=$DISK_FILE,id=$DISK_ID,format=$DISK_FMT,cache=$DISK_CACHE,aio=$DISK_IO,discard=$DISK_DISCARD,detect-zeroes=on"
+  local result=" -drive file=$DISK_FILE,id=$DISK_ID,format=$DISK_FMT,cache=$DISK_CACHE,aio=$DISK_IO,discard=$DISK_DISCARD,detect-zeroes=on"
 
   case "${DISK_TYPE,,}" in
     "auto" )
@@ -373,7 +373,7 @@ createDevice () {
       ;;
     "ide" )
       result+=",if=none \
-      -device ich9-ahci,id=ahci${DISK_INDEX},addr=$DISK_ADDRESS,iothread=io2 \
+      -device ich9-ahci,id=ahci${DISK_INDEX},addr=$DISK_ADDRESS \
       -device ide-hd,drive=${DISK_ID},bus=ahci$DISK_INDEX.0,rotation_rate=$DISK_ROTATION${index}"
       echo "$result"
       ;;
@@ -404,7 +404,7 @@ addMedia () {
   local index=""
   local DISK_ID="cdrom$DISK_BUS"
   [ -n "$DISK_INDEX" ] && index=",bootindex=$DISK_INDEX"
-  local result="-drive file=$DISK_FILE,id=$DISK_ID,format=raw,cache=unsafe,readonly=on,media=cdrom"
+  local result=" -drive file=$DISK_FILE,id=$DISK_ID,format=raw,cache=unsafe,readonly=on,media=cdrom"
 
   case "${DISK_TYPE,,}" in
     "auto" )
@@ -417,7 +417,7 @@ addMedia () {
       ;;
     "ide" )
       result+=",if=none \
-      -device ich9-ahci,id=ahci${DISK_BUS},addr=$DISK_ADDRESS,iothread=io2 \
+      -device ich9-ahci,id=ahci${DISK_BUS},addr=$DISK_ADDRESS \
       -device ide-cd,drive=${DISK_ID},bus=ahci${DISK_BUS}.0${index}"
       echo "$result"
       ;;
@@ -448,7 +448,7 @@ addDisk () {
   local DISK_FMT=$7
   local DISK_IO=$8
   local DISK_CACHE=$9
-  local DISK_EXT DIR DATA_SIZE FS PREV_FMT PREV_EXT CUR_SIZE OPTS
+  local DISK_EXT DIR DATA_SIZE FS PREV_FMT PREV_EXT CUR_SIZE
 
   DISK_EXT=$(fmt2ext "$DISK_FMT")
   local DISK_FILE="$DISK_BASE.$DISK_EXT"
@@ -501,8 +501,7 @@ addDisk () {
 
   fi
 
-  OPTS=$(createDevice "$DISK_FILE" "$DISK_TYPE" "$DISK_INDEX" "$DISK_ADDRESS" "$DISK_FMT" "$DISK_IO" "$DISK_CACHE")
-  DISK_OPTS+=" $OPTS"
+  DISK_OPTS+=$(createDevice "$DISK_FILE" "$DISK_TYPE" "$DISK_INDEX" "$DISK_ADDRESS" "$DISK_FMT" "$DISK_IO" "$DISK_CACHE")
 
   return 0
 }
@@ -517,9 +516,7 @@ addDevice () {
   [ -z "$DISK_DEV" ] && return 0
   [ ! -b "$DISK_DEV" ] && error "Device $DISK_DEV cannot be found! Please add it to the 'devices' section of your compose file." && exit 55
 
-  local OPTS
-  OPTS=$(createDevice "$DISK_DEV" "$DISK_TYPE" "$DISK_INDEX" "$DISK_ADDRESS" "raw" "$DISK_IO" "$DISK_CACHE")
-  DISK_OPTS+=" $OPTS"
+  DISK_OPTS+=$(createDevice "$DISK_DEV" "$DISK_TYPE" "$DISK_INDEX" "$DISK_ADDRESS" "raw" "$DISK_IO" "$DISK_CACHE")
 
   return 0
 }
@@ -557,8 +554,7 @@ case "${MEDIA_TYPE,,}" in
 esac
 
 if [ -f "$BOOT" ] && [ -s "$BOOT" ]; then
-  ADD_OPTS=$(addMedia "$BOOT" "$MEDIA_TYPE" "0" "$BOOT_INDEX" "0x5")
-  DISK_OPTS+=" $ADD_OPTS"
+  DISK_OPTS+=$(addMedia "$BOOT" "$MEDIA_TYPE" "0" "$BOOT_INDEX" "0x5")
 fi
 
 DRIVERS="/drivers.iso"
@@ -570,8 +566,7 @@ if [ -f "$DRIVERS" ] && [ -s "$DRIVERS" ]; then
   else
     DRIVER_TYPE="auto"
   fi
-  ADD_OPTS=$(addMedia "$DRIVERS" "$DRIVER_TYPE" "1" "" "0x6")
-  DISK_OPTS+=" $ADD_OPTS"
+  DISK_OPTS+=$(addMedia "$DRIVERS" "$DRIVER_TYPE" "1" "" "0x6")
 fi
 
 DISK1_FILE="$STORAGE/data"
