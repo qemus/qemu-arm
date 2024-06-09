@@ -13,7 +13,7 @@
 
 QEMU in a docker container for running ARM-based virtual machines, for devices like the Raspberry Pi 5 and many others.
 
-It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
+It allows you to turn any operating system into a container and uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 
 Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.
 
