@@ -10,22 +10,22 @@ BOOT_DESC=""
 DIR="/usr/share/qemu"
 
 case "${BOOT_MODE,,}" in
-  uefi)
+  "uefi" )
     ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
-  secure)
+  "secure" )
     SECURE="on"
     BOOT_DESC=" securely"
     ROM="AAVMF_CODE.secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
-  windows)
+  "windows" )
     ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     BOOT_OPTS="-rtc base=localtime"
     ;;
-  windows_secure)
+  "windows_secure" )
     SECURE="on"
     BOOT_DESC=" securely"
     ROM="AAVMF_CODE.ms.fd"
