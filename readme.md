@@ -19,7 +19,7 @@ This greatly reduces the learning curve and eliminates the need for a dedicated 
 
 It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 
-Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.
+*Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.*
 
 ## Features ✨
 
