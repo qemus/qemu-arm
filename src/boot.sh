@@ -7,7 +7,11 @@ set -Eeuo pipefail
 SECURE="off"
 BOOT_OPTS=""
 BOOT_DESC=""
-DIR="/usr/share/qemu"
+
+if [ -n "$BIOS" ]; then
+  BOOT_OPTS="-bios $BIOS"
+  return 0
+fi
 
 case "${BOOT_MODE,,}" in
   "uefi" )
@@ -32,18 +36,15 @@ case "${BOOT_MODE,,}" in
     VARS="AAVMF_VARS.ms.fd"
     BOOT_OPTS="-rtc base=localtime"
     ;;
+  "uboot" | "u-boot")
+    BOOT_OPTS="-bios /usr/lib/u-boot/qemu_arm64/u-boot.bin"
+    return 0
+    ;;
   *)
     error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
     exit 33
     ;;
 esac
-
-if [ -n "$BIOS" ]; then
-
-  BOOT_OPTS+=" -bios $DIR/$BIOS"
-  return 0
-
-fi
 
 AAVMF="/usr/share/AAVMF/"
 DEST="$STORAGE/${BOOT_MODE,,}"
