@@ -263,7 +263,7 @@ kubectl apply -f kubernetes.yml
 [build_url]: https://github.com/qemus/qemu-arm/
 [hub_url]: https://hub.docker.com/r/qemux/qemu-arm/
 [tag_url]: https://hub.docker.com/r/qemux/qemu-arm/tags
-[pkg_url]: https://github.com/qemus/qemu-docker/pkgs/container/qemu-arm
+[pkg_url]: https://github.com/qemus/qemu-arm/pkgs/container/qemu-arm
 
 [Build]: https://github.com/qemus/qemu-arm/actions/workflows/build.yml/badge.svg
 [Size]: https://img.shields.io/docker/image-size/qemux/qemu-arm/latest?color=066da5&label=size
