@@ -21,13 +21,13 @@ It uses high-performance QEMU options (like KVM acceleration, kernel-mode networ
 
 Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.
 
-## Features
+## Features ✨
 
  - Multi-platform
  - KVM acceleration
  - Web-based viewer
 
-## Usage
+## Usage  🐳
 
 Via Docker Compose:
 
@@ -59,7 +59,7 @@ Via Kubernetes:
 kubectl apply -f kubernetes.yml
 ```
 
-## FAQ
+## FAQ 💬
 
 * ### How do I use it?
 
@@ -256,7 +256,7 @@ kubectl apply -f kubernetes.yml
     ARGUMENTS: "-device usb-tablet"
   ```
 
-## Stars
+## Stars 🌟
 [![Stars](https://starchart.cc/qemus/qemu-arm.svg?variant=adaptive)](https://starchart.cc/qemus/qemu-arm)
 
 [build_url]: https://github.com/qemus/qemu-arm/
