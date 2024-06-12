@@ -274,10 +274,10 @@ convertDisk() {
   isCow "$FS" && DISK_PARAM+=",nocow=on"
 
   if [[ "$DST_FMT" != "raw" ]]; then
-      if [[ "$ALLOCATE" == [Nn]* ]]; then
-        CONV_FLAGS+=" -c"
-      fi
-      [ -n "$DISK_FLAGS" ] && DISK_PARAM+=",$DISK_FLAGS"
+    if [[ "$ALLOCATE" == [Nn]* ]]; then
+      CONV_FLAGS+=" -c"
+    fi
+    [ -n "$DISK_FLAGS" ] && DISK_PARAM+=",$DISK_FLAGS"
   fi
 
   # shellcheck disable=SC2086
@@ -287,13 +287,13 @@ convertDisk() {
   fi
 
   if [[ "$DST_FMT" == "raw" ]]; then
-      if [[ "$ALLOCATE" != [Nn]* ]]; then
-        # Work around qemu-img bug
-        CUR_SIZE=$(stat -c%s "$TMP_FILE")
-        if ! fallocate -l "$CUR_SIZE" "$TMP_FILE"; then
-            error "Failed to allocate $CUR_SIZE bytes for $DISK_DESC image $TMP_FILE"
-        fi
+    if [[ "$ALLOCATE" != [Nn]* ]]; then
+      # Work around qemu-img bug
+      CUR_SIZE=$(stat -c%s "$TMP_FILE")
+      if ! fallocate -l "$CUR_SIZE" "$TMP_FILE"; then
+          error "Failed to allocate $CUR_SIZE bytes for $DISK_DESC image $TMP_FILE"
       fi
+    fi
   fi
 
   rm -f "$SOURCE_FILE"
@@ -524,6 +524,7 @@ addDevice () {
 html "Initializing disks..."
 
 [ -z "${DISK_OPTS:-}" ] && DISK_OPTS=""
+[ -z "${DISK_NAME:-}" ] && DISK_NAME="data"
 [ -z "${DISK_TYPE:-}" ] && DISK_TYPE="scsi"
 
 case "${DISK_TYPE,,}" in
@@ -564,10 +565,16 @@ if [ -f "$DRIVERS" ] && [ -s "$DRIVERS" ]; then
   DISK_OPTS+=$(addMedia "$DRIVERS" "$FALLBACK" "1" "" "0x6")
 fi
 
-DISK1_FILE="$STORAGE/data"
-DISK2_FILE="/storage2/data2"
-DISK3_FILE="/storage3/data3"
-DISK4_FILE="/storage4/data4"
+DISK1_FILE="/boot"
+if [ ! -f "$DISK1_FILE.img" ] || [ ! -s "$DISK1_FILE.img" ]; then
+  if [ ! -f "$DISK1_FILE.qcow2" ] || [ ! -s "$DISK1_FILE.qcow2" ]; then
+    DISK1_FILE="$STORAGE/${DISK_NAME}"
+  fi
+fi
+
+DISK2_FILE="/storage2/${DISK_NAME}2"
+DISK3_FILE="/storage3/${DISK_NAME}3"
+DISK4_FILE="/storage4/${DISK_NAME}4"
 
 if [ -z "$DISK_FMT" ]; then
   if [ -f "$DISK1_FILE.qcow2" ]; then
