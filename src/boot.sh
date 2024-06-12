@@ -18,10 +18,6 @@ case "${BOOT_MODE,,}" in
   "legacy" )
     BOOT_OPTS="-bios /usr/share/seabios/vgabios-ramfb.bin"
     ;;
-  "efi" )
-    BOOT_DESC=" with EFI"
-    BOOT_OPTS="-bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd"
-    ;;
   "uefi" )
     BOOT_DESC=" with OVMF"
     ROM="AAVMF_CODE.no-secboot.fd"
@@ -44,11 +40,6 @@ case "${BOOT_MODE,,}" in
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     BOOT_OPTS="-rtc base=localtime"
-    ;;
-  "uboot" | "u-boot")
-    BOOT_DESC=" with U-Boot"
-    addPackage "u-boot-qemu" "U-Boot BIOS"
-    BOOT_OPTS="-bios /usr/lib/u-boot/qemu_arm64/u-boot.bin"
     ;;
   *)
     error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
