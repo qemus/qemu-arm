@@ -18,13 +18,15 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 
   - Create VM's which behave just like normal containers
 
-  - Manage them using all your existing tools (like Portainer) and configure them in a language (YAML) you are already familiar with
+  - Manage them using all your existing tools (like Portainer)
 
-  - Reduces the learning curve and eliminates the need for a dedicated Proxmox or ESXi server
+  - Configure them in a language (YAML) you are already familiar with
 
- - Web-based viewer to control the machine directly from your browser
+  - Web-based viewer to control the machine directly from your browser
 
-  - High-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed
+  - Supports `.iso`, `.img`, `.qcow2`, `.vhd`, `.vhdx`, `.vdi`, `.vmdk` and `.raw` disk formats
+
+  - High-performance options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed
 
 *Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.*
 
@@ -66,7 +68,7 @@ kubectl apply -f kubernetes.yml
 
   Very simple! These are the steps:
 
-  - Set the `BOOT` environment variable to the URL of an ISO image you want to install.
+  - Set the `BOOT` environment variable to the URL of any [disk image](https://github.com/qemus/qemu-docker#what-image-formats-are-supported) you want to install.
 
   - Start the container and connect to [port 8006](http://localhost:8006) using your web browser.
 
@@ -96,16 +98,16 @@ kubectl apply -f kubernetes.yml
   
   This can also be used to resize the existing disk to a larger capacity without any data loss.
 
-* ### How do I boot a local ISO?
+* ### How do I boot a local image?
 
-  You can use a local file directly, and skip the download altogether, by binding it in your compose file in this way:
+  You can use a local image file directly, and skip the download altogether, by binding it in your compose file:
   
   ```yaml
   volumes:
     - /home/user/example.iso:/boot.iso
   ```
 
-  Replace the example path `/home/user/example.iso` with the filename of the desired ISO file, the value of `BOOT` will be ignored in this case.
+  This way you can supply a `boot.iso`, `boot.img` or `boot.qcow2` file. The URL of the `BOOT` variable will be ignored in this case.
 
 * ### How do I boot Windows?
 
@@ -256,6 +258,12 @@ kubectl apply -f kubernetes.yml
   environment:
     ARGUMENTS: "-device usb-tablet"
   ```
+
+* ### What image formats are supported?
+
+  You can set the `BOOT` URL to any `.iso`, `.img`, `.raw`, `.qcow2`, `.vhd`, `.vhdx`, `.vdi` or `.vmdk` file.
+
+  It will even automaticly extract compressed images, like `.img.gz`, `.qcow2.xz`, `.iso.zip` and many more!
 
 ## Stars 🌟
 [![Stars](https://starchart.cc/qemus/qemu-arm.svg?variant=adaptive)](https://starchart.cc/qemus/qemu-arm)
