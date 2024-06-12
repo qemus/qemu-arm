@@ -16,10 +16,14 @@ fi
 
 case "${BOOT_MODE,,}" in
   "legacy" )
-    BOOT_OPTS=""
+    BOOT_OPTS="-bios /usr/share/seabios/vgabios-ramfb.bin"
+    ;;
+  "efi" )
+    BOOT_DESC=" with EFI"
+    BOOT_OPTS="-bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd"
     ;;
   "uefi" )
-    BOOT_DESC=" with UEFI"
+    BOOT_DESC=" with OVMF"
     ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
