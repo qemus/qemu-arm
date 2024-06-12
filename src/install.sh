@@ -1,76 +1,317 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-detect () {
+detectType() {
+
   local dir=""
   local file="$1"
+
   [ ! -f "$file" ] && return 1
   [ ! -s "$file" ] && return 1
 
-  dir=$(isoinfo -f -i "$file")
+  case "${file,,}" in
+    *".iso" )
 
-  if [ -z "${BOOT_MODE:-}" ]; then
-    # Automaticly detect UEFI-compatible ISO's
-    dir=$(isoinfo -f -i "$file")
-    dir=$(echo "${dir^^}" | grep "^/EFI")
-    [ -n "$dir" ] && BOOT_MODE="uefi"
-  fi
+      BOOT="$file"
+      [ -n "${BOOT_MODE:-}" ] && break
 
-  BOOT="$file"
+      # Automaticly detect UEFI-compatible ISO's
+      dir=$(isoinfo -f -i "$file")
+      [ -z "$dir" ] && error "Failed to read ISO file, invalid format!" && BOOT="" && return 1
+
+      dir=$(echo "${dir^^}" | grep "^/EFI")
+      [ -n "$dir" ] && BOOT_MODE="uefi"
+      ;;
+
+    *".img" )
+
+      DISK_NAME=$(basename "$file")
+      DISK_NAME="${DISK_NAME%.*}"
+      [ -n "${BOOT_MODE:-}" ] && break
+
+      # Automaticly detect UEFI-compatible images
+      dir=$(sfdisk -l "$file")
+      [ -z "$dir" ] && error "Failed to read IMG file, invalid format!" && DISK_NAME="" && return 1
+
+      dir=$(echo "${dir^^}" | grep "EFI SYSTEM")
+      [ -n "$dir" ] && BOOT_MODE="uefi"
+      ;;
+
+    *".qcow2" )
+
+      DISK_NAME=$(basename "$file")
+      DISK_NAME="${DISK_NAME%.*}"
+      [ -n "${BOOT_MODE:-}" ] && break
+
+      # TODO: Detect boot mode from partition table in image
+      BOOT_MODE="uefi"
+      ;;
+
+    * )
+      return 1 ;;
+  esac
+
   return 0
 }
 
-file=$(find / -maxdepth 1 -type f -iname boot.iso | head -n 1)
-[ ! -s "$file" ] && file=$(find "$STORAGE" -maxdepth 1 -type f -iname boot.iso | head -n 1)
-detect "$file" && return 0
+downloadFile() {
+
+  local url="$1"
+  local base="$2"
+  local msg rc total progress
+
+  local dest="$STORAGE/$base.tmp"
+  rm -f "$dest"
+
+  # Check if running with interactive TTY or redirected to docker log
+  if [ -t 1 ]; then
+    progress="--progress=bar:noscroll"
+  else
+    progress="--progress=dot:giga"
+  fi
+
+  msg="Downloading image"
+  info "Downloading $base..."
+  html "$msg..."
+
+  /run/progress.sh "$dest" "0" "$msg ([P])..." &
+
+  { wget "$url" -O "$dest" -q --timeout=30 --show-progress "$progress"; rc=$?; } || :
+
+  fKill "progress.sh"
+
+  if (( rc == 0 )) && [ -f "$dest" ]; then
+    total=$(stat -c%s "$dest")
+    if [ "$total" -lt 100000 ]; then
+      error "Invalid image file: is only $total bytes?" && return 1
+    fi
+    html "Download finished successfully..."
+    mv -f "$dest" "$STORAGE/$base"
+    return 0
+  fi
+
+  msg="Failed to download $url"
+  (( rc == 3 )) && error "$msg , cannot write file (disk full?)" && return 1
+  (( rc == 4 )) && error "$msg , network failure!" && return 1
+  (( rc == 8 )) && error "$msg , server issued an error response!" && return 1
+
+  error "$msg , reason: $rc"
+  return 1
+}
+
+convertImage() {
+
+  local source_file=$1
+  local source_fmt=$2
+  local dst_file=$3
+  local dst_fmt=$4
+  local base fs fa cur_size src_size space disk_param
+
+  [ -f "$dst_file" ] && error "Conversion failed, destination file $dst_file already exists?" && return 1
+  [ ! -f "$source_file" ] && error "Conversion failed, source file $source_file does not exists?" && return 1
+
+  if [[ "$source_fmt" == "raw" ]] && [[ "$dst_fmt" == "raw" ]]; then
+    mv -f "$source_file" "$dst_file"
+    return 0
+  fi
+
+  local tmp_file="$dst_file.tmp"
+  local dir=$(dirname "$tmp_file")
+
+  rm -f "$tmp_file"
+
+  if [ -n "$ALLOCATE" ] && [[ "$ALLOCATE" != [Nn]* ]]; then
+
+    # Check free diskspace
+    src_size=$(qemu-img info "$source_file" -f "$source_fmt" | grep '^virtual size: ' | sed 's/.*(\(.*\) bytes)/\1/')
+    space=$(df --output=avail -B 1 "$dir" | tail -n 1)
+
+    if (( src_size > space )); then
+      local space_gb=$(( (space + 1073741823)/1073741824 ))
+      error "Not enough free space to convert image in $dir, it has only $space_gb GB available..." && return 1
+    fi
+  fi
+
+  base=$(basename "$source_file")
+  info "Converting $base..."
+  html "Converting image..."
+
+  local conv_flags="-p"
+
+  if [ -z "$ALLOCATE" ] || [[ "$ALLOCATE" == [Nn]* ]]; then
+    disk_param="preallocation=off"
+  else
+    disk_param="preallocation=falloc"
+  fi
+
+  fs=$(stat -f -c %T "$dir")
+  [[ "${fs,,}" == "btrfs" ]] && disk_param+=",nocow=on"
+
+  if [[ "$dst_fmt" != "raw" ]]; then
+    if [ -z "$ALLOCATE" ] || [[ "$ALLOCATE" == [Nn]* ]]; then
+      conv_flags+=" -c"
+    fi
+    [ -n "${DISK_FLAGS:-}" ] && disk_param+=",$DISK_FLAGS"
+  fi
+
+  # shellcheck disable=SC2086
+  if ! qemu-img convert -f "$source_fmt" $conv_flags -o "$disk_param" -O "$dst_fmt" -- "$source_file" "$tmp_file"; then
+    rm -f "$tmp_file"
+    error "Failed to convert image in $dir, is there enough space available?" && return 1
+  fi
+
+  if [[ "$dst_fmt" == "raw" ]]; then
+    if [ -n "$ALLOCATE" ] && [[ "$ALLOCATE" != [Nn]* ]]; then
+      # Work around qemu-img bug
+      cur_size=$(stat -c%s "$tmp_file")
+      if ! fallocate -l "$cur_size" "$tmp_file"; then
+        error "Failed to allocate $cur_size bytes for image!"
+      fi
+    fi
+  fi
+
+  rm -f "$source_file"
+  mv "$tmp_file" "$dst_file"
+
+  if [[ "${fs,,}" == "btrfs" ]]; then
+    fa=$(lsattr "$dst_file")
+    if [[ "$fa" != *"C"* ]]; then
+      error "Failed to disable COW for image on ${fs^^} filesystem!"
+    fi
+  fi
+
+  html "Conversion completed..."
+
+  return 0
+}
+
+findFile() {
+
+  local ext="$1"
+  local file
+
+  file=$(find / -maxdepth 1 -type f -iname "boot.$ext" | head -n 1)
+  [ ! -s "$file" ] && file=$(find "$STORAGE" -maxdepth 1 -type f -iname "boot.$ext" | head -n 1)
+  detectType "$file" && return 0
+
+  return 1
+}
+
+findFile "iso" && return 0
+findFile "img" && return 0
+findFile "qcow2" && return 0
 
 if [ -z "$BOOT" ] || [[ "$BOOT" == *"example.com/image.iso" ]]; then
   hasDisk && return 0
-  error "No boot disk specified, set BOOT= to the URL of an ISO file." && exit 64
+  error "No boot disk specified, set BOOT= to the URL of a disk image file." && exit 64
 fi
-
-base=$(basename "$BOOT")
-detect "$STORAGE/$base" && return 0
 
 base=$(basename "${BOOT%%\?*}")
 : "${base//+/ }"; printf -v base '%b' "${_//%/\\x}"
 base=$(echo "$base" | sed -e 's/[^A-Za-z0-9._-]/_/g')
-detect "$STORAGE/$base" && return 0
 
-TMP="$STORAGE/${base%.*}.tmp"
-rm -f "$TMP"
+case "${base,,}" in
 
-# Check if running with interactive TTY or redirected to docker log
-if [ -t 1 ]; then
-  progress="--progress=bar:noscroll"
-else
-  progress="--progress=dot:giga"
+  *".iso" | *".img" | *".qcow2" )
+
+    detectType "$STORAGE/$base" && return 0 ;;
+
+  *".raw" | *".vdi" | *".vmdk" | *".vhd" | *".vhdx" )
+
+    detectType "$STORAGE/${base%.*}.img" && return 0
+    detectType "$STORAGE/${base%.*}.qcow2" && return 0 ;;
+
+  *".gz" | *".gzip" | *".xz" | *".7z" | *".zip" | *".rar" | *".lzma" | *".bz" | *".bz2" )
+
+    case "${base%.*}" in
+      *".iso" | *".img" | *".qcow2" )
+
+        detectType "$STORAGE/${base%.*}" && return 0 ;;
+
+      *".raw" | *".vdi" | *".vmdk" | *".vhd" | *".vhdx" )
+
+        find="${base%.*}"
+
+        detectType "$STORAGE/${find%.*}.img" && return 0
+        detectType "$STORAGE/${find%.*}.qcow2" && return 0 ;;
+
+    esac ;;
+
+  * )
+    error "Unknown file format, extension \".${base/*./}\" is not recognized!" && exit 33 ;;
+esac
+
+if ! downloadFile "$BOOT" "$base"; then
+  rm -f "$STORAGE/$base.tmp" && exit 60
 fi
 
-msg="Downloading $base"
-info "$msg..." && html "$msg..."
+case "${base,,}" in
+  *".gz" | *".gzip" | *".xz" | *".7z" | *".zip" | *".rar" | *".lzma" | *".bz" | *".bz2" )
+    info "Extracting $base..."
+    html "Extracting image..." ;;
+esac
 
-/run/progress.sh "$TMP" "" "$msg ([P])..." &
-{ wget "$BOOT" -O "$TMP" -q --timeout=30 --show-progress "$progress"; rc=$?; } || :
+case "${base,,}" in
+  *".gz" | *".gzip" )
 
-fKill "progress.sh"
+    gzip -dc "$STORAGE/$base" > "$STORAGE/${base%.*}"
+    rm -f "$STORAGE/$base"
+    base="${base%.*}"
 
-msg="Failed to download $BOOT"
-(( rc == 3 )) && error "$msg , cannot write file (disk full?)" && exit 60
-(( rc == 4 )) && error "$msg , network failure!" && exit 60
-(( rc == 8 )) && error "$msg , server issued an error response!" && exit 60
-(( rc != 0 )) && error "$msg , reason: $rc" && exit 60
-[ ! -s "$TMP" ] && error "$msg" && exit 61
+    ;;
+  *".xz" )
 
-html "Download finished successfully..."
+    xz -dc "$STORAGE/$base" > "$STORAGE/${base%.*}"
+    rm -f "$STORAGE/$base"
+    base="${base%.*}"
 
-size=$(stat -c%s "$TMP")
+    ;;
+  *".7z" | *".zip" | *".rar" | *".lzma" | *".bz" | *".bz2" )
 
-if ((size<100000)); then
-  error "Invalid ISO file: Size is smaller than 100 KB" && exit 62
-fi
+    tmp="$STORAGE/extract"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    7z x "$STORAGE/$base" -o"$tmp" > /dev/null
 
-mv -f "$TMP" "$STORAGE/$base"
-! detect "$STORAGE/$base" && exit 63
+    rm -f "$STORAGE/$base"
+    base="${base%.*}"
 
-return 0
+    if [ ! -s "$tmp/$base" ]; then
+      rm -rf "$tmp"
+      error "Cannot find file \"${base}\" in .${BOOT/*./} archive!" && exit 32
+    fi
+
+    mv "$tmp/$base" "$STORAGE/$base"
+    rm -rf "$tmp"
+
+    ;;
+esac
+
+case "${base,,}" in
+  *".iso" | *".img" | *".qcow2" )
+    detectType "$STORAGE/$base" && return 0
+    error "Cannot read file \"${base}\"" && exit 63 ;;
+esac
+
+target_ext="img"
+target_fmt="${DISK_FMT:-}"
+[ -z "$target_fmt" ] && target_fmt="raw"
+[[ "$target_fmt" != "raw" ]] && target_ext="qcow2"
+
+case "${base,,}" in
+  *".raw" ) source_fmt="raw" ;;
+  *".vdi" ) source_fmt="vdi" ;;
+  *".vhd" ) source_fmt="vhd" ;;
+  *".vmdk" ) source_fmt="vmdk" ;;
+  *".vhdx" ) source_fmt="vhdx" ;;
+  * )
+    error "Unknown file format, extension \".${base/*./}\" is not recognized!" && exit 33 ;;
+esac
+
+dst="$STORAGE/${base%.*}.$target_ext"
+
+! convertImage "$STORAGE/$base" "$source_fmt" "$dst" "$target_fmt" && exit 35
+
+base=$(basename "$dst")
+detectType "$STORAGE/$base" && return 0
+error "Cannot read file \"${base}\"" && exit 36
