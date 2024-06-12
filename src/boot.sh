@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 # Docker environment variables
 : "${BIOS:=""}"                 # Bios file
+: "${BOOT_MODE:="legacy"}"  # Boot mode
 
 SECURE="off"
 BOOT_OPTS=""
@@ -14,7 +15,11 @@ if [ -n "$BIOS" ]; then
 fi
 
 case "${BOOT_MODE,,}" in
+  "legacy" )
+    BOOT_OPTS=""
+    ;;
   "uefi" )
+    BOOT_DESC=" with UEFI"
     ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
@@ -37,8 +42,9 @@ case "${BOOT_MODE,,}" in
     BOOT_OPTS="-rtc base=localtime"
     ;;
   "uboot" | "u-boot")
+    BOOT_DESC=" with U-Boot"
+    addPackage "u-boot-qemu" "U-Boot BIOS"
     BOOT_OPTS="-bios /usr/lib/u-boot/qemu_arm64/u-boot.bin"
-    return 0
     ;;
   *)
     error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
@@ -46,24 +52,30 @@ case "${BOOT_MODE,,}" in
     ;;
 esac
 
-AAVMF="/usr/share/AAVMF/"
-DEST="$STORAGE/${BOOT_MODE,,}"
+case "${BOOT_MODE,,}" in
+  "uefi" | "secure" | "windows" | "windows_secure" )
 
-if [ ! -s "$DEST.rom" ] || [ ! -f "$DEST.rom" ]; then
-  [ ! -s "$AAVMF/$ROM" ] || [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
-  rm -f "$DEST.rom"
-  dd if=/dev/zero "of=$DEST.rom" bs=1M count=64 status=none
-  dd "if=$AAVMF/$ROM" "of=$DEST.rom" conv=notrunc status=none
-fi
+    AAVMF="/usr/share/AAVMF/"
+    DEST="$STORAGE/${BOOT_MODE,,}"
 
-if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
-  [ ! -s "$AAVMF/$VARS" ] || [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
-  rm -f "$DEST.vars"
-  dd if=/dev/zero "of=$DEST.vars" bs=1M count=64 status=none
-  dd "if=$AAVMF/$VARS" "of=$DEST.vars" conv=notrunc status=none
-fi
+    if [ ! -s "$DEST.rom" ] || [ ! -f "$DEST.rom" ]; then
+      [ ! -s "$AAVMF/$ROM" ] || [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
+      rm -f "$DEST.rom"
+      dd if=/dev/zero "of=$DEST.rom" bs=1M count=64 status=none
+      dd "if=$AAVMF/$ROM" "of=$DEST.rom" conv=notrunc status=none
+    fi
 
-BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
-BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
+    if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
+      [ ! -s "$AAVMF/$VARS" ] || [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+      rm -f "$DEST.vars"
+      dd if=/dev/zero "of=$DEST.vars" bs=1M count=64 status=none
+      dd "if=$AAVMF/$VARS" "of=$DEST.vars" conv=notrunc status=none
+    fi
+
+    BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
+    BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
+
+    ;;
+esac
 
 return 0
