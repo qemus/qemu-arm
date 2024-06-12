@@ -25,7 +25,6 @@ echo "❯ For support visit $SUPPORT"
 : "${RAM_CHECK:="Y"}"     # Check available RAM
 : "${DISK_SIZE:="16G"}"   # Initial data disk size
 : "${BOOT_INDEX:="10"}"   # Boot index of CD drive
-: "${BOOT_MODE:="uefi"}"  # Boot in UEFI mode
 
 # Helper variables
 
