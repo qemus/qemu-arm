@@ -196,6 +196,8 @@ hasDisk() {
 
   [ -b "/disk1" ] && return 0
   [ -b "/dev/disk1" ] && return 0
+  [ -s "/boot.img" ]  && return 0
+  [ -s "/boot.qcow2" ] && return 0
   [ -b "${DEVICE:-}" ] && return 0
   [ -s "$STORAGE/data.img" ]  && return 0
   [ -s "$STORAGE/data.qcow2" ] && return 0
