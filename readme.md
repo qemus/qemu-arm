@@ -22,9 +22,9 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 
   - Reduces the learning curve and eliminates the need for a dedicated Proxmox or ESXi server
 
- - Has a web-based viewer to control the machine directly from your browser
+ - Web-based viewer to control the machine directly from your browser
 
-  - Uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed
+  - High-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed
 
 *Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.*
 
