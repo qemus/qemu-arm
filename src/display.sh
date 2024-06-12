@@ -6,7 +6,7 @@ set -Eeuo pipefail
 : "${VGA:=""}"              # VGA adaptor
 : "${DISPLAY:="web"}"       # Display type
 
-if [[ "${BOOT_MODE,,}" != "windows" ]]; then
+if [[ "${BOOT_MODE:-}" != "windows" ]]; then
   [ -z "$VGA" ] && VGA="virtio-gpu"
 else
   [ -z "$VGA" ] && VGA="ramfb"
