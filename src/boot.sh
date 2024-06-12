@@ -16,7 +16,7 @@ fi
 
 case "${BOOT_MODE,,}" in
   "legacy" )
-    BOOT_OPTS="-bios /usr/share/seabios/vgabios-ramfb.bin"
+    BOOT_OPTS=""
     ;;
   "uefi" )
     BOOT_DESC=" with OVMF"
