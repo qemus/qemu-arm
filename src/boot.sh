@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${BIOS:=""}"                 # Bios file
+: "${BIOS:=""}"             # BIOS file
 : "${BOOT_MODE:="legacy"}"  # Boot mode
 
 SECURE="off"
