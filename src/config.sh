@@ -4,12 +4,13 @@ set -Eeuo pipefail
 : "${SERIAL:="mon:stdio"}"
 : "${USB:="qemu-xhci,id=xhci"}"
 : "${MONITOR:="telnet:localhost:7100,server,nowait,nodelay"}"
+: "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
 DEF_OPTS="-nodefaults"
 SERIAL_OPTS="-serial $SERIAL"
+CPU_OPTS="-cpu $CPU_FLAGS -smp $SMP"
 USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
 RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
-CPU_OPTS="-cpu $CPU_FLAGS -smp $CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},dump-guest-core=off${KVM_OPTS}"
 DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
