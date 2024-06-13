@@ -10,45 +10,42 @@ detectType() {
   [ ! -s "$file" ] && return 1
 
   case "${file,,}" in
+    *".iso" | *".img" | *".raw" | *".qcow2" )
+      BOOT="$file"
+      [ -n "${BOOT_MODE:-}" ] && return 0 ;;
+    * ) return 1 ;;
+  esac
+  
+  # Automaticly detect UEFI-compatible images
+
+  case "${file,,}" in
     *".iso" )
 
-      BOOT="$file"
-      [ -n "${BOOT_MODE:-}" ] && return 0
-
-      # Automaticly detect UEFI-compatible ISO's
       dir=$(isoinfo -f -i "$file")
-      [ -z "$dir" ] && error "Failed to read ISO file, invalid format!" && BOOT="" && return 1
+      if [ -z "$dir" ]; then
+        BOOT="" 
+        error "Failed to read ISO file, invalid format!" && return 1
+      fi
 
       dir=$(echo "${dir^^}" | grep "^/EFI")
-      [ -n "$dir" ] && BOOT_MODE="uefi"
-      ;;
+      [ -n "$dir" ] && BOOT_MODE="uefi" ;;
 
-    *".img" )
+    *".img" | *".raw" )
 
-      DISK_NAME=$(basename "$file")
-      DISK_NAME="${DISK_NAME%.*}"
-      [ -n "${BOOT_MODE:-}" ] && return 0
-
-      # Automaticly detect UEFI-compatible images
       dir=$(sfdisk -l "$file")
-      [ -z "$dir" ] && error "Failed to read IMG file, invalid format!" && DISK_NAME="" && return 1
+      if [ -z "$dir" ]; then
+        BOOT="" 
+        error "Failed to read disk image file, invalid format!" && return 1
+      fi
 
       dir=$(echo "${dir^^}" | grep "EFI SYSTEM")
-      [ -n "$dir" ] && BOOT_MODE="uefi"
-      ;;
+      [ -n "$dir" ] && BOOT_MODE="uefi" ;;
 
     *".qcow2" )
 
-      DISK_NAME=$(basename "$file")
-      DISK_NAME="${DISK_NAME%.*}"
-      [ -n "${BOOT_MODE:-}" ] && return 0
-
       # TODO: Detect boot mode from partition table in image
-      BOOT_MODE="uefi"
-      ;;
+      BOOT_MODE="uefi" ;;
 
-    * )
-      return 1 ;;
   esac
 
   return 0
@@ -105,12 +102,13 @@ convertImage() {
   local source_fmt=$2
   local dst_file=$3
   local dst_fmt=$4
-  local dir base fs fa cur_size src_size space disk_param
+  local dir base fs fa space
+  local cur_size src_size disk_param
 
   [ -f "$dst_file" ] && error "Conversion failed, destination file $dst_file already exists?" && return 1
   [ ! -f "$source_file" ] && error "Conversion failed, source file $source_file does not exists?" && return 1
 
-  if [[ "$source_fmt" == "raw" ]] && [[ "$dst_fmt" == "raw" ]]; then
+  if [[ "${source_fmt,,}" == "${dst_fmt,,}" ]]; then
     mv -f "$source_file" "$dst_file"
     return 0
   fi
@@ -181,7 +179,6 @@ convertImage() {
   fi
 
   html "Conversion completed..."
-
   return 0
 }
 
@@ -199,6 +196,7 @@ findFile() {
 
 findFile "iso" && return 0
 findFile "img" && return 0
+findFile "raw" && return 0
 findFile "qcow2" && return 0
 
 if [ -z "$BOOT" ] || [[ "$BOOT" == *"example.com/image.iso" ]]; then
@@ -212,11 +210,11 @@ base=$(echo "$base" | sed -e 's/[^A-Za-z0-9._-]/_/g')
 
 case "${base,,}" in
 
-  *".iso" | *".img" | *".qcow2" )
+  *".iso" | *".img" | *".raw" | *".qcow2" )
 
     detectType "$STORAGE/$base" && return 0 ;;
 
-  *".raw" | *".vdi" | *".vmdk" | *".vhd" | *".vhdx" )
+  *".vdi" | *".vmdk" | *".vhd" | *".vhdx" )
 
     detectType "$STORAGE/${base%.*}.img" && return 0
     detectType "$STORAGE/${base%.*}.qcow2" && return 0 ;;
@@ -224,11 +222,12 @@ case "${base,,}" in
   *".gz" | *".gzip" | *".xz" | *".7z" | *".zip" | *".rar" | *".lzma" | *".bz" | *".bz2" )
 
     case "${base%.*}" in
-      *".iso" | *".img" | *".qcow2" )
+
+      *".iso" | *".img" | *".raw" | *".qcow2" )
 
         detectType "$STORAGE/${base%.*}" && return 0 ;;
 
-      *".raw" | *".vdi" | *".vmdk" | *".vhd" | *".vhdx" )
+      *".vdi" | *".vmdk" | *".vhd" | *".vhdx" )
 
         find="${base%.*}"
 
@@ -237,8 +236,7 @@ case "${base,,}" in
 
     esac ;;
 
-  * )
-    error "Unknown file format, extension \".${base/*./}\" is not recognized!" && exit 33 ;;
+  * ) error "Unknown file extension, type \".${base/*./}\" is not recognized!" && exit 33 ;;
 esac
 
 if ! downloadFile "$BOOT" "$base"; then
@@ -288,7 +286,7 @@ case "${base,,}" in
 esac
 
 case "${base,,}" in
-  *".iso" | *".img" | *".qcow2" )
+  *".iso" | *".img" | *".raw" | *".qcow2" )
     detectType "$STORAGE/$base" && return 0
     error "Cannot read file \"${base}\"" && exit 63 ;;
 esac
@@ -299,13 +297,11 @@ target_fmt="${DISK_FMT:-}"
 [[ "$target_fmt" != "raw" ]] && target_ext="qcow2"
 
 case "${base,,}" in
-  *".raw" ) source_fmt="raw" ;;
   *".vdi" ) source_fmt="vdi" ;;
-  *".vhd" ) source_fmt="vhd" ;;
+  *".vhd" ) source_fmt="vpc" ;;
+  *".vhdx" ) source_fmt="vpc" ;;
   *".vmdk" ) source_fmt="vmdk" ;;
-  *".vhdx" ) source_fmt="vhdx" ;;
-  * )
-    error "Unknown file format, extension \".${base/*./}\" is not recognized!" && exit 33 ;;
+  * ) error "Unknown file extension, type \".${base/*./}\" is not recognized!" && exit 33 ;;
 esac
 
 dst="$STORAGE/${base%.*}.$target_ext"
