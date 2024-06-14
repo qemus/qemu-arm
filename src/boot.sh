@@ -3,23 +3,24 @@ set -Eeuo pipefail
 
 # Docker environment variables
 : "${BIOS:=""}"             # BIOS file
-: "${BOOT_MODE:="legacy"}"  # Boot mode
 
 SECURE="off"
 BOOT_OPTS=""
 BOOT_DESC=""
 
 if [ -n "$BIOS" ]; then
+  BOOT_MODE="custom"
   BOOT_OPTS="-bios $BIOS"
+  BOOT_DESC=" with custom BIOS file"
   return 0
 fi
 
 case "${BOOT_MODE,,}" in
   "legacy" )
-    BOOT_OPTS=""
+    BOOT_DESC=" with SeaBIOS"
     ;;
-  "uefi" )
-    BOOT_DESC=" with OVMF"
+  "uefi" | "" )
+    BOOT_MODE="uefi"
     ROM="AAVMF_CODE.no-secboot.fd"
     VARS="AAVMF_VARS.fd"
     ;;
