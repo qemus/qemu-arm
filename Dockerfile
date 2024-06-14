@@ -13,7 +13,6 @@ RUN set -eu && \
         tini \
         wget \
         7zip \
-        fdisk \
         nginx \
         procps \
         seabios \
