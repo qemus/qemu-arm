@@ -50,9 +50,9 @@ ADD --chmod=744 https://raw.githubusercontent.com/qemus/qemu-docker/master/web/n
 VOLUME /storage
 EXPOSE 22 5900 8006
 
-ENV CPU_CORES "1"
-ENV RAM_SIZE "1G"
-ENV DISK_SIZE "16G"
-ENV BOOT "http://example.com/image.iso"
+ENV CPU_CORES="1"
+ENV RAM_SIZE="1G"
+ENV DISK_SIZE="16G"
+ENV BOOT="http://example.com/image.iso"
 
 ENTRYPOINT ["/usr/bin/tini", "-s", "/run/entry.sh"]
