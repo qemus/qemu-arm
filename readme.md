@@ -293,4 +293,4 @@ kubectl apply -f kubernetes.yml
 [Pulls]: https://img.shields.io/docker/pulls/qemux/qemu-arm.svg?style=flat&label=pulls&logo=docker
 [Version]: https://img.shields.io/docker/v/qemux/qemu-arm/latest?arch=arm64&sort=semver&color=066da5
 [Package]: 
-https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fipitio%2Fbackage%2Fmaster%2Findex%2Fqemus%2Fqemu-arm%2Fqemu-arm.json&query=%24.downloads&logo=github&style=flat&color=066da5&label=pulls
+https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fipitio.github.io%2Fbackage%2Fqemus%2Fqemu-arm%2Fqemu-arm.json&query=%24.downloads&logo=github&style=flat&color=066da5&label=pulls
