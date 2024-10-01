@@ -379,7 +379,7 @@ createDevice () {
       ;;
     "blk" | "virtio-blk" )
       result+=",if=none \
-      -device virtio-blk-pci,drive=${DISK_ID},scsi=off,bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2${index}"
+      -device virtio-blk-pci,drive=${DISK_ID},bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2${index}"
       echo "$result"
       ;;
     "scsi" | "virtio-scsi" )
@@ -422,7 +422,7 @@ addMedia () {
       ;;
     "blk" | "virtio-blk" )
       result+=",if=none \
-      -device virtio-blk-pci,drive=${DISK_ID},scsi=off,bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2${index}"
+      -device virtio-blk-pci,drive=${DISK_ID},bus=pcie.0,addr=$DISK_ADDRESS,iothread=io2${index}"
       echo "$result"
       ;;
     "scsi" | "virtio-scsi" )
@@ -576,6 +576,13 @@ DRIVERS="/drivers.iso"
 
 if [ -f "$DRIVERS" ] && [ -s "$DRIVERS" ]; then
   DISK_OPTS+=$(addMedia "$DRIVERS" "$FALLBACK" "" "0x6")
+fi
+
+RESCUE="/start.iso"
+[ ! -f "$RESCUE" ] || [ ! -s "$RESCUE" ] && RESCUE="$STORAGE/start.iso"
+
+if [ -f "$RESCUE" ] && [ -s "$RESCUE" ]; then
+  DISK_OPTS+=$(addMedia "$RESCUE" "$FALLBACK" "1" "0x6")
 fi
 
 DISK1_FILE="$STORAGE/${DISK_NAME}"
