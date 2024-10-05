@@ -546,10 +546,14 @@ case "${MACHINE,,}" in
 esac
 
 if [ -z "${MEDIA_TYPE:-}" ]; then
-  if [[ "${DISK_TYPE,,}" == "blk" ]]; then
-    MEDIA_TYPE="$FALLBACK"
+  if [[ "${BOOT_MODE:-}" != "windows"* ]]; then
+    if [[ "${DISK_TYPE,,}" == "blk" ]]; then
+      MEDIA_TYPE="$FALLBACK"
+    else
+      MEDIA_TYPE="$DISK_TYPE"
+    fi
   else
-    MEDIA_TYPE="$DISK_TYPE"
+    MEDIA_TYPE="$FALLBACK"
   fi
 fi
 
