@@ -3,14 +3,8 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
-: "${VGA:=""}"              # VGA adaptor
+: "${VGA:="ramfb"}"         # VGA adaptor
 : "${DISPLAY:="web"}"       # Display type
-
-if [[ "${BOOT_MODE:-}" == "windows"* ]]; then
-  [ -z "$VGA" ] && VGA="ramfb"
-else
-  [ -z "$VGA" ] && VGA="virtio-gpu"
-fi
 
 case "${DISPLAY,,}" in
   vnc)

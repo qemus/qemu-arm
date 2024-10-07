@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
-: "${DISK_IO:="native"}"          # I/O Mode, can be set to 'native', 'threads' or 'io_turing'
+: "${DISK_IO:="native"}"          # I/O Mode, can be set to 'native', 'threads' or 'io_uring'
 : "${DISK_FMT:=""}"               # Disk file format, can be set to "raw" (default) or "qcow2"
 : "${DISK_TYPE:=""}"              # Device type to be used, choose "ide", "usb", "blk" or "scsi"
 : "${DISK_FLAGS:=""}"             # Specifies the options for use with the qcow2 disk format
@@ -363,6 +363,7 @@ createDevice () {
   local result=" -drive file=$DISK_FILE,id=$DISK_ID,format=$DISK_FMT,cache=$DISK_CACHE,aio=$DISK_IO,discard=$DISK_DISCARD,detect-zeroes=on"
 
   case "${DISK_TYPE,,}" in
+    "none" ) ;;  
     "auto" )
       echo "$result"
       ;;
@@ -371,7 +372,12 @@ createDevice () {
       -device usb-storage,drive=${DISK_ID}${index}"
       echo "$result"
       ;;
-    "ide" )
+    "nvme" )
+      result+=",if=none \
+      -device nvme,drive=${DISK_ID}${index},serial=deadbeaf${DISK_INDEX}"
+      echo "$result"
+      ;;      
+    "ide" | "sata" )
       result+=",if=none \
       -device ich9-ahci,id=ahci${DISK_INDEX},addr=$DISK_ADDRESS \
       -device ide-hd,drive=${DISK_ID},bus=ahci$DISK_INDEX.0,rotation_rate=$DISK_ROTATION${index}"
@@ -406,6 +412,7 @@ addMedia () {
   local result=" -drive file=$DISK_FILE,id=$DISK_ID,format=raw,cache=unsafe,readonly=on,media=cdrom"
 
   case "${DISK_TYPE,,}" in
+    "none" ) ;;
     "auto" )
       echo "$result"
       ;;
@@ -414,7 +421,12 @@ addMedia () {
       -device usb-storage,drive=${DISK_ID}${index},removable=on"
       echo "$result"
       ;;
-    "ide" )
+    "nvme" )
+      result+=",if=none \
+      -device nvme,drive=${DISK_ID}${index},serial=deadbeaf${DISK_INDEX}"
+      echo "$result"
+      ;;
+    "ide" | "sata" )
       result+=",if=none \
       -device ich9-ahci,id=ahci${DISK_INDEX},addr=$DISK_ADDRESS \
       -device ide-cd,drive=${DISK_ID},bus=ahci${DISK_INDEX}.0${index}"
@@ -461,7 +473,7 @@ addDisk () {
   DATA_SIZE=$(numfmt --from=iec "$DISK_SPACE")
 
   if (( DATA_SIZE < 1 )); then
-      error "Invalid value for ${DISK_DESC^^}_SIZE: $DISK_SPACE" && exit 73
+    error "Invalid value for ${DISK_DESC^^}_SIZE: $DISK_SPACE" && exit 73
   fi
 
   if (( DATA_SIZE < 104857600 )); then
@@ -532,7 +544,7 @@ html "Initializing disks..."
 [ -z "${DISK_NAME:-}" ] && DISK_NAME="data"
 
 case "${DISK_TYPE,,}" in
-  "ide" | "usb" | "scsi" | "blk" | "auto" ) ;;
+  "ide" | "sata" | "usb" | "scsi" | "blk" | "auto" ) ;;
   * ) error "Invalid DISK_TYPE specified, value \"$DISK_TYPE\" is not recognized!" && exit 80 ;;
 esac
 
@@ -546,15 +558,19 @@ case "${MACHINE,,}" in
 esac
 
 if [ -z "${MEDIA_TYPE:-}" ]; then
-  if [[ "${DISK_TYPE,,}" == "blk" ]]; then
-    MEDIA_TYPE="$FALLBACK"
+  if [[ "${BOOT_MODE:-}" != "windows"* ]]; then
+    if [[ "${DISK_TYPE,,}" == "blk" ]]; then
+      MEDIA_TYPE="$FALLBACK"
+    else
+      MEDIA_TYPE="$DISK_TYPE"
+    fi
   else
-    MEDIA_TYPE="$DISK_TYPE"
+    MEDIA_TYPE="$FALLBACK"
   fi
 fi
 
 case "${MEDIA_TYPE,,}" in
-  "ide" | "usb" | "scsi" | "blk" | "auto" ) ;;
+  "ide" | "sata" | "usb" | "scsi" | "blk" | "auto" ) ;;
   * ) error "Invalid MEDIA_TYPE specified, value \"$MEDIA_TYPE\" is not recognized!" && exit 80 ;;
 esac
 
