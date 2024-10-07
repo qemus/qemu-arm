@@ -363,6 +363,7 @@ createDevice () {
   local result=" -drive file=$DISK_FILE,id=$DISK_ID,format=$DISK_FMT,cache=$DISK_CACHE,aio=$DISK_IO,discard=$DISK_DISCARD,detect-zeroes=on"
 
   case "${DISK_TYPE,,}" in
+    "none" ) ;;  
     "auto" )
       echo "$result"
       ;;
@@ -371,6 +372,11 @@ createDevice () {
       -device usb-storage,drive=${DISK_ID}${index}"
       echo "$result"
       ;;
+    "nvme" )
+      result+=",if=none \
+      -device nvme,drive=${DISK_ID}${index},serial=deadbeaf${DISK_INDEX}"
+      echo "$result"
+      ;;      
     "ide" | "sata" )
       result+=",if=none \
       -device ich9-ahci,id=ahci${DISK_INDEX},addr=$DISK_ADDRESS \
@@ -406,12 +412,18 @@ addMedia () {
   local result=" -drive file=$DISK_FILE,id=$DISK_ID,format=raw,cache=unsafe,readonly=on,media=cdrom"
 
   case "${DISK_TYPE,,}" in
+    "none" ) ;;
     "auto" )
       echo "$result"
       ;;
     "usb" )
       result+=",if=none \
       -device usb-storage,drive=${DISK_ID}${index},removable=on"
+      echo "$result"
+      ;;
+    "nvme" )
+      result+=",if=none \
+      -device nvme,drive=${DISK_ID}${index},serial=deadbeaf${DISK_INDEX}"
       echo "$result"
       ;;
     "ide" | "sata" )
@@ -461,7 +473,7 @@ addDisk () {
   DATA_SIZE=$(numfmt --from=iec "$DISK_SPACE")
 
   if (( DATA_SIZE < 1 )); then
-      error "Invalid value for ${DISK_DESC^^}_SIZE: $DISK_SPACE" && exit 73
+    error "Invalid value for ${DISK_DESC^^}_SIZE: $DISK_SPACE" && exit 73
   fi
 
   if (( DATA_SIZE < 104857600 )); then
