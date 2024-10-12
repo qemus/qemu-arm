@@ -19,6 +19,11 @@ if [[ "$CPU" == "Cortex A55" ]] && [[ "$CORES" == "8" ]]; then
   [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
 fi
 
+if [[ "$CPU" == "Rockchip RK3588"* ]] && [[ "$CORES" == "8" ]]; then
+  # Pin to performance cores on Rockchip Orange Pi 5 Plus
+  [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
+fi
+
  if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
   warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
