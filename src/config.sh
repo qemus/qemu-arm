@@ -9,9 +9,9 @@ set -Eeuo pipefail
 DEF_OPTS="-nodefaults"
 SERIAL_OPTS="-serial $SERIAL"
 CPU_OPTS="-cpu $CPU_FLAGS -smp $SMP"
-USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
 RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on"
+[ -n "$USB" ] && [[ "${USB,,}" != "no"* ]] && USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},dump-guest-core=off${KVM_OPTS}"
 DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
 DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0,addr=0x1c"
