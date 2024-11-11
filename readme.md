@@ -93,6 +93,20 @@ kubectl apply -f kubernetes.yml
 > [!TIP]
 > This can also be used to resize the existing disk to a larger capacity without any data loss.
 
+### How do I increase the display resolution?
+
+  For maximum compatibility, the display output will be a simple framebuffer in RAM. While this isn't the most optimal solution, it doesn't require any drivers. If your guest OS includes the `virtio-gpu` driver (as most Linux distributions do), you can add the following to your compose file:
+
+  ```yaml
+  environment:
+    VGA: "virtio-gpu"
+  ```
+
+  to add a virtual graphics cards to your machine.
+  
+> [!NOTE]
+> Using this method your screen will stay black during the boot process, until the driver is actually loaded.
+ 
 ### How do I boot a local image?
 
   You can use a local image file directly, and skip the download altogether, by binding it in your compose file:
