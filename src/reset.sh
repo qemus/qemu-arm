@@ -17,6 +17,7 @@ echo "❯ For support visit $SUPPORT"
 
 : "${BOOT:=""}"            # URL of the ISO file
 : "${DEBUG:="N"}"          # Disable debugging
+: "${COMMIT:="N"}"         # Commit to image
 : "${MACHINE:="virt"}"     # Machine selection
 : "${ALLOCATE:=""}"        # Preallocate diskspace
 : "${ARGUMENTS:=""}"       # Extra QEMU parameters
@@ -79,6 +80,8 @@ else
 fi
 
 # Check folder
+
+[[ "$COMMIT" != [Nn]* ]] && STORAGE="/local"
 
 if [ ! -d "$STORAGE" ]; then
   error "Storage folder ($STORAGE) not found!" && exit 13
