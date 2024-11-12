@@ -15,24 +15,25 @@ echo "❯ For support visit $SUPPORT"
 
 # Docker environment variables
 
-: "${BOOT:=""}"           # URL of the ISO file
-: "${DEBUG:="N"}"         # Disable debugging
-: "${MACHINE:="virt"}"    # Machine selection
-: "${ALLOCATE:=""}"       # Preallocate diskspace
-: "${ARGUMENTS:=""}"      # Extra QEMU parameters
-: "${CPU_CORES:="1"}"     # Amount of CPU cores
-: "${RAM_SIZE:="1G"}"     # Maximum RAM amount
-: "${RAM_CHECK:="Y"}"     # Check available RAM
-: "${DISK_SIZE:="16G"}"   # Initial data disk size
-: "${BOOT_MODE:=""}"      # Boot system with UEFI
-: "${BOOT_INDEX:="9"}"    # Boot index of CD drive
+: "${BOOT:=""}"            # URL of the ISO file
+: "${DEBUG:="N"}"          # Disable debugging
+: "${COMMIT:="N"}"         # Commit to image
+: "${MACHINE:="virt"}"     # Machine selection
+: "${ALLOCATE:=""}"        # Preallocate diskspace
+: "${ARGUMENTS:=""}"       # Extra QEMU parameters
+: "${CPU_CORES:="1"}"      # Amount of CPU cores
+: "${RAM_SIZE:="1G"}"      # Maximum RAM amount
+: "${RAM_CHECK:="Y"}"      # Check available RAM
+: "${DISK_SIZE:="16G"}"    # Initial data disk size
+: "${BOOT_MODE:=""}"       # Boot system with UEFI
+: "${BOOT_INDEX:="9"}"     # Boot index of CD drive
+: "${STORAGE:="/storage"}" # Storage folder location
 
 # Helper variables
 
 PROCESS="${APP,,}"
 PROCESS="${PROCESS// /-}"
 
-STORAGE="/storage"
 INFO="/run/shm/msg.html"
 PAGE="/run/shm/index.html"
 TEMPLATE="/var/www/index.html"
@@ -80,8 +81,13 @@ fi
 
 # Check folder
 
-if [ ! -d "$STORAGE" ]; then
-  error "Storage folder ($STORAGE) not found!" && exit 13
+if [[ "$COMMIT" != [Nn]* ]]; then
+  STORAGE="/local"
+  mkdir -p "$STORAGE"
+else
+  if [ ! -d "$STORAGE" ]; then
+    error "Storage folder ($STORAGE) not found!" && exit 13
+  fi
 fi
 
 # Read memory
