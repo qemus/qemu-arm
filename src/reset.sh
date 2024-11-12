@@ -81,10 +81,13 @@ fi
 
 # Check folder
 
-[[ "$COMMIT" != [Nn]* ]] && STORAGE="/local"
-
-if [ ! -d "$STORAGE" ]; then
-  error "Storage folder ($STORAGE) not found!" && exit 13
+if [[ "$COMMIT" != [Nn]* ]]; then
+  STORAGE="/local"
+  mkdir -p "$STORAGE"
+else
+  if [ ! -d "$STORAGE" ]; then
+    error "Storage folder ($STORAGE) not found!" && exit 13
+  fi
 fi
 
 # Read memory
