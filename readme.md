@@ -22,8 +22,6 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 
   - High-performance options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed
 
-*Note: for KVM acceleration you need a Linux-based operating system, as it's not available on MacOS unfortunately.*
-
 ## Usage  🐳
 
 Via Docker Compose:
