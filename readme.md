@@ -53,7 +53,7 @@ docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device
 Via Kubernetes:
 
 ```shell
-kubectl apply -f kubernetes.yml
+kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/master/kubernetes.yml
 ```
 
 ## Compatibility ⚙️
