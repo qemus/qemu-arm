@@ -553,7 +553,7 @@ if [[ "${MACHINE,,}" != "virt" ]]; then
 else
   FALLBACK="usb"
 fi
-  
+
 [[ "${BOOT_MODE:-}" == "windows_legacy" ]] && FALLBACK="auto"
 
 if [ -z "${MEDIA_TYPE:-}" ]; then
