@@ -35,6 +35,7 @@ services:
       BOOT: "https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-virt-3.19.1-aarch64.iso"
     devices:
       - /dev/kvm
+      - /dev/net/tun
     cap_add:
       - NET_ADMIN
     ports:
@@ -45,7 +46,7 @@ services:
 Via Docker CLI:
 
 ```bash
-docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device=/dev/kvm --cap-add NET_ADMIN qemux/qemu-arm
+docker run -it --rm -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device=/dev/kvm --device=/dev/net/tun --cap-add NET_ADMIN qemux/qemu-arm
 ```
 
 Via Kubernetes:
