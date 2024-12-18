@@ -7,19 +7,19 @@ set -Eeuo pipefail
 : "${DISPLAY:="web"}"       # Display type
 
 case "${DISPLAY,,}" in
-  vnc)
+  "vnc" )
     DISPLAY_OPTS="-display vnc=:0 -device $VGA"
     ;;
-  web)
+  "web" | ":0" )
     DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device $VGA"
     ;;
-  ramfb)
+  "ramfb" )
     DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device ramfb"
     ;;
-  disabled)
+  "disabled" )
     DISPLAY_OPTS="-display none -device $VGA"
     ;;
-  none)
+  "none" )
     DISPLAY_OPTS="-display none"
     ;;
   *)
