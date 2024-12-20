@@ -6,11 +6,13 @@ set -Eeuo pipefail
 : "${VGA:="ramfb"}"         # VGA adaptor
 : "${DISPLAY:="web"}"       # Display type
 
+[[ "$DISPLAY" == ":0" ]] && DISPLAY="web"
+
 case "${DISPLAY,,}" in
   "vnc" )
     DISPLAY_OPTS="-display vnc=:0 -device $VGA"
     ;;
-  "web" | ":0" )
+  "web" )
     DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device $VGA"
     ;;
   "ramfb" )
