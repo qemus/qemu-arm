@@ -40,6 +40,7 @@ services:
       - NET_ADMIN
     ports:
       - 8006:8006
+    restart: always
     stop_grace_period: 2m
 ```
 
