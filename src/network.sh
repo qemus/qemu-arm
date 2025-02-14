@@ -388,6 +388,11 @@ if [[ "$DEBUG" == [Yy1]* ]]; then
   echo
 fi
 
+if [[ -d "/sys/class/net/$VM_NET_TAP" ]]; then                                               
+    info "Lingering interface will be removed..."                        
+    ip link delete "$VM_NET_TAP" || true
+fi
+
 if [[ "$DHCP" == [Yy1]* ]]; then
 
   checkOS
