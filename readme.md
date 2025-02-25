@@ -137,7 +137,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ### How do I boot a x86 image?
 
-  You can use [qemu-docker](https://github.com/qemus/qemu-docker/) to run x86 and x64 images on ARM.
+  You can use [qemu-docker](https://github.com/qemus/qemu/) to run x86 and x64 images on ARM.
 
 ### How do I boot without SCSI drivers?
 
