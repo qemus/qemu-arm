@@ -266,4 +266,5 @@ echo "$user:{PLAIN}${PASS:-}" > /etc/nginx/.htpasswd
 cp -r /var/www/* /run/shm
 html "Starting $APP for Docker..."
 nginx -e stderr
+
 return 0
