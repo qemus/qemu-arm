@@ -22,6 +22,7 @@ RUN set -eu && \
         dnsmasq \
         xz-utils \
         net-tools \
+        e2fsprogs \
         qemu-utils \
         genisoimage \
         ca-certificates \
