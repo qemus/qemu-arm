@@ -3,13 +3,10 @@ set -Eeuo pipefail
 
 # Docker environment variables
 : "${BIOS:=""}"         # BIOS file
-: "${SMM:="N"}"         # Disable SMM
+: "${SECURE:="off"}"         # Disable SMM
 
 BOOT_DESC=""
 BOOT_OPTS=""
-
-SECURE="off"
-[[ "$SMM" == [Yy1]* ]] && SECURE="on"
 [ -n "$BIOS" ] && BOOT_MODE="custom"
 
 case "${BOOT_MODE,,}" in
