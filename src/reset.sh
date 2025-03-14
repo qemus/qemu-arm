@@ -75,7 +75,7 @@ CPU="${CPU// with Radeon Graphics/}"
 CPU="${CPU// with Radeon Vega Graphics/}"
 
 [ -z "${CPU// /}" ] && CPU="Unknown"
-[[ -n ${CPU_CORES//[0-9]} ]] && error "Invalid amount of CPU_CORES: $CPU_CORES" && exit 15
+[ -n "${CPU_CORES//[0-9 ]}" ] && error "Invalid amount of CPU_CORES: $CPU_CORES" && exit 15
 
 # Check system
 
@@ -96,23 +96,46 @@ if [ ! -d "$STORAGE" ]; then
   error "Storage folder ($STORAGE) not found!" && exit 13
 fi
 
+formatBytes() {
+  local result
+  result=$(numfmt --to=iec "$1")
+  local unit="${result//[0-9. ]}"
+  if [ -z "$unit" ]; then
+    unit="bytes"
+  else
+    unit=$(echo "${unit^^}" | sed 's/K/KB/g;s/M/MB/g;s/G/GB/g;s/T/TB/g')
+  fi
+  result="${result//[a-zA-Z ]/}"
+  if [[ "${2:-}" == "up" ]]; then
+    if [[ "$result" == *"."* ]]; then
+      result="${result%%.*}"
+      result=$((result+1))
+    fi
+  else
+    if [[ "${2:-}" == "down" ]]; then
+      result="${result%%.*}"
+    fi
+  fi
+  echo "$result $unit"
+  return 0
+}
+
 # Read memory
 RAM_SPARE=500000000
 RAM_AVAIL=$(free -b | grep -m 1 Mem: | awk '{print $7}')
 RAM_TOTAL=$(free -b | grep -m 1 Mem: | awk '{print $2}')
 
-if [[ -z ${RAM_SIZE//[0-9]} ]]; then
-  [ "$RAM_SIZE" -lt "130" ] && RAM_SIZE="${RAM_SIZE}G" || RAM_SIZE="${RAM_SIZE}M"
+RAM_SIZE="${RAM_SIZE// /}"
+[ -z "$RAM_SIZE" ] && error "RAM_SIZE not specified!" && exit 16
+
+if [ -z "${RAM_SIZE//[0-9. ]}" ]; then
+  [ "${RAM_SIZE%%.*}" -lt "130" ] && RAM_SIZE="${RAM_SIZE}G" || RAM_SIZE="${RAM_SIZE}M"
 fi
 
 RAM_SIZE=$(echo "${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
-! numfmt --from=iec "$RAM_SIZE" &>/dev/null && error "Invalid RAM size: $RAM_SIZE" && exit 16
+! numfmt --from=iec "$RAM_SIZE" &>/dev/null && error "Invalid RAM_SIZE: $RAM_SIZE" && exit 16
 RAM_WANTED=$(numfmt --from=iec "$RAM_SIZE")
-[ "$RAM_WANTED" -lt "136314880 " ] && error "Invalid RAM size: $RAM_SIZE" && exit 16
-
-AVAIL_GB=$(( RAM_AVAIL/1073741824 ))
-TOTAL_GB=$(( (RAM_TOTAL + 1073741823)/1073741824 ))
-WANTED_GB=$(( (RAM_WANTED + 1073741823)/1073741824 ))
+[ "$RAM_WANTED" -lt "136314880 " ] && error "RAM_SIZE is too low: $RAM_SIZE" && exit 16
 
 # Print system info
 SYS="${SYS/-generic/}"
@@ -121,9 +144,11 @@ FS="${FS/UNKNOWN //}"
 FS="${FS/ext2\/ext3/ext4}"
 FS=$(echo "$FS" | sed 's/[)(]//g')
 SPACE=$(df --output=avail -B 1 "$STORAGE" | tail -n 1)
-SPACE_GB=$(( (SPACE + 1073741823)/1073741824 ))
+SPACE_GB=$(formatBytes "$SPACE" "down")
+AVAIL_MEM=$(formatBytes "$RAM_AVAIL" "down")
+TOTAL_MEM=$(formatBytes "$RAM_TOTAL" "up")
 
-echo "❯ CPU: ${CPU} | RAM: $AVAIL_GB/$TOTAL_GB GB | DISK: $SPACE_GB GB (${FS}) | KERNEL: ${SYS}..."
+echo "❯ CPU: ${CPU} | RAM: ${AVAIL_MEM%% *}/$TOTAL_MEM | DISK: $SPACE_GB (${FS}) | KERNEL: ${SYS}..."
 echo
 
 # Check compatibilty
@@ -133,10 +158,17 @@ if [[ "${FS,,}" == "ecryptfs" ]] || [[ "${FS,,}" == "tmpfs" ]]; then
   DISK_CACHE="writeback"
 fi
 
+if [[ "${BOOT_MODE:-}" == "windows"* ]]; then
+  if [[ "${FS,,}" == "btrfs" ]]; then
+    warn "you are using the BTRFS filesystem for /storage, this might introduce issues with Windows Setup!"
+  fi
+fi
+
 # Check available memory
 
 if [[ "$RAM_CHECK" != [Nn]* ]] && (( (RAM_WANTED + RAM_SPARE) > RAM_AVAIL )); then
-  msg="Your configured RAM_SIZE of $WANTED_GB GB is too high for the $AVAIL_GB GB of memory available, please set a lower value."
+  AVAIL_MEM=$(formatBytes "$RAM_AVAIL")
+  msg="Your configured RAM_SIZE of ${RAM_SIZE/G/ GB} is too high for the $AVAIL_MEM of memory available, please set a lower value."
   [[ "${FS,,}" != "zfs" ]] && error "$msg" && exit 17
   info "$msg"
 fi
@@ -144,7 +176,7 @@ fi
 # Helper functions
 
 isAlive() {
-  local pid=$1
+  local pid="$1"
 
   if kill -0 "$pid" 2>/dev/null; then
     return 0
@@ -154,7 +186,7 @@ isAlive() {
 }
 
 pKill() {
-  local pid=$1
+  local pid="$1"
 
   { kill -15 "$pid" || true; } 2>/dev/null
 
@@ -166,7 +198,7 @@ pKill() {
 }
 
 fWait() {
-  local name=$1
+  local name="$1"
 
   while pgrep -f -l "$name" >/dev/null; do
     sleep 0.2
@@ -176,7 +208,7 @@ fWait() {
 }
 
 fKill() {
-  local name=$1
+  local name="$1"
 
   { pkill -f "$name" || true; } 2>/dev/null
   fWait "$name"
