@@ -32,18 +32,21 @@ if [ -e "$MSRS" ]; then
   fi
 fi
 
+CLOCKSOURCE="tsc"
+[[ "${ARCH,,}" == "arm64" ]] && CLOCKSOURCE="arch_sys_counter﻿"
 CLOCK="/sys/devices/system/clocksource/clocksource0/current_clocksource"
-if [ -f "$CLOCK" ]; then
+
+if [ ! -f "$CLOCK" ]; then
+  warn "file \"$CLOCK\" cannot not found?"
+else
   result=$(<"$CLOCK")
   case "${result,,}" in
-    "arch_sys_counter﻿" ) ;;
+    "${CLOCKSOURCE,,}" ) ;;
     "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
     "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
-    "hpet" ) warn "unsupported clock source ﻿detected﻿: '$result'." ;;
-    *) warn "unexpected clock source ﻿detected﻿: '$result'." ;;
+    "hpet" ) warn "unsupported clock source ﻿detected﻿: '$result'. Please﻿ ﻿set host clock source to '$CLOCKSOURCE'" ;;
+    *) warn "unexpected clock source ﻿detected﻿: '$result'. Please﻿ ﻿set host clock source to '$CLOCKSOURCE'" ;;
   esac
-else
-  warn "file \"$CLOCK\" cannot not found?"
 fi
 
 if [[ "${ARCH,,}" != "arm64" ]]; then
