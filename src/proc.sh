@@ -24,7 +24,29 @@ if [[ "$CPU" == "Rockchip RK3588"* ]] && [[ "$CORES" == "8" ]]; then
   [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
 fi
 
- if [[ "${ARCH,,}" != "arm64" ]]; then
+MSRS="/sys/module/kvm/parameters/ignore_msrs"
+if [ -e "$MSRS" ]; then
+  result=$(<"$MSRS")
+  if [[ "$result" == "0" ]] || [[ "${result^^}" == "N" ]]; then
+    echo 1 | tee "$MSRS" > /dev/null 2>&1 || true
+  fi
+fi
+
+CLOCK="/sys/devices/system/clocksource/clocksource0/current_clocksource"
+if [ -f "$CLOCK" ]; then
+  result=$(<"$CLOCK")
+  case "${result,,}" in
+    "arch_sys_counter﻿" ) ;;
+    "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
+    "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
+    "hpet" ) warn "unsupported clock source ﻿detected﻿: '$result'." ;;
+    *) warn "unexpected clock source ﻿detected﻿: '$result'." ;;
+  esac
+else
+  warn "file \"$CLOCK\" cannot not found?"
+fi
+
+if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
   warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
 fi
