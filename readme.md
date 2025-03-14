@@ -282,7 +282,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   ```yaml
   volumes:
-    -  ./example:/shared
+    - ./example:/shared
   ```
 
   Then start the container and execute the following command in the guest:
