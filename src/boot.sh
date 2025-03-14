@@ -2,23 +2,17 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${BIOS:=""}"             # BIOS file
+: "${BIOS:=""}"         # BIOS file
+: "${SMM:="N"}"         # Disable SMM
+
+BOOT_DESC=""
+BOOT_OPTS=""
 
 SECURE="off"
-BOOT_OPTS=""
-BOOT_DESC=""
-
-if [ -n "$BIOS" ]; then
-  BOOT_MODE="custom"
-  BOOT_OPTS="-bios $BIOS"
-  BOOT_DESC=" with custom BIOS file"
-  return 0
-fi
+[[ "$SMM" == [Yy1]* ]] && SECURE="on"
+[ -n "$BIOS" ] && BOOT_MODE="custom"
 
 case "${BOOT_MODE,,}" in
-  "legacy" )
-    BOOT_DESC=" with SeaBIOS"
-    ;;
   "uefi" | "" )
     BOOT_MODE="uefi"
     ROM="AAVMF_CODE.no-secboot.fd"
@@ -41,6 +35,13 @@ case "${BOOT_MODE,,}" in
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     BOOT_OPTS="-rtc base=localtime"
+    ;;
+  "legacy" )
+    BOOT_DESC=" with SeaBIOS"
+    ;;
+  "custom" )
+    BOOT_OPTS="-bios $BIOS"
+    BOOT_DESC=" with custom BIOS file"
     ;;
   *)
     error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
