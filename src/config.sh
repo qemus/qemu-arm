@@ -17,8 +17,15 @@ MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},dump-guest-core=off${KVM_OPT
 [ -n "$UUID" ] && MAC_OPTS="$MAC_OPTS -uuid $UUID"
 DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
 DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
-[[ "${BOOT_MODE,,}" != "windows"* ]] && DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=pcie.0"
 
+if [[ "${BOOT_MODE,,}" != "windows"* ]]; then
+  DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=pcie.0"
+  if [ -d "/shared" ]; then
+    DEV_OPTS+=" -fsdev local,id=fsdev0,path=/shared,security_model=none"
+    DEV_OPTS+=" -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=shared"
+  fi
+fi
+  
 ARGS="$DEF_OPTS $CPU_OPTS $RAM_OPTS $MAC_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS ${USB_OPTS:-} $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $ARGUMENTS"
 ARGS=$(echo "$ARGS" | sed 's/\t/ /g' | tr -s ' ')
 

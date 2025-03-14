@@ -276,6 +276,23 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
     - /dev/bus/usb
   ```
 
+### How do I share files with the host?
+
+  To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
+
+  ```yaml
+  volumes:
+    -  ./example:/shared
+  ```
+
+  Then start the container and execute the following command in the guest:
+
+  ```shell
+  mount -t 9p -o trans=virtio shared /mnt/example
+  ```
+
+  Now the `./example` directory on the host will be available as `/mnt/example` in the guest.
+
 ### How can I provide custom arguments to QEMU?
 
   You can create the `ARGUMENTS` environment variable to provide additional arguments to QEMU at runtime:
