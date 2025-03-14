@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 # Docker environment variables
 : "${BIOS:=""}"         # BIOS file
-: "${SECURE:="off"}"         # Disable SMM
+: "${SECURE:="off"}"    # Secure boot
 
 BOOT_DESC=""
 BOOT_OPTS=""
