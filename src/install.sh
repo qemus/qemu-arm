@@ -29,9 +29,6 @@ getURL() {
     "kali" )
       name="Kali Linux"
       url="https://cdimage.kali.org/kali-2024.4/kali-linux-2024.4-live-arm64.iso" ;;
-    "manjaro" )
-      name="Manjaro"
-      url="https://github.com/manjaro-arm/generic-images/releases/download/23.02/Manjaro-ARM-gnome-generic-23.02.img.xz" ;;
     "nixos" )
       name="NixOS"
       url="https://channels.nixos.org/nixos-24.11/latest-nixos-gnome-aarch64-linux.iso" ;;
