@@ -99,7 +99,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   | `fedora`   | Fedora          | 2.9 GB   |
   | `gentoo`   | Gentoo          | 1.3 GB   |
   | `kali`     | Kali Linux      | 3.4 GB   |
-  | `manjaro`  | Manjaro         | 1.2 GB   |
   | `nixos`    | NixOS           | 2.4 GB   |
   | `oracle`   | Oracle Linux    | 1.0 GB   |
   | `rocky`    | Rocky Linux     | 1.9 GB   |
