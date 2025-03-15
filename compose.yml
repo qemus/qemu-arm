@@ -3,7 +3,7 @@ services:
     container_name: qemu
     image: qemux/qemu-arm
     environment:
-      BOOT: "kali"
+      BOOT: "alpine"
     devices:
       - /dev/kvm
       - /dev/net/tun
