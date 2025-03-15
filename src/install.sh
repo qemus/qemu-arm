@@ -1,59 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-getURL() {
-  local id="${1/ /}"
-  local ret="$2"
-  local url=""
-  local name=""
-
-  case "${id,,}" in
-    "alma" )
-      name="AlmaLinux"
-      url="https://repo.almalinux.org/almalinux/9/live/aarch64/AlmaLinux-9.5-aarch64-Live-GNOME.iso" ;;
-    "alpine" )
-      name="Alpine Linux"
-      url="https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-virt-3.19.1-aarch64.iso" ;;
-    "centos" )
-      name="CentOS Stream"
-      url="https://mirrors.xtom.de/centos-stream/10-stream/BaseOS/aarch64/iso/CentOS-Stream-10-latest-aarch64-dvd1.iso" ;;
-    "debian" )
-      name="Debian"
-      url="https://cdimage.debian.org/debian-cd/current/arm64/iso-dvd/debian-12.9.0-arm64-DVD-1.iso" ;;
-    "fedora" )
-      name="Fedora Linux"
-      url="https://eu.edge.kernel.org/fedora/releases/41/Workstation/aarch64/images/Fedora-Workstation-41-1.4.aarch64.raw.xz" ;;
-    "gentoo" )
-      name="Gentoo Linux"
-      url="https://distfiles.gentoo.org/releases/arm64/autobuilds/20250309T234826Z/di-arm64-cloudinit-20250309T234826Z.qcow2" ;;
-    "kali" )
-      name="Kali Linux"
-      url="https://cdimage.kali.org/kali-2024.4/kali-linux-2024.4-live-arm64.iso" ;;
-    "nixos" )
-      name="NixOS"
-      url="https://channels.nixos.org/nixos-24.11/latest-nixos-gnome-aarch64-linux.iso" ;;
-    "oracle" )
-      name="Oracle Linux"
-      url="https://yum.oracle.com/ISOS/OracleLinux/OL9/u5/aarch64/OracleLinux-R9-U5-aarch64-boot-uek.iso" ;;
-    "rocky" )
-      name="Rocky Linux"
-      url="https://dl.rockylinux.org/pub/rocky/9/live/aarch64/Rocky-9-Workstation-aarch64-latest.iso" ;;
-    "ubuntu" )
-      name="Ubuntu Desktop"
-      url="https://cdimage.ubuntu.com/ubuntu/releases/24.10/release/ubuntu-24.10-desktop-arm64.iso" ;;
-    "ubuntus" )
-      name="Ubuntu Server"
-      url="https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.2-live-server-arm64.iso" ;;
-  esac
-
-  case "${ret,,}" in
-    "name" ) echo "$name" ;;
-    *) echo "$url";;
-  esac
-
-  return 0
-}
-
 moveFile() {
 
   local file="$1"
