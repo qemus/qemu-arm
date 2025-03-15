@@ -2,23 +2,14 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${BIOS:=""}"             # BIOS file
+: "${BIOS:=""}"         # BIOS file
+: "${SECURE:="off"}"    # Secure boot
 
-SECURE="off"
-BOOT_OPTS=""
 BOOT_DESC=""
-
-if [ -n "$BIOS" ]; then
-  BOOT_MODE="custom"
-  BOOT_OPTS="-bios $BIOS"
-  BOOT_DESC=" with custom BIOS file"
-  return 0
-fi
+BOOT_OPTS=""
+[ -n "$BIOS" ] && BOOT_MODE="custom"
 
 case "${BOOT_MODE,,}" in
-  "legacy" )
-    BOOT_DESC=" with SeaBIOS"
-    ;;
   "uefi" | "" )
     BOOT_MODE="uefi"
     ROM="AAVMF_CODE.no-secboot.fd"
@@ -41,6 +32,13 @@ case "${BOOT_MODE,,}" in
     ROM="AAVMF_CODE.ms.fd"
     VARS="AAVMF_VARS.ms.fd"
     BOOT_OPTS="-rtc base=localtime"
+    ;;
+  "legacy" )
+    BOOT_DESC=" with SeaBIOS"
+    ;;
+  "custom" )
+    BOOT_OPTS="-bios $BIOS"
+    BOOT_DESC=" with custom BIOS file"
     ;;
   *)
     error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
@@ -73,5 +71,30 @@ case "${BOOT_MODE,,}" in
 
     ;;
 esac
+
+MSRS="/sys/module/kvm/parameters/ignore_msrs"
+if [ -e "$MSRS" ]; then
+  result=$(<"$MSRS")
+  if [[ "$result" == "0" ]] || [[ "${result^^}" == "N" ]]; then
+    echo 1 | tee "$MSRS" > /dev/null 2>&1 || true
+  fi
+fi
+
+CLOCKSOURCE="tsc"
+[[ "${ARCH,,}" == "arm64" ]] && CLOCKSOURCE="arch_sys_counter﻿"
+CLOCK="/sys/devices/system/clocksource/clocksource0/current_clocksource"
+
+if [ ! -f "$CLOCK" ]; then
+  warn "file \"$CLOCK\" cannot not found?"
+else
+  result=$(<"$CLOCK")
+  case "${result,,}" in
+    "${CLOCKSOURCE,,}" ) ;;
+    "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
+    "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
+    "hpet" ) warn "unsupported clock source ﻿detected﻿: '$result'. Please﻿ ﻿set host clock source to '$CLOCKSOURCE'" ;;
+    *) warn "unexpected clock source ﻿detected﻿: '$result'. Please﻿ ﻿set host clock source to '$CLOCKSOURCE'" ;;
+  esac
+fi
 
 return 0
