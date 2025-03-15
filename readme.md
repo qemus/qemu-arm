@@ -32,7 +32,7 @@ services:
     container_name: qemu
     image: qemux/qemu-arm
     environment:
-      BOOT: "https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-virt-3.19.1-aarch64.iso"
+      BOOT: "alpine"
     devices:
       - /dev/kvm
       - /dev/net/tun
@@ -49,7 +49,7 @@ services:
 Via Docker CLI:
 
 ```bash
-docker run -it --rm --name qemu -e "BOOT=http://example.com/image.iso" -p 8006:8006 --device=/dev/kvm --device=/dev/net/tun --cap-add NET_ADMIN -v ${PWD:-.}/qemu:/storage --stop-timeout 120 qemux/qemu-arm
+docker run -it --rm --name qemu -e "BOOT=alpine" -p 8006:8006 --device=/dev/kvm --device=/dev/net/tun --cap-add NET_ADMIN -v ${PWD:-.}/qemu:/storage --stop-timeout 120 qemux/qemu-arm
 ```
 
 Via Kubernetes:
@@ -72,7 +72,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   Very simple! These are the steps:
 
-  - Set the `BOOT` environment variable to the URL of any [disk image](#what-image-formats-are-supported) you want to install.
+  - Set the `BOOT` variable to the [operating system](#how-do-i-select-the-operating-system) you want to install.
 
   - Start the container and connect to [port 8006](http://localhost:8006) using your web browser.
 
@@ -80,24 +80,64 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   Enjoy your brand new machine, and don't forget to star this repo!
 
-### What image formats are supported?
+### How do I select the operating system?
+
+  You can use the `BOOT` environment variable in order to specify the operating system to be installed:
+
+  ```yaml
+  environment:
+    BOOT: "alpine"
+  ```
+  Select from the values below:
+  
+  | **Value**  | **Operating System** | **Size** |
+  |---|---|---|
+  | `alma`     | Alma Linux      | 1.7 GB  |
+  | `alpine`   | Alpine Linux    | 60 MB    |
+  | `centos`   | CentOS Stream   | 6.4 GB   |
+  | `debian`   | Debian          | 3.7 GB   |
+  | `fedora`   | Fedora          | 2.9 GB   |
+  | `gentoo`   | Gentoo          | 1.3 GB   |
+  | `kali`     | Kali Linux      | 3.4 GB   |
+  | `nixos`    | NixOS           | 2.4 GB   |
+  | `oracle`   | Oracle Linux    | 1.0 GB   |
+  | `rocky`    | Rocky Linux     | 1.9 GB   |
+  | `ubuntu`   | Ubuntu Desktop  | 3.3 GB   |
+  | `ubuntus`  | Ubuntu Server   | 2.7 GB   |
+
+### How can I use my own image?
+
+  If you want to boot an operating system that is not in the list, you can set the `BOOT` variable to the URL of the image:
+
+  ```yaml
+  environment:
+    BOOT: "https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-virt-3.19.1-aarch64.iso"
+  ```
 
   The `BOOT` URL accepts files in any of the following formats:
 
-  | **Extension** | **Format**   |
+  | **Extension** | **Format**  |
   |---|---|
-  | `.img`       | Raw           |
-  | `.raw`       | Raw           |
-  | `.iso`        | Optical       |
-  | `.qcow2` | QEMU         |
-  | `.vmdk`   | VMware      |
-  | `.vhd`       | VirtualPC   |
-  | `.vhdx`     | Hyper-V     |
-  | `.vdi`        | VirtualBox |
+  | `.img`        | Raw         |
+  | `.raw`        | Raw         |
+  | `.iso`        | Optical     |
+  | `.qcow2`      | QEMU        |
+  | `.vmdk`       | VMware      |
+  | `.vhd`        | VirtualPC   |
+  | `.vhdx`       | Hyper-V     |
+  | `.vdi`        | VirtualBox  |
 
-> [!TIP]
-> It will also accept `.img.gz`, `.qcow2.xz`, `.iso.zip` and many more, as it automaticly extracts compressed files.
+  It will also accept `.img.gz`, `.qcow2.xz`, `.iso.zip` and many more, as it automaticly extracts compressed files.
 
+  You can also use a local image file directly, and skip the download altogether, by binding it in your compose file like this:
+
+  ```yaml
+  volumes:
+    - ./example.iso:/boot.iso
+  ```
+
+  This way you can supply a `/boot.iso`, `/boot.img` or a `/boot.qcow2` file. The value of `BOOT` will be ignored in this case.
+  
 ### How do I change the storage location?
 
   To change the storage location, include the following bind mount in your compose file:
@@ -121,6 +161,18 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 > [!TIP]
 > This can also be used to resize the existing disk to a larger capacity without any data loss.
 
+### How do I change the amount of CPU or RAM?
+
+  By default, the container will be allowed to use a maximum of 1 CPU core and 1 GB of RAM.
+
+  If you want to adjust this, you can specify the desired amount using the following environment variables:
+
+  ```yaml
+  environment:
+    RAM_SIZE: "4G"
+    CPU_CORES: "4"
+  ```
+
 ### How do I increase the display resolution?
 
   For maximum compatibility, the display output will be a simple framebuffer by default. While this isn't the most optimal, it doesn't require any drivers.
@@ -137,49 +189,13 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 > [!NOTE]
 > Using this method your screen will stay black during the boot process, until the point where the driver is actually loaded.
  
-### How do I boot a local image?
-
-  You can use a local image file directly, and skip the download altogether, by binding it in your compose file:
-  
-  ```yaml
-  volumes:
-    - ./example.iso:/boot.iso
-  ```
-
-  You can supply a `boot.iso`, `boot.img` or `boot.qcow2` file by replacing the example path `./example.iso` with the filename of your desired image. The value of `BOOT` will be ignored in this case.
-
 ### How do I boot Windows?
 
   Use [dockur/windows-arm](https://github.com/dockur/windows-arm) instead, as it includes all the drivers required during installation, amongst many other features.
 
-### How do I boot a x86 image?
+### How do I boot x86/x64 images?
 
   You can use the [qemu](https://github.com/qemus/qemu/) container to run x86 and x64 images on ARM.
-
-### How do I boot without SCSI drivers?
-
-  By default, the machine makes use of `virtio-scsi` drives for performance reasons, and even though most Linux kernels bundle the necessary driver for this device, that may not always be the case for other operating systems.
-
-  If your machine fails to detect the hard drive, you can modify your compose file to use `virtio-blk` instead:
-
-  ```yaml
-  environment:
-    DISK_TYPE: "blk"
-  ```
-
-  If it still fails to boot, you can set the value to `usb` to emulate a USB drive, which is slower but requires no drivers and is compatible with almost every system.
-
-### How do I change the amount of CPU or RAM?
-
-  By default, the container will be allowed to use a maximum of 1 CPU core and 1 GB of RAM.
-
-  If you want to adjust this, you can specify the desired amount using the following environment variables:
-
-  ```yaml
-  environment:
-    RAM_SIZE: "4G"
-    CPU_CORES: "4"
-  ```
 
 ### How do I verify if my system supports KVM?
 

@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+moveFile() {
+
+  local file="$1"
+  local ext="${file##*.}"
+  local dest="$STORAGE/boot.$ext"
+
+  if [[ "$file" == "$dest" ]] || [[ "$file" == "/boot.$ext" ]]; then
+    BOOT="$file"
+    return 0
+  fi
+
+  if ! mv -f "$file" "$dest"; then
+    error "Failed to move $file to $dest !"
+    return 1
+  fi
+
+  BOOT="$dest"
+  return 0
+}
+
 detectType() {
 
   local dir=""
@@ -10,25 +30,26 @@ detectType() {
   [ ! -s "$file" ] && return 1
 
   case "${file,,}" in
-    *".iso" | *".img" | *".raw" | *".qcow2" )
-      BOOT="$file" ;;
+    *".iso" | *".img" | *".raw" | *".qcow2" ) ;;
     * ) return 1 ;;
   esac
 
-  [ -n "$BOOT_MODE" ] && return 0
-  [[ "${file,,}" != *".iso" ]] && return 0
+  if [ -n "$BOOT_MODE" ] || [[ "${file,,}" != *".iso" ]]; then
+    ! moveFile "$file" && return 1
+    return 0
+  fi
 
   # Automaticly detect UEFI-compatible ISO's
   dir=$(isoinfo -f -i "$file")
 
-  if [ -z "$dir" ]; then
-    BOOT=""
-    error "Failed to read ISO file, invalid format!" && return 1
+  if [ -n "$dir" ]; then
+    dir=$(echo "${dir^^}" | grep "^/EFI")
+    [ -z "$dir" ] && BOOT_MODE="legacy"
+  else
+    error "Failed to read ISO file, invalid format!"
   fi
 
-  dir=$(echo "${dir^^}" | grep "^/EFI")
-  [ -z "$dir" ] && BOOT_MODE="legacy"
-
+  ! moveFile "$file" && return 1
   return 0
 }
 
@@ -36,7 +57,8 @@ downloadFile() {
 
   local url="$1"
   local base="$2"
-  local msg rc total total_mb progress
+  local name="$3"
+  local msg rc total total_mb progress name
 
   local dest="$STORAGE/$base.tmp"
   rm -f "$dest"
@@ -48,8 +70,14 @@ downloadFile() {
     progress="--progress=dot:giga"
   fi
 
-  msg="Downloading image"
-  info "Downloading $base..."
+  if [ -z "$name" ]; then
+    name="$base"
+    msg="Downloading image"
+  else
+    msg="Downloading $name"
+  fi
+
+  info "Downloading $name..."
   html "$msg..."
 
   /run/progress.sh "$dest" "0" "$msg ([P])..." &
@@ -189,7 +217,22 @@ findFile "qcow2" && return 0
 
 if [ -z "$BOOT" ] || [[ "$BOOT" == *"example.com/image.iso" ]]; then
   hasDisk && return 0
-  error "No boot disk specified, set BOOT= to the URL of a disk image file." && exit 64
+  error "No value specified for the BOOT variable." && exit 64
+fi
+
+! getURL "$BOOT" "test" && exit 34
+
+url=$(getURL "$BOOT" "url")
+name=$(getURL "$BOOT" "name")
+
+[ -n "$url" ] && BOOT="$url"
+
+if [[ "$BOOT" != *"."* ]]; then
+  error "Invalid BOOT value specified, shortcut \"$BOOT\" is not recognized!" && exit 64
+fi
+
+if [[ "${BOOT,,}" != "http"* ]]; then
+  error "Invalid BOOT value specified, \"$BOOT\" is not a valid URL!" && exit 64
 fi
 
 base=$(basename "${BOOT%%\?*}")
@@ -227,7 +270,7 @@ case "${base,,}" in
   * ) error "Unknown file extension, type \".${base/*./}\" is not recognized!" && exit 33 ;;
 esac
 
-if ! downloadFile "$BOOT" "$base"; then
+if ! downloadFile "$BOOT" "$base" "$name"; then
   rm -f "$STORAGE/$base.tmp" && exit 60
 fi
 
@@ -298,4 +341,4 @@ dst="$STORAGE/${base%.*}.$target_ext"
 
 base=$(basename "$dst")
 detectType "$STORAGE/$base" && return 0
-error "Cannot read file \"${base}\"" && exit 36
+error "Cannot convert file \"${base}\"" && exit 36
