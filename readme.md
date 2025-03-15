@@ -32,7 +32,7 @@ services:
     container_name: qemu
     image: qemux/qemu-arm
     environment:
-      BOOT: "mint"
+      BOOT: "alpine"
     devices:
       - /dev/kvm
       - /dev/net/tun
@@ -49,7 +49,7 @@ services:
 Via Docker CLI:
 
 ```bash
-docker run -it --rm --name qemu -e "BOOT=mint" -p 8006:8006 --device=/dev/kvm --device=/dev/net/tun --cap-add NET_ADMIN -v ${PWD:-.}/qemu:/storage --stop-timeout 120 qemux/qemu-arm
+docker run -it --rm --name qemu -e "BOOT=alpine" -p 8006:8006 --device=/dev/kvm --device=/dev/net/tun --cap-add NET_ADMIN -v ${PWD:-.}/qemu:/storage --stop-timeout 120 qemux/qemu-arm
 ```
 
 Via Kubernetes:
@@ -86,35 +86,25 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   ```yaml
   environment:
-    BOOT: "mint"
+    BOOT: "alpine"
   ```
   Select from the values below:
   
   | **Value**  | **Operating System** | **Size** |
   |---|---|---|
-  | `alma`     | Alma Linux      | x GB  |
-  | `alpine`   | Alpine Linux    | x MB    |
-  | `arch`     | Arch Linux      | x GB   |
-  | `cachy`    | CachyOS         | x GB   |
-  | `centos`   | CentOS Stream   | x GB   |
-  | `debian`   | Debian          | x GB   |
-  | `endeavour`| EndeavourOS     | x GB   |
-  | `fedora`   | Fedora          | x GB   |
-  | `gentoo`   | Gentoo          | x GB   |
-  | `kali`     | Kali Linux      | x GB   |
-  | `kubuntu`  | Kubuntu         | x GB   |
-  | `mint`     | Linux Mint      | x GB   |
-  | `manjaro`  | Manjaro         | x GB   |
-  | `mx`       | MX Linux        | x GB   |
-  | `nixos`    | NixOS           | x GB   |
-  | `opensuse` | OpenSUSE        | x GB   |
-  | `oracle`   | Oracle Linux    | x GB   |
-  | `rocky`    | Rocky Linux     | x GB   |
-  | `slack`    | Slackware       | x GB   |
-  | `tails`    | Tails           | x GB   |
-  | `ubuntu`   | Ubuntu Desktop  | x GB   |
-  | `ubuntus`  | Ubuntu Server   | x GB   |
-  | `xubuntu`  | Xubuntu         | x GB   |
+  | `alma`     | Alma Linux      | 1.7 GB  |
+  | `alpine`   | Alpine Linux    | 60 MB    |
+  | `centos`   | CentOS Stream   | 6.4 GB   |
+  | `debian`   | Debian          | 3.7 GB   |
+  | `fedora`   | Fedora          | 2.9 GB   |
+  | `gentoo`   | Gentoo          | 1.3 GB   |
+  | `kali`     | Kali Linux      | 3.4 GB   |
+  | `manjaro`  | Manjaro         | 1.2 GB   |
+  | `nixos`    | NixOS           | 2.4 GB   |
+  | `oracle`   | Oracle Linux    | 1.0 GB   |
+  | `rocky`    | Rocky Linux     | 1.9 GB   |
+  | `ubuntu`   | Ubuntu Desktop  | 3.3 GB   |
+  | `ubuntus`  | Ubuntu Server   | 2.7 GB   |
 
 ### How can I use my own image?
 
