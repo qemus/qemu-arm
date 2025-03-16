@@ -82,7 +82,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ### How do I select the operating system?
 
-  You can use the `BOOT` environment variable in order to specify the operating system to be installed:
+  You can use the `BOOT` environment variable in order to specify the operating system that will be downloaded:
 
   ```yaml
   environment:
@@ -107,7 +107,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ### How can I use my own image?
 
-  If you want to boot an operating system that is not in the list, you can set the `BOOT` variable to the URL of the image:
+  If you want to download an operating system that is not in the list above, you can set the `BOOT` variable to the URL of the image:
 
   ```yaml
   environment:
