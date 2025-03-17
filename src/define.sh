@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+pipe() {
+  local code="99"
+  msg="Failed to connect to $1, reason:"
+
+  curl --disable --silent --max-time 10 --fail --location "${1}" || {
+    code="$?"
+  }
+
+  case "${code,,}" in
+    "6" ) error "$msg could not resolve host!" ;;
+    "7" ) error "$msg no internet connection available!" ;;
+    "28" ) error "$msg connection timed out!" ;;
+    "99" ) return 0 ;;
+    *) error "$msg $code" ;;
+  esac
+
+  return 1
+}
+
 getURL() {
   local id="${1/ /}"
   local ret="$2"
@@ -29,8 +48,10 @@ getURL() {
       arm="https://mirrors.xtom.de/centos-stream/10-stream/BaseOS/aarch64/iso/CentOS-Stream-10-latest-aarch64-dvd1.iso" ;;
     "debian" )
       name="Debian"
-      url="https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-12.9.0-amd64-gnome.iso"
-      arm="https://cdimage.debian.org/debian-cd/current/arm64/iso-dvd/debian-12.9.0-arm64-DVD-1.iso" ;;
+      version=$(pipe "https://cdimage.debian.org/debian-cd/") || exit 65
+      version=$(echo "$version" | grep '\.[0-9]/' | cut -d'>' -f 9 | cut -d'/' -f 1)
+      url="https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-$version-amd64-standard.iso"
+      arm="https://cdimage.debian.org/debian-cd/current/arm64/iso-dvd/debian-$version-arm64-DVD-1.iso" ;;
     "endeavour" | "endeavouros" )
       name="EndeavourOS"
       url="https://mirrors.gigenet.com/endeavouros/iso/EndeavourOS_Mercury-2025.02.08.iso" ;;
@@ -49,6 +70,9 @@ getURL() {
     "kubuntu" )
       name="Kubuntu"
       url="https://cdimage.ubuntu.com/kubuntu/releases/24.10/release/kubuntu-24.10-desktop-amd64.iso" ;;
+    "lmde" )
+      name="Linux Mint Debian Edition"
+      url="https://mirror.rackspace.com/linuxmint/iso/debian/lmde-6-cinnamon-64bit.iso" ;;
     "macos" | "osx" )
       name="macOS"
       error "To install $name use: https://github.com/dockur/macos" && return 1 ;;
