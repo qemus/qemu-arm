@@ -54,7 +54,7 @@ ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/conf/man
 ADD --chmod=744 https://raw.githubusercontent.com/qemus/qemu/master/web/conf/nginx.conf /etc/nginx/sites-enabled/web.conf
 
 VOLUME /storage
-EXPOSE 22 5900 8006
+EXPOSE 22 80 5900
 
 ENV CPU_CORES="1"
 ENV RAM_SIZE="1G"
