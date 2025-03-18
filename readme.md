@@ -94,7 +94,8 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   |---|---|---|
   | `alma`     | Alma Linux      | 1.7 GB  |
   | `alpine`   | Alpine Linux    | 60 MB    |
-  | `centos`   | CentOS Stream   | 6.4 GB   |
+  | `cachy`    | CachyOS         | 2.6 GB   |
+  | `centos`   | CentOS          | 6.4 GB   |
   | `debian`   | Debian          | 3.7 GB   |
   | `fedora`   | Fedora          | 2.9 GB   |
   | `gentoo`   | Gentoo          | 1.3 GB   |
