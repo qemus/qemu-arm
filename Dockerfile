@@ -10,6 +10,8 @@ ARG DEBCONF_NONINTERACTIVE_SEEN="true"
 RUN set -eu && \
     apt-get update && \
     apt-get --no-install-recommends -y install \
+        bc \
+        jq \
         tini \
         wget \
         7zip \
