@@ -74,7 +74,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   - Set the `BOOT` variable to the [operating system](#how-do-i-select-the-operating-system) you want to install.
 
-  - Start the container and connect to [port 8006](http://localhost:8006) using your web browser.
+  - Start the container and connect to [port 8006](http://127.0.0.1:8006/) using your web browser.
 
   - You will see the screen and can now install the OS of your choice using your keyboard and mouse.
 
@@ -94,12 +94,14 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   |---|---|---|
   | `alma`     | Alma Linux      | 1.7 GB  |
   | `alpine`   | Alpine Linux    | 60 MB    |
-  | `centos`   | CentOS Stream   | 6.4 GB   |
+  | `cachy`    | CachyOS         | 2.6 GB   |
+  | `centos`   | CentOS          | 6.4 GB   |
   | `debian`   | Debian          | 3.7 GB   |
   | `fedora`   | Fedora          | 2.9 GB   |
   | `gentoo`   | Gentoo          | 1.3 GB   |
   | `kali`     | Kali Linux      | 3.4 GB   |
   | `nixos`    | NixOS           | 2.4 GB   |
+  | `suse`     | OpenSUSE        | 1.0 GB   |
   | `oracle`   | Oracle Linux    | 1.0 GB   |
   | `rocky`    | Rocky Linux     | 1.9 GB   |
   | `ubuntu`   | Ubuntu Desktop  | 3.3 GB   |
@@ -163,13 +165,13 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ### How do I change the amount of CPU or RAM?
 
-  By default, the container will be allowed to use a maximum of 1 CPU core and 1 GB of RAM.
+  By default, the container will be allowed to use a maximum of 2 CPU cores and 2 GB of RAM.
 
   If you want to adjust this, you can specify the desired amount using the following environment variables:
 
   ```yaml
   environment:
-    RAM_SIZE: "4G"
+    RAM_SIZE: "8G"
     CPU_CORES: "4"
   ```
 
