@@ -98,19 +98,19 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   | **Value**  | **Operating System** | **Size** |
   |---|---|---|
   | `alma`     | Alma Linux      | 1.7 GB  |
-  | `alpine`   | Alpine Linux    | 60 MB    |
-  | `cachy`    | CachyOS         | 2.6 GB   |
-  | `centos`   | CentOS          | 6.4 GB   |
-  | `debian`   | Debian          | 3.7 GB   |
-  | `fedora`   | Fedora          | 2.9 GB   |
-  | `gentoo`   | Gentoo          | 1.3 GB   |
-  | `kali`     | Kali Linux      | 3.4 GB   |
-  | `nixos`    | NixOS           | 2.4 GB   |
-  | `suse`     | OpenSUSE        | 1.0 GB   |
-  | `oracle`   | Oracle Linux    | 1.0 GB   |
-  | `rocky`    | Rocky Linux     | 1.9 GB   |
-  | `ubuntu`   | Ubuntu Desktop  | 3.3 GB   |
-  | `ubuntus`  | Ubuntu Server   | 2.7 GB   |
+  | `alpine`   | Alpine Linux    | 60 MB   |
+  | `cachy`    | CachyOS         | 2.6 GB  |
+  | `centos`   | CentOS          | 6.4 GB  |
+  | `debian`   | Debian          | 3.7 GB  |
+  | `fedora`   | Fedora          | 2.9 GB  |
+  | `gentoo`   | Gentoo          | 1.3 GB  |
+  | `kali`     | Kali Linux      | 3.4 GB  |
+  | `nixos`    | NixOS           | 2.4 GB  |
+  | `suse`     | OpenSUSE        | 1.0 GB  |
+  | `oracle`   | Oracle Linux    | 1.0 GB  |
+  | `rocky`    | Rocky Linux     | 1.9 GB  |
+  | `ubuntu`   | Ubuntu Desktop  | 3.3 GB  |
+  | `ubuntus`  | Ubuntu Server   | 2.7 GB  |
 
 ### How can I use my own image?
 
