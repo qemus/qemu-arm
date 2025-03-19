@@ -14,7 +14,7 @@ set -Eeuo pipefail
 : "${VM_NET_DEV:=""}"
 : "${VM_NET_TAP:="qemu"}"
 : "${VM_NET_MAC:="$MAC"}"
-: "${VM_NET_HOST:="QEMU"}"
+: "${VM_NET_HOST:="$APP"}"
 : "${VM_NET_IP:="20.20.20.21"}"
 
 : "${DNSMASQ_OPTS:=""}"
