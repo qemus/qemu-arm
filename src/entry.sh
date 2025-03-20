@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 : "${APP:="QEMU"}"
+: "${MACHINE:="virt"}"
 : "${SUPPORT:="https://github.com/qemus/qemu-arm"}"
 
 cd /run
