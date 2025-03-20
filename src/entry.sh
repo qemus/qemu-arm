@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-PLATFORM="arm64"
-
 : "${APP:="QEMU"}"
 : "${MACHINE:="virt"}"
+: "${PLATFORM:="arm64"}"
 : "${SUPPORT:="https://github.com/qemus/qemu-arm"}"
 
 cd /run
