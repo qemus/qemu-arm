@@ -46,15 +46,12 @@ RUN set -eu && \
     echo "$VERSION_ARG" > /run/version && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --chmod=755 ./src /run/
+COPY --from=qemux/qemu:${VERSION_ARG} /run /run
+COPY --from=qemux/qemu:${VERSION_ARG} /var/www /var/www
+COPY --from=qemux/qemu:${VERSION_ARG} /usr/share/novnc /usr/share/novnc
+COPY --from=qemux/qemu:${VERSION_ARG} /etc/nginx/sites-enabled /etc/nginx/sites-enabled
 
-ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/index.html /var/www/index.html
-ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/js/script.js /var/www/js/script.js
-ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/css/style.css /var/www/css/style.css
-ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/img/favicon.svg /var/www/img/favicon.svg
-ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/conf/defaults.json /usr/share/novnc
-ADD --chmod=664 https://raw.githubusercontent.com/qemus/qemu/master/web/conf/mandatory.json /usr/share/novnc
-ADD --chmod=744 https://raw.githubusercontent.com/qemus/qemu/master/web/conf/nginx.conf /etc/nginx/sites-enabled/web.conf
+COPY --chmod=755 ./src /run/
 
 VOLUME /storage
 EXPOSE 22 5900 8006
