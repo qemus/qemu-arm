@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+PLATFORM="arm64"
+
 : "${APP:="QEMU"}"
 : "${MACHINE:="virt"}"
 : "${SUPPORT:="https://github.com/qemus/qemu-arm"}"
