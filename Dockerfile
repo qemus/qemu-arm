@@ -1,7 +1,10 @@
+ARG VERSION_ARG="latest"
+
+FROM qemux/qemu:${VERSION_ARG} AS src
 FROM debian:trixie-slim
 
+ARG VERSION_ARG="0.0"
 ARG VERSION_VNC="1.6.0"
-ARG VERSION_ARG="latest"
 
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -46,10 +49,10 @@ RUN set -eu && \
     echo "$VERSION_ARG" > /run/version && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=qemux/qemu:${VERSION_ARG} /run /run
-COPY --from=qemux/qemu:${VERSION_ARG} /var/www /var/www
-COPY --from=qemux/qemu:${VERSION_ARG} /usr/share/novnc /usr/share/novnc
-COPY --from=qemux/qemu:${VERSION_ARG} /etc/nginx/sites-enabled /etc/nginx/sites-enabled
+COPY --from=src /run /run
+COPY --from=src /var/www /var/www
+COPY --from=src /usr/share/novnc /usr/share/novnc
+COPY --from=src /etc/nginx/sites-enabled /etc/nginx/sites-enabled
 
 COPY --chmod=755 ./src /run/
 
