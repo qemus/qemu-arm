@@ -49,7 +49,7 @@ RUN set -eu && \
     echo "$VERSION_ARG" > /run/version && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=src /run /run
+COPY --from=src /run/*.sh /run
 COPY --from=src /var/www /var/www
 COPY --from=src /usr/share/novnc /usr/share/novnc
 COPY --from=src /etc/nginx/sites-enabled /etc/nginx/sites-enabled
