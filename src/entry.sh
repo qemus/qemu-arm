@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 : "${APP:="QEMU"}"
 : "${MACHINE:="virt"}"
+: "${PLATFORM:="arm64"}"
 : "${SUPPORT:="https://github.com/qemus/qemu-arm"}"
 
 cd /run
