@@ -75,20 +75,22 @@ esac
 MSRS="/sys/module/kvm/parameters/ignore_msrs"
 if [ -e "$MSRS" ]; then
   result=$(<"$MSRS")
+  result="${result//[![:print:]]/}"
   if [[ "$result" == "0" ]] || [[ "${result^^}" == "N" ]]; then
     echo 1 | tee "$MSRS" > /dev/null 2>&1 || true
   fi
 fi
 
 CLOCKSOURCE="tsc"
-[[ "${ARCH,,}" == "arm64" ]] && CLOCKSOURCE="arch_sys_counter﻿"
+[[ "${ARCH,,}" == "arm64" ]] && CLOCKSOURCE="arch_sys_counter"
 CLOCK="/sys/devices/system/clocksource/clocksource0/current_clocksource"
 
 if [ ! -f "$CLOCK" ]; then
   warn "file \"$CLOCK\" cannot not found?"
 else
   result=$(<"$CLOCK")
-  case "${result//[^[:alpha:]_- ]/}" in
+  result="${result//[![:print:]]/}"
+  case "${result,,}" in
     "${CLOCKSOURCE,,}" ) ;;
     "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
     "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
