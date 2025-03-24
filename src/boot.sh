@@ -88,7 +88,7 @@ if [ ! -f "$CLOCK" ]; then
   warn "file \"$CLOCK\" cannot not found?"
 else
   result=$(<"$CLOCK")
-  case "${result,,}" in
+  case "${result//[^[:alpha:]_- ]/}" in
     "${CLOCKSOURCE,,}" ) ;;
     "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
     "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
