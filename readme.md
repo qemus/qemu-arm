@@ -60,7 +60,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ##### Via Github Codespaces:
 
-[`Click here to launch this container in the cloud!`](https://github.com/codespaces/new?skip_quickstart=true&machine=basicLinux32gb&repo=626637620&ref=master&devcontainer_path=.devcontainer.json)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=626637620&machine=basicLinux32gb)
 
 ## FAQ 💬
 
