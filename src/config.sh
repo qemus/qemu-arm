@@ -16,7 +16,7 @@ MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},dump-guest-core=off${KVM_OPTS}"
 
 [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
-[ -s "$SM_BIOS" ] && MAC_OPTS+=" -smbios file=$SM_BIOS"
+[ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
 
 DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
 DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
