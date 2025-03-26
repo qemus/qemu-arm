@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 : "${UUID:=""}"
 : "${SERIAL:="mon:stdio"}"
-: "${USB:="qemu-xhci,id=xhci"}"
+: "${USB:="qemu-xhci,id=xhci,p2=7,p3=7"}"
 : "${MONITOR:="telnet:localhost:7100,server,nowait,nodelay"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
@@ -14,7 +14,7 @@ RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on"
 [ -n "$USB" ] && [[ "${USB,,}" != "no"* ]] && USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},dump-guest-core=off${KVM_OPTS}"
-[ -n "$UUID" ] && MAC_OPTS="$MAC_OPTS -uuid $UUID"
+[ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
 DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
 DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
 
