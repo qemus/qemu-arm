@@ -99,4 +99,11 @@ else
   esac
 fi
 
+SM_BIOS="/run/shm/bios.bin"
+rm -f "$SM_BIOS"
+
+if ! dmidecode --dump-bin "$SM_BIOS" >/dev/null; then
+  SM_BIOS=""
+fi
+
 return 0
