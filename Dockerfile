@@ -38,7 +38,7 @@ RUN set -eu && \
     apt-get clean && \
     mkdir -p /etc/qemu && \
     echo "allow br0" > /etc/qemu/bridge.conf && \
-    wget "https://kali.download/kali/pool/main/e/edk2/qemu-efi-aarch64_2024.11-5_all.deb" -O /tmp/aavmf.deb -q --timeout=10 && \
+    wget "https://snapshot.debian.org/archive/debian/20250128T092032Z/pool/main/e/edk2/qemu-efi-aarch64_2024.11-5_all.deb" -O /tmp/aavmf.deb -q --timeout=10 && \
     dpkg -i /tmp/aavmf.deb && \
     mkdir -p /usr/share/novnc && \
     wget "https://github.com/novnc/noVNC/archive/refs/tags/v${VERSION_VNC}.tar.gz" -O /tmp/novnc.tar.gz -q --timeout=10 && \
