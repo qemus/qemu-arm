@@ -28,12 +28,10 @@ RUN set -eu && \
         dnsmasq \
         xz-utils \
         net-tools \
-        e2fsprogs \
         qemu-utils \
         iputils-ping \
         genisoimage \
         ca-certificates \
-        netcat-openbsd \
         qemu-system-arm && \
     apt-get clean && \
     mkdir -p /etc/qemu && \
