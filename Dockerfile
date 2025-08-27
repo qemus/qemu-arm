@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG VERSION_ARG="latest"
 
 FROM qemux/qemu:${VERSION_ARG} AS src
