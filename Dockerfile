@@ -35,6 +35,7 @@ RUN set -eu && \
         qemu-utils \
         iputils-ping \
         genisoimage \
+        netcat-openbsd \
         ca-certificates \
         qemu-system-arm && \
     apt-get clean && \
