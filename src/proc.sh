@@ -29,6 +29,8 @@ if [[ "${ARCH,,}" != "arm64" ]]; then
   warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
 fi
 
+[[ "${ARGUMENTS,,}" == "-cpu host" ]] && KVM="Y" && ARGUMENTS=""
+
 if [[ "$KVM" != [Nn]* ]]; then
 
   KVM_ERR=""
@@ -88,6 +90,18 @@ else
     MACHINE+=",virtualization=on"
   fi
 
+fi
+
+if [[ "${ARGUMENTS,,}" == "-cpu host,"* ]]; then
+  args="${ARGUMENTS:10}"
+  if [[ "$args" != *" "* ]]; then
+    ARGUMENTS=""
+    if [ -z "$CPU_FLAGS" ]; then
+      CPU_FLAGS="$args"
+    else
+      CPU_FLAGS+=",$args"
+    fi
+  fi
 fi
 
 if [ -z "$CPU_FLAGS" ]; then
