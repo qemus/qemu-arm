@@ -37,16 +37,15 @@ RUN set -eu && \
         genisoimage \
         netcat-openbsd \
         ca-certificates \
-        qemu-system-arm && \
+        qemu-system-arm \
+        qemu-efi-aarch64 && \
     apt-get clean && \
     mkdir -p /etc/qemu && \
     echo "allow br0" > /etc/qemu/bridge.conf && \
-    wget "https://snapshot.debian.org/archive/debian/20250128T092032Z/pool/main/e/edk2/qemu-efi-aarch64_2024.11-5_all.deb" -O /tmp/aavmf.deb -q --timeout=10 && \
-    dpkg -i /tmp/aavmf.deb && \
     mkdir -p /usr/share/novnc && \
-    wget "https://github.com/novnc/noVNC/archive/refs/tags/v${VERSION_VNC}.tar.gz" -O /tmp/novnc.tar.gz -q --timeout=10 && \
+    wget "https://github.com/novnc/noVNC/archive/refs/heads/master.tar.gz" -O /tmp/novnc.tar.gz -q --timeout=10 && \
     tar -xf /tmp/novnc.tar.gz -C /tmp/ && \
-    cd "/tmp/noVNC-${VERSION_VNC}" && \
+    cd "/tmp/noVNC-master" && \
     mv app core vendor package.json *.html /usr/share/novnc && \
     unlink /etc/nginx/sites-enabled/default && \
     sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf && \
