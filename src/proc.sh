@@ -9,17 +9,17 @@ set -Eeuo pipefail
 : "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="neoverse-n1"}"
 
-if [[ "$CPU" == "Cortex A53" ]] && [[ "$CORES" == "6" ]]; then
+if [[ "$CPU" == "Cortex A53" && "$CORES" == "6" ]]; then
   # Pin to performance cores on Rockchip Orange Pi 4
   [ -z "$CPU_PIN" ] && CPU_PIN="4,5"
 fi
 
-if [[ "$CPU" == "Cortex A55" ]] && [[ "$CORES" == "8" ]]; then
+if [[ "$CPU" == "Cortex A55" && "$CORES" == "8" ]]; then
   # Pin to performance cores on Rockchip Orange Pi 5
   [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
 fi
 
-if [[ "$CPU" == "Rockchip RK3588"* ]] && [[ "$CORES" == "8" ]]; then
+if [[ "$CPU" == "Rockchip RK3588"* && "$CORES" == "8" ]]; then
   # Pin to performance cores on Rockchip Orange Pi 5 Plus
   [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
 fi
