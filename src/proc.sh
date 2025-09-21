@@ -9,21 +9,28 @@ set -Eeuo pipefail
 : "${CPU_MODEL:=""}"
 : "${DEF_MODEL:="neoverse-n1"}"
 
-if [[ "$CPU" == "Cortex A53" && "$CORES" == "6" ]]; then
-  # Pin to performance cores on Rockchip Orange Pi 4
-  [ -z "$CPU_PIN" ] && CPU_PIN="4,5"
-fi
+if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
-if [[ "$CPU" == "Cortex A55" && "$CORES" == "8" ]]; then
-  # Pin to performance cores on Rockchip Orange Pi 5
-  [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
-fi
+  # Get a list of the part numbers for the cores
+  cores=$(cat /proc/cpuinfo | grep '^CPU part\|^processor\|^$' | tr '\n' '\r' | sed 's/\r\r/\n/g ; s/\r/ /g')
 
-if [[ "$CPU" == "Rockchip RK3588"* && "$CORES" == "8" ]]; then
-  # Pin to performance cores on Rockchip Orange Pi 5 Plus
-  [ -z "$CPU_PIN" ] && CPU_PIN="4,5,6,7"
-fi
+  # Check if all cores have the same part numbers
+  same=$(echo "$cores" | awk '{print $7}' | awk '{if (!seen[$0]++){print $0}}' | wc -l)
 
+  if [[ "$same" != "1" ]]; then
+
+    # Get the part number of the big cores
+    part=$(echo "$cores" | awk '{print $7}' | tail -n1)
+
+    # Select only the cores with this part number
+    CPU_PIN=$(echo "$cores" | grep -w "$part" | awk '{print $3}' | tr '\n' ',' | sed 's/.$//')
+    
+    info "Your CPU has a big.LITTLE architecture, will use only cores ${CPU_PIN}."
+
+  fi
+
+fi
+  
 if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
   warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
