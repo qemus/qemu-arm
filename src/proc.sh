@@ -91,9 +91,7 @@ else
     fi
   fi
 
-  if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-    MACHINE+=",virtualization=on"
-  fi
+  MACHINE+=",gic-version=max"
 
 fi
 
