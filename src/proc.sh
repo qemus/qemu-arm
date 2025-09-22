@@ -91,10 +91,6 @@ else
     fi
   fi
 
-  if [[ "${BOOT_MODE,,}" == "windows" ]]; then
-    MACHINE+=",virtualization=on"
-  fi
-
 fi
 
 if [[ "$ARGUMENTS" == *"-cpu host,"* ]]; then

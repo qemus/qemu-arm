@@ -12,7 +12,7 @@ SERIAL_OPTS="-serial $SERIAL"
 CPU_OPTS="-cpu $CPU_FLAGS -smp $SMP"
 RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on"
-MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},dump-guest-core=off${KVM_OPTS}"
+MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},gic-version=max,dump-guest-core=off${KVM_OPTS}"
 
 [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
 [ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
