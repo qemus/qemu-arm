@@ -7,7 +7,6 @@ set -Eeuo pipefail
 : "${CPU_PIN:=""}"
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
-: "${DEF_MODEL:="cortex-a76"}"
 
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
@@ -99,7 +98,7 @@ else
     if [[ "${ARCH,,}" == "arm64" ]]; then
       CPU_MODEL="max,pauth-impdef=on"
     else
-      CPU_MODEL="$DEF_MODEL"
+      CPU_MODEL="cortex-a76"
     fi
   fi
 
