@@ -7,7 +7,7 @@ set -Eeuo pipefail
 : "${CPU_PIN:=""}"
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
-: "${DEF_MODEL:="neoverse-n1"}"
+: "${DEF_MODEL:="cortex-a76"}"
 
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
@@ -24,13 +24,13 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
     # Select only the cores with this part number
     CPU_PIN=$(echo "$cores" | grep -w "$part" | awk '{print $3}' | tr '\n' ',' | sed 's/.$//')
-    
+
     info "Your CPU has a big.LITTLE architecture, will use only cores ${CPU_PIN}."
 
   fi
 
 fi
-  
+
 if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
   warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
@@ -52,7 +52,7 @@ if [[ "$KVM" != [Nn]* ]]; then
     KVM="N"
     if [[ "$OSTYPE" =~ ^darwin ]]; then
       warn "you are using macOS which has no KVM support, this will cause a major loss of performance."
-    else      
+    else
       kernel=$(uname -a)
       case "${kernel,,}" in
         *"microsoft"* )
