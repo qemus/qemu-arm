@@ -31,6 +31,18 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
 fi
 
+if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
+
+  cores=$(echo "$CPU_PIN" | grep -o "," | wc -l);
+  cores=$((cores + 1)); 
+
+  if [ "$CPU_CORES" -gt "$cores" ]; then
+    info "The amount for CPU_CORES (${CPU_CORES}) exceeds the amount of pinned cores, so will be limited to ${cores}."
+    CPU_CORES="$cores"
+  fi
+
+fi
+
 if [[ "${ARCH,,}" != "arm64" ]]; then
   KVM="N"
   warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
