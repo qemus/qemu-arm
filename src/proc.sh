@@ -91,10 +91,8 @@ else
     fi
   fi
 
-  MACHINE+=",gic-version=max"
-
 fi
-
+  
 if [[ "$ARGUMENTS" == *"-cpu host,"* ]]; then
 
   args="${ARGUMENTS} "
