@@ -7,7 +7,7 @@ set -Eeuo pipefail
 : "${CPU_PIN:=""}"
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
-: "${DEF_MODEL:="neoverse-n1"}"
+: "${DEF_MODEL:="cortex-a76"}"
 
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
