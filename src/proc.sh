@@ -92,7 +92,7 @@ else
   fi
 
 fi
-  
+
 if [[ "$ARGUMENTS" == *"-cpu host,"* ]]; then
 
   args="${ARGUMENTS} "
