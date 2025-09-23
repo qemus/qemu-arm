@@ -42,9 +42,13 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
 
 fi
 
-if [[ "${ARCH,,}" != "arm64" ]]; then
-  KVM="N"
-  warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, this will cause a major loss of performance."
+if [[ "$KVM" == [Nn]* ]]; then
+  warn "KVM acceleration is disabled, this will cause the machine to run about 10 times slower!"
+else
+  if [[ "${ARCH,,}" != "arm64" ]]; then
+    KVM="N"
+    warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, so the machine will run about 10 times slower."
+  fi
 fi
 
 if [[ "$KVM" != [Nn]* ]]; then
@@ -62,7 +66,7 @@ if [[ "$KVM" != [Nn]* ]]; then
   if [ -n "$KVM_ERR" ]; then
     KVM="N"
     if [[ "$OSTYPE" =~ ^darwin ]]; then
-      warn "you are using macOS which has no KVM support, this will cause a major loss of performance."
+      warn "you are using macOS which has no KVM support, so the machine will run about 10 times slower."
     else
       kernel=$(uname -a)
       case "${kernel,,}" in
@@ -71,7 +75,7 @@ if [[ "$KVM" != [Nn]* ]]; then
         *"synology"* )
           error "Please make sure that Synology VMM (Virtual Machine Manager) is installed and that '/dev/kvm' is binded to this container." ;;
         *)
-          error "KVM acceleration is not available $KVM_ERR, this will cause a major loss of performance."
+          error "KVM acceleration is not available $KVM_ERR, this will cause the machine to run about 10 times slower."
           error "See the FAQ for possible causes, or continue without it by adding KVM: \"N\" (not recommended)." ;;
       esac
       [[ "$DEBUG" != [Yy1]* ]] && exit 88
