@@ -57,7 +57,7 @@ RUN set -eu && \
 COPY --from=src /run/*.sh /run
 COPY --from=src /var/www /var/www
 COPY --from=src /usr/share/novnc /usr/share/novnc
-COPY --from=src /etc/nginx/sites-enabled /etc/nginx/sites-enabled
+COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 
 COPY --chmod=755 ./src /run/
 
