@@ -25,6 +25,7 @@ RUN set -eu && \
         fdisk \
         nginx \
         procps \
+        ethtool \
         seabios \
         iptables \
         iproute2 \
