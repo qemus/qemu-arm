@@ -13,10 +13,10 @@ case "${DISPLAY,,}" in
     DISPLAY_OPTS="-display vnc=:0 -device $VGA"
     ;;
   "web" )
-    DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device $VGA"
+    DISPLAY_OPTS="-display vnc=:0,websocket=$WSS_PORT -device $VGA"
     ;;
   "ramfb" )
-    DISPLAY_OPTS="-display vnc=:0,websocket=5700 -device ramfb"
+    DISPLAY_OPTS="-display vnc=:0,websocket=$WSS_PORT -device ramfb"
     ;;
   "disabled" )
     DISPLAY_OPTS="-display none -device $VGA"
