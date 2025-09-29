@@ -57,6 +57,9 @@ case "${BOOT_MODE,,}" in
       rm -f "$DEST.rom"
       dd if=/dev/zero "of=$DEST.rom" bs=1M count=64 status=none
       dd "if=$AAVMF/$ROM" "of=$DEST.rom" conv=notrunc status=none
+      if [[ "${LOGO:-}" != [Nn]* ]]; then
+        /run/utk.bin "$DEST.rom" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.rom"
+      fi
     fi
 
     if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
