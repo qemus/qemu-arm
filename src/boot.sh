@@ -49,7 +49,7 @@ esac
 case "${BOOT_MODE,,}" in
   "uefi" | "secure" | "windows" | "windows_secure" )
 
-    AAVMF="/usr/share/AAVMF/"
+    AAVMF="/usr/share/AAVMF"
     DEST="$STORAGE/${BOOT_MODE,,}"
 
     if [ ! -s "$DEST.rom" ] || [ ! -f "$DEST.rom" ]; then
