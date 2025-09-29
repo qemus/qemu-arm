@@ -2,6 +2,7 @@
 
 ARG VERSION_ARG="latest"
 
+FROM qemux/fiano AS tool
 FROM qemux/qemu:${VERSION_ARG} AS src
 FROM debian:trixie-slim
 
@@ -48,18 +49,20 @@ RUN set -eu && \
     wget "https://github.com/novnc/noVNC/archive/refs/heads/master.tar.gz" -O /tmp/novnc.tar.gz -q --timeout=10 && \
     tar -xf /tmp/novnc.tar.gz -C /tmp/ && \
     cd "/tmp/noVNC-master" && \
-    mv app core vendor package.json *.html /usr/share/novnc && \
+    mv app core vendor package.json ./*.html /usr/share/novnc && \
     unlink /etc/nginx/sites-enabled/default && \
     sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf && \
     echo "$VERSION_ARG" > /run/version && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=src /run/*.sh /run
+COPY --from=src /run/*.sh /run/
 COPY --from=src /var/www /var/www
+COPY --chmod=755 --from=tool /utk.bin /run/
 COPY --from=src /usr/share/novnc /usr/share/novnc
 COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 
 COPY --chmod=755 ./src /run/
+COPY --chmod=755 ./web /var/www/
 
 VOLUME /storage
 EXPOSE 22 5900 8006
