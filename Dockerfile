@@ -62,6 +62,7 @@ COPY --from=src /usr/share/novnc /usr/share/novnc
 COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 
 COPY --chmod=755 ./src /run/
+COPY --chmod=755 ./web /var/www/
 
 VOLUME /storage
 EXPOSE 22 5900 8006
