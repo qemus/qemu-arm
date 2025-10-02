@@ -5,6 +5,10 @@ set -Eeuo pipefail
 : "${BIOS:=""}"         # BIOS file
 : "${SECURE:="off"}"    # Secure boot
 
+msg="Configuring boot options..."
+html "$msg"
+[[ "$DEBUG" == [Yy1]* ]] && echo "$msg"
+
 BOOT_DESC=""
 BOOT_OPTS=""
 [ -n "$BIOS" ] && BOOT_MODE="custom"
