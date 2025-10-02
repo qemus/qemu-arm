@@ -8,6 +8,8 @@ set -Eeuo pipefail
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
 
+[[ "$DEBUG" == [Yy1]* ]] && echo "Configuring KVM..."
+
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
   # Get a list of the part numbers for the cores
