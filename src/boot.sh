@@ -9,7 +9,7 @@ BOOT_DESC=""
 BOOT_OPTS=""
 [ -n "$BIOS" ] && BOOT_MODE="custom"
 
-msg="Configuring boot options..."
+msg="Configuring boot..."
 html "$msg"
 [[ "$DEBUG" == [Yy1]* ]] && echo "$msg"
 
