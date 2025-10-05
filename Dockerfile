@@ -2,10 +2,10 @@
 
 ARG VERSION_ARG="latest"
 
-FROM qemux/fiano AS tool
 FROM qemux/qemu:${VERSION_ARG} AS src
 FROM debian:trixie-slim
 
+ARG TARGETARCH
 ARG VERSION_ARG="0.0"
 ARG VERSION_VNC="1.6.0"
 
@@ -42,6 +42,8 @@ RUN set -eu && \
         ca-certificates \
         qemu-system-arm \
         qemu-efi-aarch64 && \
+    wget "https://github.com/qemus/passt/releases/download/v2025_09_19/passt_2025_09_19_${TARGETARCH}.deb" -O /tmp/passt.deb -q && \
+    dpkg -i /tmp/passt.deb && \
     apt-get clean && \
     mkdir -p /etc/qemu && \
     echo "allow br0" > /etc/qemu/bridge.conf && \
@@ -63,6 +65,8 @@ COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 
 COPY --chmod=755 ./src /run/
 COPY --chmod=755 ./web /var/www/
+
+ADD "https://github.com/qemus/fiano/releases/download/v1.2.0/utk_1.2.0_${TARGETARCH}.bin" /run/utk.bin
 
 VOLUME /storage
 EXPOSE 22 5900 8006
