@@ -65,7 +65,7 @@ COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 COPY --chmod=755 ./src /run/
 COPY --chmod=755 ./web /var/www/
 
-ADD "https://github.com/qemus/fiano/releases/download/v1.2.0/utk_1.2.0_${TARGETARCH}.bin" /run/utk.bin
+ADD --chmod=755 "https://github.com/qemus/fiano/releases/download/v1.2.0/utk_1.2.0_${TARGETARCH}.bin" /run/utk.bin
 
 VOLUME /storage
 EXPOSE 22 5900 8006
