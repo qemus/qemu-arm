@@ -44,48 +44,6 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
 
 fi
 
-if [[ "$KVM" == [Nn]* ]]; then
-  warn "KVM acceleration is disabled, this will cause the machine to run about 10 times slower!"
-else
-  if [[ "${ARCH,,}" != "arm64" ]]; then
-    KVM="N"
-    warn "your CPU architecture is ${ARCH^^} and cannot provide KVM acceleration for ARM64 instructions, so the machine will run about 10 times slower."
-  fi
-fi
-
-if [[ "$KVM" != [Nn]* ]]; then
-
-  KVM_ERR=""
-
-  if [ ! -e /dev/kvm ]; then
-    KVM_ERR="(/dev/kvm is missing)"
-  else
-    if ! sh -c 'echo -n > /dev/kvm' &> /dev/null; then
-      KVM_ERR="(/dev/kvm is unwriteable)"
-    fi
-  fi
-
-  if [ -n "$KVM_ERR" ]; then
-    KVM="N"
-    if [[ "$OSTYPE" =~ ^darwin ]]; then
-      warn "you are using macOS which has no KVM support, so the machine will run about 10 times slower."
-    else
-      kernel=$(uname -a)
-      case "${kernel,,}" in
-        *"microsoft"* )
-          error "Please bind '/dev/kvm' as a volume in the optional container settings when using Docker Desktop." ;;
-        *"synology"* )
-          error "Please make sure that Synology VMM (Virtual Machine Manager) is installed and that '/dev/kvm' is binded to this container." ;;
-        *)
-          error "KVM acceleration is not available $KVM_ERR, this will cause the machine to run about 10 times slower."
-          error "See the FAQ for possible causes, or disable acceleration by adding the \"KVM=N\" variable (not recommended)." ;;
-      esac
-      [[ "$DEBUG" != [Yy1]* ]] && exit 88
-    fi
-  fi
-
-fi
-
 if [[ "$KVM" != [Nn]* ]]; then
 
   CPU_FEATURES=""

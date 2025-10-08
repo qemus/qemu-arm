@@ -30,14 +30,16 @@ RUN set -eu && \
         seabios \
         iptables \
         iproute2 \
-        apt-utils \
         dnsmasq \
         xz-utils \
+        apt-utils \
         net-tools \
         e2fsprogs \
         qemu-utils \
+        websocketd \
         iputils-ping \
         genisoimage \
+        inotify-tools \
         netcat-openbsd \
         ca-certificates \
         qemu-system-arm \
