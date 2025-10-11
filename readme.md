@@ -223,15 +223,22 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   If you did not receive any error from `kvm-ok` but the container still complains about a missing KVM device, it could help to add `privileged: true` to your compose file (or `sudo` to your `docker` command) to rule out any permission issue.
 
 ### How do I expose network ports?
- 
-   You can expose ports just by adding them to your compose file. If you want to be able to connect to the SSH service of the machine for example, you would add it like this:
-   
-   ```yaml
-   ports:
-     - 2222:22
-   ```
- 
-   This will make port 2222 on your host redirect to port 22 of the virtual machine.
+
+  When using bridge networking, you can expose ports by adding them to your compose file. If you want to be able to connect to the SSH service of the machine for example, you would add it like this:
+
+  ```yaml
+  ports:
+    - 2222:22
+  ```
+
+  This will make port 2222 on your host redirect to port 22 of the virtual machine.
+
+  When using user-mode networking (for example when running under Podman), you will also need to add those ports to the `USER_PORTS` variable like this:
+
+  ```yaml
+  environment:
+    USER_PORTS: "22,80,443"
+  ```
 
 ### How do I assign an individual IP address to the container?
 
