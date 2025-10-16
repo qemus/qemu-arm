@@ -1,5 +1,5 @@
 {
-  "name": "QEMU",
+  "name": "Ubuntu Desktop",
   "service": "qemu",
   "containerEnv": {
     "VERSION": "ubuntu",
@@ -17,5 +17,5 @@
   "otherPortsAttributes": {
     "onAutoForward": "silent"
   }, 
-  "dockerComposeFile": ".github/codespaces.yml"
+  "dockerComposeFile": "codespaces.yml"
 }
