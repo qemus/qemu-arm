@@ -2,7 +2,7 @@
   "name": "Ubuntu Desktop",
   "service": "qemu",
   "containerEnv": {
-    "VERSION": "ubuntu",
+    "BOOT": "ubuntu",
     "RAM_SIZE": "max",
     "DISK_SIZE": "max",
     "CPU_CORES": "max"    
