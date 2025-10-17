@@ -64,7 +64,7 @@ case "${BOOT_MODE,,}" in
         dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
       else
         /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.logo"
-        dd "if=$dest.logo" "of=$DEST.tmp" conv=notrunc status=none
+        dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
       fi
       mv "$DEST.tmp" "$DEST.rom"
     fi
