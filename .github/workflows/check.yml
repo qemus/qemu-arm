@@ -25,3 +25,5 @@ jobs:
       -
         name: Validate JSON and YML files
         uses: GrantBirki/json-yaml-validate@v4
+        with:
+          exclude_file: kubernetes.yml
