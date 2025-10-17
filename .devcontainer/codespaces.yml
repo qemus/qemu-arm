@@ -3,7 +3,6 @@ services:
     container_name: qemu
     image: qemux/qemu-arm
     environment:
-      BOOT: "ubuntu"
       ALLOCATE: "Y"
       RAM_SIZE: "half"
       DISK_SIZE: "max"
