@@ -58,19 +58,23 @@ case "${BOOT_MODE,,}" in
 
     if [ ! -s "$DEST.rom" ] || [ ! -f "$DEST.rom" ]; then
       [ ! -s "$AAVMF/$ROM" ] || [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
-      rm -f "$DEST.rom"
-      dd if=/dev/zero "of=$DEST.rom" bs=1M count=64 status=none
-      dd "if=$AAVMF/$ROM" "of=$DEST.rom" conv=notrunc status=none
-      if [[ "${LOGO:-}" != [Nn]* ]]; then
-        /run/utk.bin "$DEST.rom" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.rom"
+      rm -f "$DEST.tmp"
+      dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
+      if [[ "${LOGO:-}" == [Nn]* ]]; then
+        dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
+      else
+        /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.logo"
+        dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
       fi
+      mv "$DEST.tmp" "$DEST.rom"
     fi
 
     if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
       [ ! -s "$AAVMF/$VARS" ] || [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
-      rm -f "$DEST.vars"
-      dd if=/dev/zero "of=$DEST.vars" bs=1M count=64 status=none
-      dd "if=$AAVMF/$VARS" "of=$DEST.vars" conv=notrunc status=none
+      rm -f "$DEST.tmp"
+      dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
+      dd "if=$AAVMF/$VARS" "of=$DEST.tmp" conv=notrunc status=none
+      mv "$DEST.tmp" "$DEST.vars"
     fi
 
     BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
