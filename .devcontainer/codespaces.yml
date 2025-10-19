@@ -3,7 +3,6 @@ services:
     container_name: qemu
     image: ghcr.io/qemus/qemu-arm
     environment:
-      ALLOCATE: "Y"
       RAM_SIZE: "half"
       DISK_SIZE: "max"
       CPU_CORES: "max"
