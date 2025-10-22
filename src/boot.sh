@@ -67,7 +67,7 @@ case "${BOOT_MODE,,}" in
         dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
       fi
       mv "$DEST.tmp" "$DEST.rom"
-       ! setOwner "$DEST.rom" && error "Failed to set the owner for \"$DEST.rom\" !"
+      ! setOwner "$DEST.rom" && error "Failed to set the owner for \"$DEST.rom\" !"
     fi
 
     if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
