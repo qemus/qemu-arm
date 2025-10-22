@@ -76,7 +76,7 @@ case "${BOOT_MODE,,}" in
       dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
       dd "if=$AAVMF/$VARS" "of=$DEST.tmp" conv=notrunc status=none
       mv "$DEST.tmp" "$DEST.vars"
-       ! setOwner "$DEST.vars" && error "Failed to set the owner for \"$DEST.vars\" !"
+      ! setOwner "$DEST.vars" && error "Failed to set the owner for \"$DEST.vars\" !"
     fi
 
     BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
