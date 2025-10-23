@@ -124,7 +124,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   | `.vhdx`       | Hyper-V     |
   | `.vdi`        | VirtualBox  |
 
-   It will also accept files such as `.img.gz`, `.qcow2.xz`, `.iso.zip` and many more, because it will automaticly extract compressed files.
+   It will also accept files such as `.img.gz`, `.qcow2.xz`, `.iso.zip` and many more, because it will automatically extract compressed files.
 
   Alternatively you can use a local image file directly, by binding it in your compose file:
   
