@@ -63,8 +63,13 @@ case "${BOOT_MODE,,}" in
       if [[ "${LOGO:-}" == [Nn]* ]]; then
         dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
       else
-        /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.logo"
-        dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
+        if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.logo"; then
+          dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
+        else
+          warn "failed to add custom logo to BIOS!"
+          dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
+        fi
+        rm -f "$DEST.logo"
       fi
       mv "$DEST.tmp" "$DEST.rom"
       ! setOwner "$DEST.rom" && error "Failed to set the owner for \"$DEST.rom\" !"
