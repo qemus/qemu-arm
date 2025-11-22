@@ -46,8 +46,7 @@ RUN set -eu && \
         ca-certificates \
         qemu-system-arm \
         qemu-efi-aarch64 \
-        qemu-system-x86 \
-        qemu-system-modules-spice && \
+        qemu-system-x86 && \
     wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q && \
     dpkg -i /tmp/passt.deb && \
     apt-get clean && \
