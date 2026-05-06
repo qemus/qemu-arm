@@ -45,7 +45,10 @@ RUN set -eu && \
         netcat-openbsd \
         ca-certificates \
         qemu-system-arm \
-        qemu-efi-aarch64 && \
+        qemu-efi-aarch64 \
+        python3 \
+        python3-pip && \
+    pip3 install --no-cache-dir --break-system-packages qemu.qmp==0.0.6 && \
     wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q && \
     dpkg -i /tmp/passt.deb && \
     apt-get clean && \
@@ -62,6 +65,7 @@ RUN set -eu && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY --from=src /run/*.sh /run/
+COPY --from=src /run/*.py /run/
 COPY --from=src /var/www /var/www
 COPY --from=src /usr/share/novnc /usr/share/novnc
 COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
