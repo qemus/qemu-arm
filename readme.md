@@ -156,7 +156,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   ```
   
 > [!TIP]
-> This can also be used to resize the existing disk to a larger capacity without any data loss.
+> This can also be used to resize the existing disk to a larger capacity without any data loss. However you will need to manually extend the disk partition afterwards inside your OS, since the added disk space will appear as unallocated.
 
 ### How do I change the amount of CPU or RAM?
 
