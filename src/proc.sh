@@ -13,7 +13,7 @@ set -Eeuo pipefail
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
   # Get a list of the part numbers for the cores
-  cores=$(cat /proc/cpuinfo | grep '^CPU part\|^processor\|^$' | tr '\n' '\r' | sed 's/\r\r/\n/g ; s/\r/ /g')
+  cores=$(grep '^CPU part\|^processor\|^$' /proc/cpuinfo | tr '\n' '\r' | sed 's/\r\r/\n/g ; s/\r/ /g')
 
   # Check if all cores have the same part numbers
   same=$(echo "$cores" | awk '{print $7}' | awk '{if (!seen[$0]++){print $0}}' | wc -l)
