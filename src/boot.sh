@@ -56,8 +56,8 @@ case "${BOOT_MODE,,}" in
     AAVMF="/usr/share/AAVMF"
     DEST="$STORAGE/${BOOT_MODE,,}"
 
-    if [ ! -s "$DEST.rom" ] || [ ! -f "$DEST.rom" ]; then
-      [ ! -s "$AAVMF/$ROM" ] || [ ! -f "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
+    if [ ! -s "$DEST.rom" ]; then
+      [ ! -s "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
       rm -f "$DEST.tmp"
       dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
       if [[ "${LOGO:-}" == [Nn]* ]]; then
@@ -75,8 +75,8 @@ case "${BOOT_MODE,,}" in
       ! setOwner "$DEST.rom" && error "Failed to set the owner for \"$DEST.rom\" !"
     fi
 
-    if [ ! -s "$DEST.vars" ] || [ ! -f "$DEST.vars" ]; then
-      [ ! -s "$AAVMF/$VARS" ] || [ ! -f "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+    if [ ! -s "$DEST.vars" ]; then
+      [ ! -s "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
       rm -f "$DEST.tmp"
       dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
       dd "if=$AAVMF/$VARS" "of=$DEST.tmp" conv=notrunc status=none
