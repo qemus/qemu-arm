@@ -63,7 +63,9 @@ case "${BOOT_MODE,,}" in
       if [[ "${LOGO:-}" == [Nn]* ]]; then
         dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
       else
-        if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "/var/www/img/${PROCESS,,}.ffs" save "$DEST.logo"; then
+        logo="/var/www/img/${PROCESS,,}.ffs"
+        [ ! -s "$logo" ] && logo="/var/www/img/qemu.ffs"
+        if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then
           dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
         else
           warn "failed to add custom logo to BIOS!"
