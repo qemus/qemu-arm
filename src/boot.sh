@@ -59,12 +59,15 @@ case "${BOOT_MODE,,}" in
     if [ ! -s "$DEST.rom" ]; then
       [ ! -s "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
       rm -f "$DEST.tmp"
+      
+      logo="/var/www/img/${PROCESS,,}.ffs"
+      [ ! -s "$logo" ] && logo="/var/www/img/qemu.ffs"
+      [ ! -s "$logo" ] && LOGO="N"
+    
       dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
       if [[ "${LOGO:-}" == [Nn]* ]]; then
         dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
       else
-        logo="/var/www/img/${PROCESS,,}.ffs"
-        [ ! -s "$logo" ] && logo="/var/www/img/qemu.ffs"
         if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then
           dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
         else
