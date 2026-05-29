@@ -16,7 +16,7 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
   cores=$(grep '^CPU part\|^processor\|^$' /proc/cpuinfo | tr '\n' '\r' | sed 's/\r\r/\n/g ; s/\r/ /g')
 
   # Check if all cores have the same part numbers
-  same=$(echo "$cores" | awk '{print $7}' | awk '{if (!seen[$0]++){print $0}}' | wc -l)
+  same=$(echo "$cores" | awk '{print $7}' | awk '{if (!seen[$0]++){print $0}}' | wc -l | xargs)
 
   if [[ "$same" != "1" ]]; then
 
@@ -34,8 +34,8 @@ fi
 
 if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
 
-  cores=$(echo "$CPU_PIN" | grep -o "," | wc -l);
-  cores=$((cores + 1)); 
+  cores=$(echo "$CPU_PIN" | grep -o "," | wc -l)
+  cores=$((cores + 1))
 
   if [ "$CPU_CORES" -gt "$cores" ]; then
     info "The amount for CPU_CORES (${CPU_CORES}) exceeds the amount of pinned cores, so will be limited to ${cores}."
