@@ -4,6 +4,8 @@ set -Eeuo pipefail
 # Docker environment variables
 : "${BIOS:=""}"         # BIOS file
 : "${SECURE:="off"}"    # Secure boot
+: "${LOGO:="Y"}"        # Enable logo
+: "${CLEAR:="N"}"       # Persist NVRAM
 
 BOOT_DESC=""
 BOOT_OPTS=""
@@ -50,11 +52,17 @@ case "${BOOT_MODE,,}" in
     ;;
 esac
 
+DEST="$STORAGE/${BOOT_MODE,,}"
+    
+if [[ "$CLEAR" == [Yy1]* ]]; then
+  # Clear NVRAM (helps to fix corruptions)
+  rm -f "$DEST.rom" "$DEST.vars" "$DEST.tpm"
+fi
+
 case "${BOOT_MODE,,}" in
   "uefi" | "secure" | "windows" | "windows_secure" )
 
     AAVMF="/usr/share/AAVMF"
-    DEST="$STORAGE/${BOOT_MODE,,}"
 
     if [ ! -s "$DEST.rom" ]; then
       [ ! -s "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
@@ -65,7 +73,7 @@ case "${BOOT_MODE,,}" in
       [ ! -s "$logo" ] && LOGO="N"
     
       dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
-      if [[ "${LOGO:-}" == [Nn]* ]]; then
+      if [[ "$LOGO" == [Nn]* ]]; then
         dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
       else
         if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then
