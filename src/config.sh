@@ -4,7 +4,7 @@ set -Eeuo pipefail
 : "${UUID:=""}"
 : "${SERIAL:="mon:stdio"}"
 : "${USB:="qemu-xhci,id=xhci,p2=7,p3=7"}"
-: "${MONITOR:="telnet:localhost:7100,server,nowait,nodelay"}"
+: "${MONITOR:="unix:$QEMU_DIR/monitor.sock,server,wait=off,nodelay"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
 msg="Configuring QEMU..."
