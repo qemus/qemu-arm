@@ -53,7 +53,7 @@ case "${BOOT_MODE,,}" in
 esac
 
 DEST="$STORAGE/${BOOT_MODE,,}"
-    
+
 if [[ "$CLEAR" == [Yy1]* ]]; then
   # Clear NVRAM (helps to fix corruptions)
   rm -f "$DEST.rom" "$DEST.vars" "$DEST.tpm"
