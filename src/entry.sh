@@ -30,8 +30,31 @@ trap - ERR
 version=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1 | awk '{ print $NF }')
 info "Booting image${BOOT_DESC} using QEMU v$version..."
 
-if [ -z "$CPU_PIN" ]; then
-  exec qemu-system-aarch64 ${ARGS:+ $ARGS}
-else
-  exec taskset -c "$CPU_PIN" qemu-system-aarch64 ${ARGS:+ $ARGS}
+if [[ "$SHUTDOWN" != [Yy1]* ]]; then
+  if [ -z "$CPU_PIN" ]; then
+    exec qemu-system-aarch64 ${ARGS:+ $ARGS}
+  else    
+    exec taskset -c "$CPU_PIN" qemu-system-aarch64 ${ARGS:+ $ARGS}
+  fi
 fi
+
+qemu() {
+  if [ -z "$CPU_PIN" ]; then
+    qemu-system-aarch64 ${ARGS:+ $ARGS}
+  else    
+    taskset -c "$CPU_PIN" qemu-system-aarch64 ${ARGS:+ $ARGS}
+  fi
+}
+
+if [ ! -t 1 ] || [ ! -c /dev/tty ]; then
+    qemu &
+else
+    qemu </dev/tty >/dev/tty &
+fi
+
+rc=0
+wait $! || rc=$?
+[ -f "$QEMU_END" ] && exit "$rc"
+
+sleep 1 & wait $!
+finish "$rc"
