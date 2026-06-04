@@ -27,23 +27,22 @@ cd /run
 
 trap - ERR
 
-version=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1 | awk '{ print $NF }')
+cmd=(qemu-system-aarch64)
+version=$("${cmd[@]}" --version | awk 'NR==1 { print $4 }')
 info "Booting image${BOOT_DESC} using QEMU v$version..."
 
-CMD=(qemu-system-aarch64)
-
 if [ -n "$CPU_PIN" ]; then
-  CMD=(taskset -c "$CPU_PIN" "${CMD[@]}")
+  cmd=(taskset -c "$CPU_PIN" "${cmd[@]}")
 fi
 
 if [[ "$SHUTDOWN" != [Yy1]* ]]; then
-  exec "${CMD[@]}" ${ARGS:+ $ARGS}
+  exec "${cmd[@]}" ${ARGS:+ $ARGS}
 fi
 
 if [ ! -t 1 ] || [ ! -c /dev/tty ]; then
-  "${CMD[@]}" ${ARGS:+ $ARGS} &
+  "${cmd[@]}" ${ARGS:+ $ARGS} &
 else
-  "${CMD[@]}" ${ARGS:+ $ARGS} </dev/tty >/dev/tty &
+  "${cmd[@]}" ${ARGS:+ $ARGS} </dev/tty >/dev/tty &
 fi
 
 rc=0
