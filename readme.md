@@ -372,7 +372,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   Yes, if you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
 
 ## Stars 🌟
-[![Stars](https://starchart.cc/qemus/qemu-arm.svg?variant=adaptive)](https://starchart.cc/qemus/qemu-arm)
+[![Stargazers](https://raw.githubusercontent.com/star-stats/stars/refs/heads/data/charts/qemus-qemu-arm.svg)](https://github.com/dobtc/qemus/qemu-arm)
 
 [build_url]: https://github.com/qemus/qemu-arm/
 [hub_url]: https://hub.docker.com/r/qemux/qemu-arm/
