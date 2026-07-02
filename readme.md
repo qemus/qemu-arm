@@ -58,7 +58,7 @@ docker run -it --rm --name qemu -e "BOOT=ubuntu" -p 8006:8006 --device=/dev/kvm 
 kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/master/kubernetes.yml
 ```
 
-##### Via Github Codespaces:
+##### Via GitHub Codespaces:
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/qemus/qemu-arm)
 
@@ -156,7 +156,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   ```
   
 > [!TIP]
-> This can also be used to resize the existing disk to a larger capacity without any data loss. However you will need to manually extend the disk partition afterwards inside your OS, since the added disk space will appear as unallocated.
+> This can also be used to resize an existing disk to a larger capacity without any data loss. However you will need to manually extend the disk partition afterwards inside your OS, since the added disk space will appear as unallocated.
 
 ### How do I change the amount of CPU or RAM?
 
@@ -184,7 +184,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   to add a virtual graphics cards to your machine that allows for higher resolutions.
   
 > [!NOTE]
-> Using this method your screen will stay black during the boot process, until the point where the driver is actually loaded.
+> Using this method your screen will stay black during the initial boot process, until the point where the driver is actually loaded.
  
 ### How do I boot Windows?
 
