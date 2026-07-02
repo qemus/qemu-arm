@@ -22,7 +22,7 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 
   - High-performance options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed
 
-  - USB passthrough and host folder sharing
+  - USB pass through and host folder sharing
 
 ## Usage  🐳
 
