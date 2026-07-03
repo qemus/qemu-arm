@@ -7,6 +7,9 @@ set -Eeuo pipefail
 : "${LOGO:="Y"}"        # Enable logo
 : "${CLEAR:="N"}"       # Persist NVRAM
 
+BIOS=$(strip "$BIOS")
+SECURE=$(strip "$SECURE")
+
 BOOT_DESC=""
 BOOT_OPTS=""
 [ -n "$BIOS" ] && BOOT_MODE="custom"
