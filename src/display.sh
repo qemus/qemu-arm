@@ -6,6 +6,9 @@ set -Eeuo pipefail
 : "${VGA:="ramfb"}"         # VGA adaptor
 : "${DISPLAY:="web"}"       # Display type
 
+VGA=$(strip "$VGA")
+DISPLAY=$(strip "$DISPLAY")
+
 port=$(( VNC_PORT - 5900 ))
 [[ "$DISPLAY" == ":0" ]] && DISPLAY="web"
 
