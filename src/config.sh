@@ -7,8 +7,6 @@ set -Eeuo pipefail
 : "${MONITOR:="unix:$QEMU_DIR/monitor.sock,server,wait=off,nodelay"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
-USB=$(strip "$USB")
-
 msg="Configuring QEMU..."
 html "$msg"
 enabled "$DEBUG" && echo "$msg"
@@ -20,6 +18,7 @@ RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on -pidfile $QEMU_PID"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},gic-version=max,dump-guest-core=off${KVM_OPTS}"
 
+UUID=$(strip "$UUID")
 [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
 [ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
 
