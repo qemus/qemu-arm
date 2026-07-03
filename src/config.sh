@@ -18,6 +18,7 @@ RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on -pidfile $QEMU_PID"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},gic-version=max,dump-guest-core=off${KVM_OPTS}"
 
+UUID=$(strip "$UUID")
 [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
 [ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
 

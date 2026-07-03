@@ -8,6 +8,11 @@ set -Eeuo pipefail
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
 
+# Sanitize variables
+CPU_PIN=$(strip "$CPU_PIN")
+CPU_MODEL=$(strip "$CPU_MODEL")
+CPU_FLAGS=$(strip "$CPU_FLAGS")
+
 enabled "$DEBUG" && echo "Configuring KVM..."
 
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
