@@ -13,7 +13,7 @@ BOOT_OPTS=""
 
 msg="Configuring boot..."
 html "$msg"
-[[ "$DEBUG" == [Yy1]* ]] && echo "$msg"
+enabled "$DEBUG" && echo "$msg"
 
 case "${BOOT_MODE,,}" in
   "uefi" | "" )
@@ -54,7 +54,7 @@ esac
 
 DEST="$STORAGE/${BOOT_MODE,,}"
 
-if [[ "$CLEAR" == [Yy1]* ]]; then
+if enabled "$CLEAR"; then
   # Clear NVRAM (helps to fix corruptions)
   rm -f "$DEST.rom" "$DEST.vars" "$DEST.tpm"
 fi
@@ -73,7 +73,7 @@ case "${BOOT_MODE,,}" in
       [ ! -s "$logo" ] && LOGO="N"
     
       dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
-      if [[ "$LOGO" == [Nn]* ]]; then
+      if disabled "$LOGO"; then
         dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
       else
         if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then

@@ -8,7 +8,7 @@ set -Eeuo pipefail
 : "${CPU_FLAGS:=""}"
 : "${CPU_MODEL:=""}"
 
-[[ "$DEBUG" == [Yy1]* ]] && echo "Configuring KVM..."
+enabled "$DEBUG" && echo "Configuring KVM..."
 
 if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
 
@@ -44,7 +44,7 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
 
 fi
 
-if [[ "$KVM" != [Nn]* ]]; then
+if ! disabled "$KVM"; then
 
   CPU_FEATURES=""
   KVM_OPTS=",accel=kvm -enable-kvm"

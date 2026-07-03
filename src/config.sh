@@ -9,7 +9,7 @@ set -Eeuo pipefail
 
 msg="Configuring QEMU..."
 html "$msg"
-[[ "$DEBUG" == [Yy1]* ]] && echo "$msg"
+enabled "$DEBUG" && echo "$msg"
 
 DEF_OPTS="-nodefaults"
 SERIAL_OPTS="-serial $SERIAL"
@@ -24,8 +24,8 @@ MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},gic-version=max,dump-guest-c
 DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
 DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
 
-if [[ "${BOOT_MODE,,}" != "windows"* || "${BALLOONING:-}" == [Yy1]* ]]; then
-  if [[ "${BALLOONING:-}" != [Yy1]* ]]; then
+if [[ "${BOOT_MODE,,}" != "windows"* ]] || enabled "${BALLOONING:-}"; then
+  if ! enabled "${BALLOONING:-}"; then
     DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=pcie.0"
   else
     MON_OPTS+=" -qmp unix:${BALLOONING_SOCKET},server,nowait"
