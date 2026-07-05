@@ -15,7 +15,12 @@ CPU_FLAGS=$(strip "$CPU_FLAGS")
 
 enabled "$DEBUG" && echo "Configuring KVM..."
 
-if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
+detectBigLittleCores() {
+  local cores same part
+
+  if [[ "${ARCH,,}" != "arm64" ]] || [ -n "$CPU_PIN" ]; then
+    return 0
+  fi
 
   # Get a list of the part numbers for the cores
   cores=$(grep '^CPU part\|^processor\|^$' /proc/cpuinfo | tr '\n' '\r' | sed 's/\r\r/\n/g ; s/\r/ /g')
@@ -34,10 +39,14 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -z "$CPU_PIN" ]; then
     info "Your CPU has a big.LITTLE architecture, will use only cores ${CPU_PIN}."
 
   fi
+}
 
-fi
+limitCpuCoresToPinnedCores() {
+  local cores
 
-if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
+  if [[ "${ARCH,,}" != "arm64" ]] || [ -z "$CPU_PIN" ]; then
+    return 0
+  fi
 
   cores=$(echo "$CPU_PIN" | grep -o "," | wc -l)
   cores=$((cores + 1))
@@ -46,10 +55,9 @@ if [[ "${ARCH,,}" == "arm64" ]] && [ -n "$CPU_PIN" ]; then
     info "The amount for CPU_CORES (${CPU_CORES}) exceeds the amount of pinned cores, so will be limited to ${cores}."
     CPU_CORES="$cores"
   fi
+}
 
-fi
-
-if ! disabled "$KVM"; then
+configureKvm() {
 
   CPU_FEATURES=""
   KVM_OPTS=",accel=kvm -enable-kvm"
@@ -57,8 +65,9 @@ if ! disabled "$KVM"; then
   if [ -z "$CPU_MODEL" ]; then
     CPU_MODEL="host"
   fi
+}
 
-else
+configureTcg() {
 
   CPU_FEATURES=""
   KVM_OPTS=" -accel tcg,thread=multi"
@@ -70,45 +79,64 @@ else
       CPU_MODEL="cortex-a76"
     fi
   fi
+}
 
-fi
+extractHostCpuArgument() {
 
-if [[ "$ARGUMENTS" == *"-cpu host,"* ]]; then
+  local args prefix suffix param
 
-  args="${ARGUMENTS} "
-  prefix="${args/-cpu host,*/}"
-  suffix="${args/*-cpu host,/}"
-  param="${suffix%% *}"
-  suffix="${suffix#* }"
-  args="${prefix}${suffix}"
-  ARGUMENTS="${args::-1}"
+  if [[ "$ARGUMENTS" == *"-cpu host,"* ]]; then
+
+    args="${ARGUMENTS} "
+    prefix="${args/-cpu host,*/}"
+    suffix="${args/*-cpu host,/}"
+    param="${suffix%% *}"
+    suffix="${suffix#* }"
+    args="${prefix}${suffix}"
+    ARGUMENTS="${args::-1}"
+
+    if [ -z "$CPU_FLAGS" ]; then
+      CPU_FLAGS="$param"
+    else
+      CPU_FLAGS+=",$param"
+    fi
+
+  else
+
+    if [[ "$ARGUMENTS" == *"-cpu host"* ]]; then
+      ARGUMENTS="${ARGUMENTS//-cpu host/}"
+    fi
+
+  fi
+}
+
+composeCpuFlags() {
 
   if [ -z "$CPU_FLAGS" ]; then
-    CPU_FLAGS="$param"
+    if [ -z "$CPU_FEATURES" ]; then
+      CPU_FLAGS="$CPU_MODEL"
+    else
+      CPU_FLAGS="$CPU_MODEL,$CPU_FEATURES"
+    fi
   else
-    CPU_FLAGS+=",$param"
+    if [ -z "$CPU_FEATURES" ]; then
+      CPU_FLAGS="$CPU_MODEL,$CPU_FLAGS"
+    else
+      CPU_FLAGS="$CPU_MODEL,$CPU_FEATURES,$CPU_FLAGS"
+    fi
   fi
+}
 
+detectBigLittleCores
+limitCpuCoresToPinnedCores
+
+if ! disabled "$KVM"; then
+  configureKvm
 else
-
-  if [[ "$ARGUMENTS" == *"-cpu host"* ]]; then
-    ARGUMENTS="${ARGUMENTS//-cpu host/}"
-  fi
-
+  configureTcg
 fi
 
-if [ -z "$CPU_FLAGS" ]; then
-  if [ -z "$CPU_FEATURES" ]; then
-    CPU_FLAGS="$CPU_MODEL"
-  else
-    CPU_FLAGS="$CPU_MODEL,$CPU_FEATURES"
-  fi
-else
-  if [ -z "$CPU_FEATURES" ]; then
-    CPU_FLAGS="$CPU_MODEL,$CPU_FLAGS"
-  else
-    CPU_FLAGS="$CPU_MODEL,$CPU_FEATURES,$CPU_FLAGS"
-  fi
-fi
+extractHostCpuArgument
+composeCpuFlags
 
 return 0
