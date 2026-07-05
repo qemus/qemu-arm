@@ -18,30 +18,52 @@ RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
 MON_OPTS="-monitor $MONITOR -name $PROCESS,process=$PROCESS,debug-threads=on -pidfile $QEMU_PID"
 MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},gic-version=max,dump-guest-core=off${KVM_OPTS}"
 
-UUID=$(strip "$UUID")
-[ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
-[ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
+configureMachineOptions() {
 
-DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
-DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
+  UUID=$(strip "$UUID")
+  [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
+  [ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
+}
 
-if [[ "${BOOT_MODE,,}" != "windows"* ]] || enabled "${BALLOONING:-}"; then
-  if ! enabled "${BALLOONING:-}"; then
-    DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=pcie.0"
-  else
-    MON_OPTS+=" -qmp unix:${BALLOONING_SOCKET},server,nowait"
-    DEV_OPTS+=" -device virtio-balloon-pci,free-page-reporting=on,guest-stats-polling-interval=1,id=balloon0,bus=pcie.0"
+configureVirtioDevices() {
+
+  DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
+  DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
+
+  if [[ "${BOOT_MODE,,}" != "windows"* ]] || enabled "${BALLOONING:-}"; then
+    if ! enabled "${BALLOONING:-}"; then
+      DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=pcie.0"
+    else
+      MON_OPTS+=" -qmp unix:${BALLOONING_SOCKET},server,nowait"
+      DEV_OPTS+=" -device virtio-balloon-pci,free-page-reporting=on,guest-stats-polling-interval=1,id=balloon0,bus=pcie.0"
+    fi
   fi
-fi
+}
 
-if [ -d "/shared" ] && [[ "${BOOT_MODE,,}" != "windows"* ]]; then
-  DEV_OPTS+=" -fsdev local,id=fsdev0,path=/shared,security_model=none"
-  DEV_OPTS+=" -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=shared"
-fi
+configureSharedFolder() {
 
-[ -n "$USB" ] && [[ "${USB,,}" != "no"* ]] && USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
+  if [ -d "/shared" ] && [[ "${BOOT_MODE,,}" != "windows"* ]]; then
+    DEV_OPTS+=" -fsdev local,id=fsdev0,path=/shared,security_model=none"
+    DEV_OPTS+=" -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=shared"
+  fi
+}
 
-ARGS="$DEF_OPTS $CPU_OPTS $RAM_OPTS $MAC_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS ${USB_OPTS:-} $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $ARGUMENTS"
-ARGS=$(echo "$ARGS" | sed 's/\t/ /g' | tr -s ' ')
+configureUsbOptions() {
+
+  [ -n "$USB" ] && [[ "${USB,,}" != "no"* ]] && USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
+}
+
+buildArguments() {
+
+  ARGS="$DEF_OPTS $CPU_OPTS $RAM_OPTS $MAC_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS ${USB_OPTS:-} $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $ARGUMENTS"
+  ARGS=$(echo "$ARGS" | sed 's/\t/ /g' | tr -s ' ')
+}
+
+configureMachineOptions
+configureVirtioDevices
+configureSharedFolder
+configureUsbOptions
+
+buildArguments
 
 return 0
