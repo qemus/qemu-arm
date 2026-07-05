@@ -17,7 +17,6 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 ## Features ✨
 
 - Runs virtual machines inside a Docker container
-- Automatic downloads for popular ARM64 Linux distributions
 - Supports almost every disk and image format
 - Web-based viewer for controlling the VM
 - Near-native performance with KVM acceleration
@@ -25,6 +24,7 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 - Dynamic memory allocation with memory ballooning
 - USB passthrough and host folder sharing
 - Supports bridge, user-mode, macvlan, and macvtap networking
+- Automatic downloads for popular ARM64 Linux distributions
 
 ## Usage  🐳
 
