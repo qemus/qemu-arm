@@ -47,7 +47,6 @@ RUN <<EOF
     inotify-tools \
     netcat-openbsd \
     ca-certificates \
-    qemu-system-arm \
     qemu-efi-aarch64 \
     python3 \
     python3-pip
