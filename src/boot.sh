@@ -61,6 +61,7 @@ configureBootMode() {
 }
 
 clearNvram() {
+
   DEST="$STORAGE/${BOOT_MODE,,}"
 
   if enabled "$CLEAR"; then
@@ -72,6 +73,7 @@ clearNvram() {
 }
 
 writePflashImage() {
+
   local source="$1"
   local target="$2"
 
@@ -91,6 +93,7 @@ writePflashImage() {
 }
 
 prepareUefiRom() {
+
   local logo
 
   if [ -s "$DEST.rom" ]; then
@@ -142,6 +145,7 @@ prepareUefiRom() {
 }
 
 prepareUefiVars() {
+
   if [ -s "$DEST.vars" ]; then
     return 0
   fi
@@ -165,6 +169,7 @@ prepareUefiVars() {
 }
 
 configureUefi() {
+
   case "${BOOT_MODE,,}" in
     "uefi" | "secure" | "windows" | "windows_secure" )
 
@@ -183,7 +188,9 @@ configureUefi() {
 }
 
 enableIgnoreMsrs() {
+
   MSRS="/sys/module/kvm/parameters/ignore_msrs"
+
   if [ -e "$MSRS" ]; then
     result=$(<"$MSRS")
     result="${result//[![:print:]]/}"
@@ -196,6 +203,7 @@ enableIgnoreMsrs() {
 }
 
 checkClocksource() {
+
   CLOCKSOURCE="tsc"
   [[ "${ARCH,,}" == "arm64" ]] && CLOCKSOURCE="arch_sys_counter"
   CLOCK="/sys/devices/system/clocksource/clocksource0/current_clocksource"
@@ -218,6 +226,7 @@ checkClocksource() {
 }
 
 detectSmbiosSerial() {
+
   SM_BIOS=""
   PS="/sys/class/dmi/id/product_serial"
 
@@ -236,6 +245,7 @@ detectSmbiosSerial() {
 }
 
 msg="Configuring boot..."
+
 html "$msg"
 enabled "$DEBUG" && echo "$msg"
 
