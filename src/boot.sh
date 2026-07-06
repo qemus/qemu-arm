@@ -11,6 +11,7 @@ BOOT_DESC=""
 BOOT_OPTS=""
 
 configureBootMode() {
+
   [ -n "$BIOS" ] && BOOT_MODE="custom"
 
   case "${BOOT_MODE,,}" in
@@ -38,7 +39,8 @@ configureBootMode() {
       BOOT_OPTS="-rtc base=localtime"
       ;;
     "legacy" )
-      BOOT_DESC=" with SeaBIOS"
+      error "BOOT_MODE=legacy is not supported!"
+      exit 33
       ;;
     "custom" )
       BIOS=$(strip "$BIOS")
