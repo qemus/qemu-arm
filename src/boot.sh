@@ -74,8 +74,16 @@ writePflashImage() {
   local target="$2"
 
   rm -f "$target"
-  dd if=/dev/zero "of=$target" bs=1M count=64 status=none
-  dd "if=$source" "of=$target" conv=notrunc status=none
+
+  if ! dd if=/dev/zero "of=$target" bs=1M count=64 status=none; then
+    rm -f "$target"
+    return 1
+  fi
+
+  if ! dd "if=$source" "of=$target" conv=notrunc status=none; then
+    rm -f "$target"
+    return 1
+  fi
 
   return 0
 }
@@ -95,20 +103,37 @@ prepareUefiRom() {
   [ ! -s "$logo" ] && logo="/var/www/img/qemu.ffs"
   [ ! -s "$logo" ] && LOGO="N"
 
-  dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none
+  if ! dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none; then
+    rm -f "$DEST.tmp"
+    error "Failed to create UEFI boot file $DEST.tmp" && exit 44
+  fi
+
   if disabled "$LOGO"; then
-    dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
+    if ! dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none; then
+      rm -f "$DEST.tmp"
+      error "Failed to copy UEFI boot file to $DEST.tmp" && exit 44
+    fi
   else
     if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then
-      dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none
+      if ! dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none; then
+        rm -f "$DEST.tmp" "$DEST.logo"
+        error "Failed to copy custom UEFI boot file to $DEST.tmp" && exit 44
+      fi
     else
       warn "failed to add custom logo to BIOS!"
-      dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none
+
+      if ! dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none; then
+        rm -f "$DEST.tmp" "$DEST.logo"
+        error "Failed to copy UEFI boot file to $DEST.tmp" && exit 44
+      fi
     fi
     rm -f "$DEST.logo"
   fi
 
-  mv "$DEST.tmp" "$DEST.rom"
+  if ! mv "$DEST.tmp" "$DEST.rom"; then
+    rm -f "$DEST.tmp"
+    error "Failed to move UEFI boot file to $DEST.rom" && exit 44
+  fi
   ! setOwner "$DEST.rom" && error "Failed to set the owner for \"$DEST.rom\" !"
 
   return 0
@@ -121,8 +146,17 @@ prepareUefiVars() {
 
   [ ! -s "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
 
-  writePflashImage "$AAVMF/$VARS" "$DEST.tmp"
-  mv "$DEST.tmp" "$DEST.vars"
+  rm -f "$DEST.tmp"
+
+  if ! writePflashImage "$AAVMF/$VARS" "$DEST.tmp"; then
+    rm -f "$DEST.tmp"
+    error "Failed to copy UEFI vars file to $DEST.tmp" && exit 45
+  fi
+
+  if ! mv "$DEST.tmp" "$DEST.vars"; then
+    rm -f "$DEST.tmp"
+    error "Failed to move UEFI vars file to $DEST.vars" && exit 45
+  fi
   ! setOwner "$DEST.vars" && error "Failed to set the owner for \"$DEST.vars\" !"
 
   return 0
