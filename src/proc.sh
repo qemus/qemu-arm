@@ -39,6 +39,8 @@ detectBigLittleCores() {
     info "Your CPU has a big.LITTLE architecture, will use only cores ${CPU_PIN}."
 
   fi
+
+  return 0
 }
 
 limitCpuCoresToPinnedCores() {
@@ -55,6 +57,8 @@ limitCpuCoresToPinnedCores() {
     info "The amount for CPU_CORES (${CPU_CORES}) exceeds the amount of pinned cores, so will be limited to ${cores}."
     CPU_CORES="$cores"
   fi
+
+  return 0
 }
 
 configureKvm() {
@@ -65,6 +69,8 @@ configureKvm() {
   if [ -z "$CPU_MODEL" ]; then
     CPU_MODEL="host"
   fi
+
+  return 0
 }
 
 configureTcg() {
@@ -79,6 +85,8 @@ configureTcg() {
       CPU_MODEL="cortex-a76"
     fi
   fi
+
+  return 0
 }
 
 extractHostCpuArgument() {
@@ -108,6 +116,8 @@ extractHostCpuArgument() {
     fi
 
   fi
+
+  return 0
 }
 
 composeCpuFlags() {
@@ -125,6 +135,8 @@ composeCpuFlags() {
       CPU_FLAGS="$CPU_MODEL,$CPU_FEATURES,$CPU_FLAGS"
     fi
   fi
+
+  return 0
 }
 
 detectBigLittleCores
