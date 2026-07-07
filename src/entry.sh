@@ -29,7 +29,7 @@ trap - ERR
 
 cmd=(qemu-system-aarch64)
 version=$("${cmd[@]}" --version | awk 'NR==1 { print $4 }')
-info "Booting image${BOOT_DESC} using QEMU v$version..."
+info "Booting image${BOOT_DESC} using QEMU v$version..." && echo
 
 if [ -n "$CPU_PIN" ]; then
   cmd=(taskset -c "$CPU_PIN" "${cmd[@]}")
