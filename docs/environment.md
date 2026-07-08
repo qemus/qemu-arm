@@ -103,8 +103,6 @@ Also see [Dynamic memory allocation](ballooning.md) for usage notes and importan
 
 | Variable | Default | Description |
 |---|---|---|
-| Variable | Default | Description |
-|---|---|---|
 | `BALLOONING` | `N` | Enables dynamic memory ballooning. |
 | `BALLOONING_DEBUG` | `N` | Enables debug output for the ballooning monitor. |
 | `BALLOONING_MIN_MEM` | `33%` | Minimum memory target for the balloon device. |
@@ -116,11 +114,6 @@ Also see [Dynamic memory allocation](ballooning.md) for usage notes and importan
 | `BALLOONING_KP` | `0.5` | Proportional gain for the ballooning controller. |
 | `BALLOONING_KI` | `0.05` | Integral gain for the ballooning controller. |
 | `BALLOONING_INTERVAL` | `5` | Polling interval in seconds. |
-
-
-### Are these all available options?
-
-No. For a complete overview of all supported settings, see the [environment variables](docs/environment.md) page.
 
 ## 🔌 Shutdown
 
