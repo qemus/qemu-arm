@@ -362,7 +362,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   By default, the VM is allocated the full amount of RAM configured via `RAM_SIZE` for its entire lifetime.
 
-  However, you can enable [memory ballooning](dynamic.md) if you want the container to dynamically reclaim unused guest RAM based on host memory pressure.
+  However, you can enable [memory ballooning](docs/ballooning.md) if you want the container to dynamically reclaim unused guest RAM based on host memory pressure.
 
 ### How can I provide custom arguments to QEMU?
 
