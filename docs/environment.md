@@ -2,21 +2,11 @@
 
 This page lists all the environment variables that can be used to configure the container.
 
-## 🪟 Windows
+## 💿 Image
 
 | Variable | Default | Description |
 |---|---|---|
-| `VERSION` | `11` | Windows version to install, for example `10` or `11`. |
-| `EDITION` |  | Windows edition to install. |
-| `LANGUAGE` | `en-US` | Windows display language, for example `en`, `fr`, `nl`, etc. |
-| `REGION` | `en-US` | Windows regional format, for example `en-US`. |
-| `KEYBOARD` | `en-US` | Keyboard layout used during installation, for example `en-US`. |
-| `USERNAME` | `Dockur` | Username for the Windows account. |
-| `PASSWORD` | `admin` | Password for the Windows account. |
-| `KEY` |  | Windows product key used during installation. |
-| `MANUAL` | `N` | Enables manual installation instead of unattended installation. |
-| `VERIFY` | `N` | Verifies checksums of downloaded images. |
-| `REMOVE` | `Y` | Removes the Windows ISO after installation. Set to `N` to keep it. |
+| `BOOT` | `alpine` | Image to boot, for example `alpine`, `ubuntu`, `debian`, or a direct URL to an ISO/image file. |
 
 ## 🧠 CPU and Memory
 
@@ -27,7 +17,7 @@ This page lists all the environment variables that can be used to configure the 
 | `CPU_MODEL` | `host` | QEMU CPU model to use. |
 | `CPU_FLAGS` |  | Additional QEMU CPU flags. |
 | `KVM` | `Y` | Enables KVM hardware acceleration. Set to `N` to disable. |
-| `RAM_SIZE` | `4G` | Amount of RAM assigned to the VM, for example `4G`, `8G`, `max`, or `half`. |
+| `RAM_SIZE` | `2G` | Amount of RAM assigned to the VM, for example `2G`, `4G`, `max`, or `half`. |
 | `RAM_CHECK` | `Y` | Checks whether enough host memory is available before starting the VM. |
 
 ## ⚙️ System
@@ -43,8 +33,8 @@ This page lists all the environment variables that can be used to configure the 
 
 | Variable | Default | Description |
 |---|---|---|
-| `BOOT_MODE` | `windows` | Boot mode, for example `windows` or `windows_secure`. |
-| `BOOT_INDEX` | `9` | Boot priority index for the installation media. |
+| `BOOT_MODE` | `uefi` | Boot mode, for example `uefi` or `secure`. |
+| `BOOT_INDEX` | `9` | Boot priority index for the boot media. |
 | `BIOS` |  | Custom BIOS/firmware file. Setting this enables custom boot mode. |
 | `SECURE` | `off` | QEMU secure boot flag. Usually controlled by `BOOT_MODE`. |
 | `LOGO` | `Y` | Enables the custom boot logo. |
@@ -74,7 +64,7 @@ This page lists all the environment variables that can be used to configure the 
 | `DHCP` | `N` | Enables DHCP/macvtap mode so the VM receives an address from the external LAN. |
 | `IP` |  | Guest IP address override. |
 | `MAC` |  | Guest network adapter MAC address. |
-| `HOST` | `Windows` | Hostname assigned to the VM. |
+| `HOST` | `QEMU` | Hostname assigned to the VM. |
 | `DEV` | `eth0` | Host/container network interface to use. |
 | `MTU` |  | Network MTU to use for the guest interface. |
 | `MASK` | `255.255.255.0` | IPv4 netmask. |
@@ -89,19 +79,10 @@ This page lists all the environment variables that can be used to configure the 
 | `PASST_OPTS` |  | Additional passt options. |
 | `PASST_DEBUG` | `N` | Enables passt debug output. |
 
-## 📁 File Sharing
-
-| Variable | Default | Description |
-|---|---|---|
-| `SAMBA` | `Y` | Enables or disables the Samba shared folder. |
-| `SAMBA_DEBUG` | `N` | Enables Samba debug output. |
-
 ## 🖥️ Display
 
 | Variable | Default | Description |
 |---|---|---|
-| `WIDTH` | `1920` | Display width configured for Windows. |
-| `HEIGHT` | `1080` | Display height configured for Windows. |
 | `DISPLAY` | `web` | Display backend. Common values are `web`, `vnc`, `ramfb`, `disabled`, or `none`. |
 | `VGA` | `ramfb` | QEMU video adapter model, can be set to `virtio-gpu` after installation. |
 
@@ -137,7 +118,7 @@ This page lists all the environment variables that can be used to configure the 
 | Variable | Default | Description |
 |---|---|---|
 | `SHUTDOWN` | `Y` | Enables graceful ACPI shutdown. |
-| `TIMEOUT` | `115` | Timeout used while waiting for the VM to shut down. |
+| `TIMEOUT` | `13` | Timeout used while waiting for the VM to shut down. |
 
 ## 🐞 Debugging
 
@@ -145,6 +126,5 @@ This page lists all the environment variables that can be used to configure the 
 |---|---|---|
 | `DEBUG` | `N` | Enables verbose debug output. |
 | `TRACE` | `N` | Enables shell command tracing. |
-| `DETECTED` |  | Overrides the detected Windows image identifier. |
 | `SERIAL` | `mon:stdio` | QEMU serial device setting. |
 | `MONITOR` | `unix:$QEMU_DIR/monitor.sock,server,wait=off,nodelay` | QEMU monitor device setting. |
