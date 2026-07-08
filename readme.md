@@ -23,7 +23,7 @@ Docker container for running ARM-based virtual machines using QEMU, for devices 
 - Customizable CPU, memory, and storage allocation
 - Dynamic memory allocation with memory ballooning
 - USB passthrough and host folder sharing
-- Supports bridge, user-mode, macvlan, and macvtap networking
+- Supports NAT, user-mode, macvlan, and macvtap networking
 - Automatic downloads for popular ARM64 Linux distributions
 
 ## Usage  🐳
