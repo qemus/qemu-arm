@@ -99,6 +99,10 @@ This page lists all the environment variables that can be used to configure the 
 
 ## 🎈 Memory Ballooning
 
+Also see [Dynamic memory allocation](ballooning.md) for usage notes and important caveats.
+
+| Variable | Default | Description |
+|---|---|---|
 | Variable | Default | Description |
 |---|---|---|
 | `BALLOONING` | `N` | Enables dynamic memory ballooning. |
@@ -112,6 +116,11 @@ This page lists all the environment variables that can be used to configure the 
 | `BALLOONING_KP` | `0.5` | Proportional gain for the ballooning controller. |
 | `BALLOONING_KI` | `0.05` | Integral gain for the ballooning controller. |
 | `BALLOONING_INTERVAL` | `5` | Polling interval in seconds. |
+
+
+### Are these all available options?
+
+No. For a complete overview of all supported settings, see the [environment variables](docs/environment.md) page.
 
 ## 🔌 Shutdown
 
