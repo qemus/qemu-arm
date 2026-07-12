@@ -68,12 +68,13 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ## Requirements ⚙️
 
-  - A Linux host with KVM support, or Docker Desktop / Podman on Windows 11 with nested virtualization enabled.
-  - At least 2 GB of RAM available.
-  - At least 64 GB of free disk space.
+- Docker or Podman on a Linux host with KVM support.
+- Docker Desktop or Podman (Desktop) on Windows 11 with nested virtualization enabled.
+- At least 2 GB of available RAM.
+- At least 64 GB of free disk space.
 
 > [!NOTE]
-> Docker Desktop on macOS and Windows 10 do not currently provide the required KVM support for this image.
+> Docker Desktop on Linux, macOS, and Windows 10 does not currently provide KVM access to containers and is therefore not supported.
 
 ## FAQ 💬
 
@@ -358,7 +359,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ### Are these all available options?
 
-No. For a complete overview of all supported settings, see the [environment variables](docs/environment.md) page.
+  No. For a complete overview of all supported settings, see the [environment variables](docs/environment.md) page.
 
 ### How do I verify that KVM is available?
 
