@@ -2,8 +2,8 @@
 set -Eeuo pipefail
 
 : "${UUID:=""}"
+: "${SOUND:="usb-audio"}"
 : "${SERIAL:="mon:stdio"}"
-: "${SOUND:="usb-audio,audiodev=snd"}"
 : "${USB:="qemu-xhci,id=xhci,p2=7,p3=7"}"
 : "${MONITOR:="unix:$QEMU_DIR/monitor.sock,server,wait=off,nodelay"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
@@ -74,13 +74,32 @@ configureAudio() {
     return 0
   fi
 
+  case "${MACHINE,,}" in
+    microvm|isapc|none|xenpvh*)
+      warn "Audio is not supported with machine type '$MACHINE', ignoring AUDIO=Y."
+      return 0
+      ;;
+  esac
+
+  local sound="$SOUND"
+  local model="${sound%%,*}"
+
   AUDIO_OPTS+=" -audiodev wav,id=snd,path=$AUDIO_FIFO,out.frequency=48000,out.channels=2,out.format=s16"
 
-  if [[ "${SOUND%%,*}" == usb-* ]] && { [ -z "$USB" ] || [[ "${USB,,}" == "no"* ]]; }; then
+  if [[ "$model" == usb-* ]] && { [ -z "$USB" ] || [[ "${USB,,}" == "no"* ]]; }; then
     AUDIO_OPTS+=" -device qemu-xhci,id=audio-xhci"
   fi
 
-  AUDIO_OPTS+=" -device $SOUND"
+  case "$model" in
+    intel-hda|ich9-intel-hda)
+      AUDIO_OPTS+=" -device $sound"
+      AUDIO_OPTS+=" -device hda-output,audiodev=snd"
+      ;;
+    *)
+      [[ ",$sound," == *,audiodev=* ]] || sound+=",audiodev=snd"
+      AUDIO_OPTS+=" -device $sound"
+      ;;
+  esac
 
   return 0
 }
