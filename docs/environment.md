@@ -95,6 +95,8 @@ This page lists all the environment variables that can be used to configure the 
 | `VNC_PORT` | `5900` | Port for the VNC server. |
 | `WSS_PORT` | `5700` | WebSocket port used by QEMU/noVNC. |
 | `WSD_PORT` | `8004` | Internal websocketd port. |
+| `AUX_PORT` | `8003` | Internal VNC audio port. |
+| `AUDIO` | `N` | Stream guest audio to the web viewer. |
 | `PROTECT` | `N` | Enables password protection for the web interface. |
 
 ## 🎈 Memory Ballooning
