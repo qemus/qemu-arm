@@ -208,9 +208,9 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   You can use the [qemu](https://github.com/qemus/qemu/) container to run x86 and x64 images on ARM.
 
-### Can I also run Proxmox as a container?
+### How do I run Proxmox as a container?
 
-  Yes, if you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
+  If you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
 
 ### How do I expose network ports?
 
