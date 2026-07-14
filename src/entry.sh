@@ -16,7 +16,7 @@ cd /run
 . install.sh    # Download image
 . disk.sh       # Initialize disks
 . display.sh    # Initialize graphics
-# audio.sh      # Initialize audio
+. audio.sh      # Initialize audio
 . network.sh    # Initialize network
 . boot.sh       # Configure boot
 . proc.sh       # Initialize processor
