@@ -303,6 +303,17 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   Use `/disk1` if you want it to become your main drive, and use `/disk2` and higher to add them as secondary drives.
 
+### How do I pass through a USB device?
+
+  To pass through a USB device, first look up its vendor and product IDs via the `lsusb` command, then add them to your compose file like this:
+
+  ```yaml
+  environment:
+    ARGUMENTS: "-device usb-host,vendorid=0x1234,productid=0x1234"
+  devices:
+    - /dev/bus/usb
+  ```
+
 ### How do I share files with the host?
 
   To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
@@ -319,17 +330,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   ```
 
   Now the `./example` directory on the host will be available as `/mnt/example` in the guest.
-
-### How do I pass through a USB device?
-
-  To pass through a USB device, first look up its vendor and product IDs via the `lsusb` command, then add them to your compose file like this:
-
-  ```yaml
-  environment:
-    ARGUMENTS: "-device usb-host,vendorid=0x1234,productid=0x1234"
-  devices:
-    - /dev/bus/usb
-  ```
 
 ### How do I enable audio?
 
@@ -368,10 +368,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   No. For a complete overview of all supported settings, see the [environment variables](docs/environment.md) page.
 
-### How do I run Proxmox as a container?
-
-  If you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
-
 ### How do I verify that KVM is available?
 
   First, make sure your platform and container runtime meet the [requirements](#requirements-️) listed above.
@@ -402,6 +398,10 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   - Your VPS or cloud provider supports nested virtualization.
 
   If `kvm-ok` succeeds but the container still reports that KVM is unavailable, you can temporarily add `privileged: true` to your Compose file to rule out a permission or device-access issue.
+
+### How do I run Proxmox as a container?
+
+  If you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
 
 ## Stars 🌟
 [![Stargazers](https://raw.githubusercontent.com/star-stats/stars/refs/heads/data/charts/qemus-qemu-arm.svg)](https://github.com/qemus/qemu-arm/stargazers)
