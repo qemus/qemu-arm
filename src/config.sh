@@ -59,7 +59,9 @@ configureSharedFolder() {
 
 configureUsb() {
 
-  [ -n "$USB" ] && [[ "${USB,,}" != "no"* ]] && USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
+  if ! disabled "$USB" && [ -n "$USB" ] && [[ "${USB,,}" != "no"* ]]; then
+    USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
+  fi
 
   return 0
 }
