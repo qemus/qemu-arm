@@ -208,9 +208,9 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   You can use the [qemu](https://github.com/qemus/qemu/) container to run x86 and x64 images on ARM.
 
-### Can I also run Proxmox as a container?
+### How do I run Proxmox as a container?
 
-  Yes, if you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
+  If you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
 
 ### How do I expose network ports?
 
@@ -318,6 +318,17 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
     - /dev/bus/usb
   ```
 
+### How do I enable audio?
+
+  Audio is disabled by default. To stream it to the browser, add the following environment variable:
+
+  ```yaml
+  environment:
+    AUDIO: "Y"
+  ```
+
+  Then enable **Audio** under **Settings → Advanced** in the web viewer. The stream is only active while this option is enabled, so it uses no extra bandwidth otherwise.
+
 ### How do I share files with the host?
 
   To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
@@ -340,17 +351,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   By default, the VM is allocated the full amount of RAM configured via `RAM_SIZE` for its entire lifetime.
 
   However, you can enable [memory ballooning](docs/ballooning.md) if you want the container to dynamically reclaim unused guest RAM based on host memory pressure.
-
-### How do I enable audio?
-
-  Audio is disabled by default. To stream the guest's audio to the browser, add the following environment variable:
-
-  ```yaml
-  environment:
-    AUDIO: "Y"
-  ```
-
-  Then enable **Audio** under **Settings → Advanced** in the web viewer. Audio is only sent while enabled, so it uses no extra bandwidth otherwise.
 
 ### How can I provide custom arguments to QEMU?
 
