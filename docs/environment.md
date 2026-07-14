@@ -95,7 +95,7 @@ An empty default means the variable is unset and its value is determined automat
 | Variable | Default | Description |
 |---|---|---|
 | `BOOT_MODE` | `uefi` | Boot configuration, such as `uefi` or `secure`. |
-| `BOOT_INDEX` | `9` | Boot priority index for the boot media. |
+| `BOOT_INDEX` | `9` | Boot priority index for the installation media. |
 | `BIOS` |  | Custom firmware file. |
 | `SECURE` | `off` | QEMU Secure Boot flag, usually set by `BOOT_MODE`. |
 | `LOGO` | `Y` | Enables the custom boot logo. |
