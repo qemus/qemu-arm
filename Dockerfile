@@ -31,6 +31,7 @@ RUN <<EOF
     fdisk \
     nginx \
     procps \
+    ipcalc \
     ethtool \
     seabios \
     iptables \
