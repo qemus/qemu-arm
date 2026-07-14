@@ -184,6 +184,34 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
     CPU_CORES: "4"
   ```
 
+### How do I share files with the host?
+
+  To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
+
+  ```yaml
+  volumes:
+    - ./example:/shared
+  ```
+
+  Then start the container and execute the following command in the guest:
+
+  ```shell
+  mount -t 9p -o trans=virtio shared /mnt/example
+  ```
+
+  Now the `./example` directory on the host will be available as `/mnt/example` in the guest.
+
+### How do I enable audio?
+
+  Audio is disabled by default. To stream it to the browser, add the following environment variable:
+
+  ```yaml
+  environment:
+    AUDIO: "Y"
+  ```
+
+  Then enable **Audio** under **Settings → Advanced** in the web viewer. The stream is only active while this option is enabled, so it uses no extra bandwidth otherwise.
+
 ### How do I increase the display resolution?
 
   For maximum compatibility, the display output will be a simple framebuffer by default. While this isn't the most optimal, it doesn't require any drivers.
@@ -204,9 +232,9 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   Use [dockur/windows-arm](https://github.com/dockur/windows-arm) instead, as it includes all the drivers required during installation, amongst many other features.
 
-### How do I boot x86/x64 images?
+### How do I boot x86 images?
 
-  You can use the [qemu](https://github.com/qemus/qemu/) container to run x86 and x64 images on ARM.
+  You can use the [qemu](https://github.com/qemus/qemu/) container to run x86/x64 images on ARM.
 
 ### How do I expose network ports?
 
@@ -313,34 +341,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   devices:
     - /dev/bus/usb
   ```
-
-### How do I share files with the host?
-
-  To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
-
-  ```yaml
-  volumes:
-    - ./example:/shared
-  ```
-
-  Then start the container and execute the following command in the guest:
-
-  ```shell
-  mount -t 9p -o trans=virtio shared /mnt/example
-  ```
-
-  Now the `./example` directory on the host will be available as `/mnt/example` in the guest.
-
-### How do I enable audio?
-
-  Audio is disabled by default. To stream it to the browser, add the following environment variable:
-
-  ```yaml
-  environment:
-    AUDIO: "Y"
-  ```
-
-  Then enable **Audio** under **Settings → Advanced** in the web viewer. The stream is only active while this option is enabled, so it uses no extra bandwidth otherwise.
 
 ### How do I enable dynamic memory allocation?
 
