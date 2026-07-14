@@ -100,7 +100,7 @@ An empty default means the variable is unset and its value is determined automat
 | `SECURE` | `off` | QEMU Secure Boot flag, usually set by `BOOT_MODE`. |
 | `LOGO` | `Y` | Enables the custom boot logo. |
 | `CLEAR` | `N` | Resets the NVRAM variables on the next boot. |
-| `USB` | `qemu-xhci,id=xhci,p2=7,p3=7` | QEMU USB controller configuration. |
+| `USB` | `qemu-xhci` | QEMU USB controller configuration. |
 
 ## 🎈 Memory Ballooning
 
