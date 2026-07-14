@@ -208,10 +208,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   You can use the [qemu](https://github.com/qemus/qemu/) container to run x86 and x64 images on ARM.
 
-### How do I run Proxmox as a container?
-
-  If you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
-
 ### How do I expose network ports?
 
   When using bridge networking, you can expose ports by adding them to your compose file. If you want to be able to connect to the SSH service of the machine for example, you would add it like this:
@@ -307,6 +303,23 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
   Use `/disk1` if you want it to become your main drive, and use `/disk2` and higher to add them as secondary drives.
 
+### How do I share files with the host?
+
+  To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
+
+  ```yaml
+  volumes:
+    - ./example:/shared
+  ```
+
+  Then start the container and execute the following command in the guest:
+
+  ```shell
+  mount -t 9p -o trans=virtio shared /mnt/example
+  ```
+
+  Now the `./example` directory on the host will be available as `/mnt/example` in the guest.
+
 ### How do I pass through a USB device?
 
   To pass through a USB device, first look up its vendor and product IDs via the `lsusb` command, then add them to your compose file like this:
@@ -328,23 +341,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   ```
 
   Then enable **Audio** under **Settings → Advanced** in the web viewer. The stream is only active while this option is enabled, so it uses no extra bandwidth otherwise.
-
-### How do I share files with the host?
-
-  To share files with the host, first ensure that your guest OS has `9pfs` support compiled in or available as a kernel module. If so, add the following volume to your compose file:
-
-  ```yaml
-  volumes:
-    - ./example:/shared
-  ```
-
-  Then start the container and execute the following command in the guest:
-
-  ```shell
-  mount -t 9p -o trans=virtio shared /mnt/example
-  ```
-
-  Now the `./example` directory on the host will be available as `/mnt/example` in the guest.
 
 ### How do I enable dynamic memory allocation?
 
@@ -371,6 +367,10 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 ### Are these all available options?
 
   No. For a complete overview of all supported settings, see the [environment variables](docs/environment.md) page.
+
+### How do I run Proxmox as a container?
+
+  If you prefer a web-based management interface, or some advanced features that this container may not offer, you can try out [dockur/proxmox](https://github.com/dockur/proxmox).
 
 ### How do I verify that KVM is available?
 
