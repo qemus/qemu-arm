@@ -32,15 +32,17 @@ configureMachineOptions() {
 
 configureVirtioDevices() {
 
+  local BUS="${PCI_BUS:-pcie.0}"
+
   DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
-  DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=pcie.0"
+  DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=$BUS"
 
   if [[ "${BOOT_MODE,,}" != "windows"* ]] || enabled "${BALLOONING:-}"; then
     if ! enabled "${BALLOONING:-}"; then
-      DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=pcie.0"
+      DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=$BUS"
     else
       MON_OPTS+=" -qmp unix:${BALLOONING_SOCKET},server,nowait"
-      DEV_OPTS+=" -device virtio-balloon-pci,free-page-reporting=on,guest-stats-polling-interval=1,id=balloon0,bus=pcie.0"
+      DEV_OPTS+=" -device virtio-balloon-pci,free-page-reporting=on,guest-stats-polling-interval=1,id=balloon0,bus=$BUS"
     fi
   fi
 
