@@ -41,6 +41,7 @@ RUN <<EOF
     apt-utils \
     net-tools \
     e2fsprogs \
+    diffutils \
     qemu-utils \
     util-linux \
     websocketd \
