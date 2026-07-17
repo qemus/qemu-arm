@@ -85,6 +85,7 @@ configureAudio() {
 
   if [[ "$model" == usb-* ]] && { [ -z "$USB" ] || disabled "$USB"; }; then
     AUDIO_OPTS+=" -device qemu-xhci,id=audio-xhci"
+    [[ ",$sound," == *,bus=* ]] || sound+=",bus=audio-xhci.0"
   fi
 
   case "$model" in
