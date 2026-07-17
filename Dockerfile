@@ -37,6 +37,7 @@ RUN <<EOF
     iptables \
     iproute2 \
     dnsmasq \
+    xorriso \
     xz-utils \
     apt-utils \
     net-tools \
