@@ -78,12 +78,10 @@ configureAudio() {
     return 0
   fi
 
-  case "${MACHINE,,}" in
-    microvm|isapc|none|xenpvh*)
-      warn "Audio is not supported with machine type '$MACHINE', ignoring AUDIO=Y."
-      return 0
-      ;;
-  esac
+  if [[ "${MACHINE,,}" != "virt" ]]; then
+    warn "Audio is not supported with machine type '$MACHINE', ignoring AUDIO=Y."
+    return 0
+  fi
 
   local sound="$SOUND"
   local model="${sound%%,*}"
