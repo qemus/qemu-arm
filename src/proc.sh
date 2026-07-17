@@ -16,6 +16,7 @@ CPU_FLAGS=$(strip "$CPU_FLAGS")
 enabled "$DEBUG" && echo "Configuring KVM..."
 
 detectBigLittleCores() {
+
   local cores same part
 
   if [[ "${ARCH,,}" != "arm64" ]] || [ -n "$CPU_PIN" ]; then
@@ -43,15 +44,65 @@ detectBigLittleCores() {
   return 0
 }
 
+countPinnedCores() {
+
+  local list="${1//[[:space:]]/}"
+  local item="" range="" stride=""
+  local start="" end="" cpu=""
+  local -a items=()
+  local -A cpus=()
+
+  IFS=',' read -r -a items <<< "$list"
+
+  for item in "${items[@]}"; do
+
+    [ -n "$item" ] || return 1
+
+    range="$item"
+    stride="1"
+
+    if [[ "$range" == *:* ]]; then
+      stride="${range##*:}"
+      range="${range%:*}"
+    fi
+
+    if [[ "$range" == *-* ]]; then
+      start="${range%%-*}"
+      end="${range#*-}"
+    else
+      start="$range"
+      end="$range"
+    fi
+
+    if [[ ! "$start" =~ ^[0-9]+$ ||
+          ! "$end" =~ ^[0-9]+$ ||
+          ! "$stride" =~ ^[0-9]+$ ]] ||
+      (( stride < 1 || end < start )); then
+      return 1
+    fi
+
+    for (( cpu=start; cpu<=end; cpu+=stride )); do
+      cpus["$cpu"]=1
+    done
+
+  done
+
+  echo "${#cpus[@]}"
+  return 0
+}
+
 limitCpuCoresToPinnedCores() {
-  local cores
+
+  local cores=""
 
   if [[ "${ARCH,,}" != "arm64" ]] || [ -z "$CPU_PIN" ]; then
     return 0
   fi
 
-  cores=$(echo "$CPU_PIN" | grep -o "," | wc -l)
-  cores=$((cores + 1))
+  if ! cores=$(countPinnedCores "$CPU_PIN"); then
+    warn "Could not determine the number of pinned cores from CPU_PIN='$CPU_PIN'."
+    return 0
+  fi
 
   if [ "$CPU_CORES" -gt "$cores" ]; then
     info "The amount for CPU_CORES (${CPU_CORES}) exceeds the amount of pinned cores, so will be limited to ${cores}."
