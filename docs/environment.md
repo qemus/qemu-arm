@@ -18,6 +18,7 @@ An empty default means the variable is unset and its value is determined automat
 | `CPU_PIN` |  | Pins QEMU to specific host CPU cores, for example `4,5,6,7`. |
 | `CPU_MODEL` | `host` | QEMU CPU model. |
 | `CPU_FLAGS` |  | Additional QEMU CPU flags. |
+| `SMP` |  | Custom CPU topology. Determined from `CPU_CORES` when unset. |
 | `KVM` | `Y` | Enables KVM hardware acceleration. |
 | `RAM_SIZE` | `2G` | Amount of RAM assigned to the VM, such as `2G`, `4G`, `half`, or `max`. |
 | `RAM_CHECK` | `Y` | Checks whether enough host memory is available before starting the VM. |
@@ -96,6 +97,7 @@ An empty default means the variable is unset and its value is determined automat
 |---|---|---|
 | `BOOT_MODE` | `uefi` | Boot configuration, such as `uefi` or `secure`. |
 | `BOOT_INDEX` | `9` | Boot priority index for the installation media. |
+| `MEDIA_TYPE` |  | Device type used for installation media. |
 | `BIOS` |  | Custom firmware file. |
 | `SECURE` | `off` | QEMU Secure Boot flag, usually set by `BOOT_MODE`. |
 | `LOGO` | `Y` | Enables the custom boot logo. |
