@@ -66,6 +66,7 @@ An empty default means the variable is unset and its value is determined automat
 | Variable | Default | Description |
 |---|---|---|
 | `DISPLAY` | `web` | Display backend, such as `web`, `vnc`, `ramfb`, `disabled`, or `none`. |
+| `LOSSY` | `N` | Enables lossy VNC compression to reduce bandwidth usage. |
 | `VGA` | `ramfb` | QEMU video adapter model. Can be set to `virtio-gpu` after installation. |
 
 ## 🌍 Web UI
