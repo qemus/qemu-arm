@@ -4,6 +4,7 @@ set -Eeuo pipefail
 : "${APP:="QEMU"}"
 : "${MACHINE:="virt"}"
 : "${PLATFORM:="arm64"}"
+: "${BOOT_MODE:="uefi"}"
 : "${SUPPORT:="https://github.com/qemus/qemu-arm"}"
 
 cd /run
