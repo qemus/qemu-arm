@@ -28,6 +28,7 @@ RUN <<EOF
     wget \
     7zip \
     curl \
+    wget2 \
     fdisk \
     nginx \
     procps \
