@@ -23,8 +23,6 @@ jobs:
                 -e SC1091
                 -e SC2001
                 -e SC2034
-                -e SC2329
-                -e SC2064
                 -e SC2317
                 -e SC2153
           -
@@ -32,7 +30,7 @@ jobs:
             uses: hadolint/hadolint-action@v3.3.0
             with:
               dockerfile: Dockerfile
-              ignore: DL3008,DL3003,DL3035,DL3059,DL3006
+              ignore: DL3008,DL3003,DL3059,DL3006
               failure-threshold: warning
           -
             name: Validate JSON and YML files
