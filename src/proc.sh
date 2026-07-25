@@ -47,10 +47,9 @@ detectBigLittleCores() {
 countPinnedCores() {
 
   local list="${1//[[:space:]]/}"
-  local item="" range="" stride=""
-  local start="" end="" cpu=""
-  local -a items=()
-  local -A cpus=()
+  local item cpu
+  local -a items
+  local -A cpus
 
   IFS=',' read -r -a items <<< "$list"
 
@@ -58,8 +57,8 @@ countPinnedCores() {
 
     [ -n "$item" ] || return 1
 
-    range="$item"
-    stride="1"
+    local range="$item"
+    local stride="1"
 
     if [[ "$range" == *:* ]]; then
       stride="${range##*:}"
@@ -67,11 +66,11 @@ countPinnedCores() {
     fi
 
     if [[ "$range" == *-* ]]; then
-      start="${range%%-*}"
-      end="${range#*-}"
+      local start="${range%%-*}"
+      local end="${range#*-}"
     else
-      start="$range"
-      end="$range"
+      local start="$range"
+      local end="$range"
     fi
 
     if [[ ! "$start" =~ ^[0-9]+$ ||
@@ -93,7 +92,7 @@ countPinnedCores() {
 
 limitCpuCoresToPinnedCores() {
 
-  local cores=""
+  local cores
 
   if [[ "${ARCH,,}" != "arm64" ]] || [ -z "$CPU_PIN" ]; then
     return 0
