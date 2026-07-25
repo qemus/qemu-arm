@@ -89,6 +89,7 @@ An empty default means the variable is unset and its value is determined automat
 | Variable | Default | Description |
 |---|---|---|
 | `MACHINE` | `virt` | QEMU machine type. |
+| `PCI_BUS` | `pcie.0` | Overrides the PCI bus used for attached devices. |
 | `UUID` |  | UUID assigned to the VM. |
 | `SM_BIOS` |  | Additional arguments passed to QEMU’s `-smbios` option. |
 | `ARGUMENTS` |  | Additional raw arguments appended to the QEMU command line. |
