@@ -3,9 +3,9 @@ set -Eeuo pipefail
 
 # Docker environment variables
 : "${BIOS:=""}"         # BIOS file
-: "${SECURE:="off"}"    # Secure boot
-: "${LOGO:="Y"}"        # Enable logo
-: "${CLEAR:="N"}"       # Persist NVRAM
+: "${LOGO:=""}"         # Enable logo
+: "${CLEAR:=""}"        # Clear NVRAM
+: "${SECURE:=""}"       # Secure Boot
 
 BOOT_DESC=""
 BOOT_OPTS=""
@@ -15,46 +15,63 @@ configureBootMode() {
   [ -n "$BIOS" ] && BOOT_MODE="custom"
 
   case "${BOOT_MODE,,}" in
+
     "uefi" | "" )
+
       BOOT_MODE="uefi"
-      ROM="AAVMF_CODE.no-secboot.fd"
+
       VARS="AAVMF_VARS.fd"
-      ;;
+      ROM="AAVMF_CODE.no-secboot.fd" ;;
+
     "secure" )
-      SECURE="on"
+
       BOOT_DESC=" securely"
-      ROM="AAVMF_CODE.secboot.fd"
+
+      [ -z "$SECURE" ] && SECURE="Y"
+
       VARS="AAVMF_VARS.fd"
-      ;;
+      ROM="AAVMF_CODE.secboot.fd" ;;
+
     "windows" )
-      ROM="AAVMF_CODE.no-secboot.fd"
+
       VARS="AAVMF_VARS.fd"
-      BOOT_OPTS="-rtc base=localtime"
-      ;;
+      ROM="AAVMF_CODE.no-secboot.fd"
+
+      BOOT_OPTS="-rtc base=localtime" ;;
+
     "windows_secure" )
-      SECURE="on"
+
       BOOT_DESC=" securely"
+
+      [ -z "$SECURE" ] && SECURE="Y"
+
       ROM="AAVMF_CODE.ms.fd"
       VARS="AAVMF_VARS.ms.fd"
-      BOOT_OPTS="-rtc base=localtime"
-      ;;
+
+      BOOT_OPTS="-rtc base=localtime" ;;
+
     "legacy" )
-      error "BOOT_MODE=legacy is not supported!"
-      exit 33
-      ;;
+
+      error "BOOT_MODE=$BOOT_MODE is not supported!"
+      exit 33 ;;
+
     "custom" )
+
+      BOOT_DESC=" with custom BIOS file"
+
       BIOS=$(strip "$BIOS")
+
       if [ -z "$BIOS" ]; then
         error "BOOT_MODE is custom but BIOS is empty!"
         exit 33
       fi
-      BOOT_OPTS="-bios $BIOS"
-      BOOT_DESC=" with custom BIOS file"
-      ;;
+
+      BOOT_OPTS="-bios $BIOS" ;;
+
     *)
       error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
-      exit 33
-      ;;
+      exit 33 ;;
+
   esac
 
   return 0
@@ -179,6 +196,7 @@ prepareUefiVars() {
 configureUefi() {
 
   case "${BOOT_MODE,,}" in
+
     "uefi" | "secure" | "windows" | "windows_secure" )
 
       AAVMF="/usr/share/AAVMF"
@@ -187,9 +205,8 @@ configureUefi() {
       prepareUefiVars
 
       BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
-      BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
+      BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw" ;;
 
-      ;;
   esac
 
   return 0
@@ -258,6 +275,9 @@ html "$msg"
 enabled "$DEBUG" && echo "$msg"
 
 configureBootMode
+
+[ -z "$SECURE" ] && SECURE="N"
+
 clearNvram
 configureUefi
 enableIgnoreMsrs

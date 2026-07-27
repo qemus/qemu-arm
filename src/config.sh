@@ -9,7 +9,6 @@ set -Eeuo pipefail
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
 msg="Configuring QEMU..."
-html "$msg"
 enabled "$DEBUG" && echo "$msg"
 
 DEF_OPTS="-nodefaults"
@@ -53,7 +52,10 @@ configureMonitor() {
 
 configureMachine() {
 
-  MAC_OPTS="-machine type=${MACHINE},secure=${SECURE},gic-version=max"
+  local secure="off"
+  enabled "$SECURE" && secure="on"
+
+  MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max"
   MAC_OPTS+=",dump-guest-core=off${KVM_OPTS}"
 
   UUID=$(strip "$UUID")

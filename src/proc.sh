@@ -3,17 +3,16 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
-: "${KVM:="Y"}"
-: "${CPU_PIN:=""}"
-: "${CPU_FLAGS:=""}"
-: "${CPU_MODEL:=""}"
+: "${CPU_MODEL:=""}"    # QEMU CPU mode
+: "${CPU_FLAGS:=""}"    # Additional QEMU CPU flags
+: "${CPU_PIN:=""}"      # Pins QEMU to specific host CPU cores
+
+enabled "$DEBUG" && echo "Configuring KVM..."
 
 # Sanitize variables
 CPU_PIN=$(strip "$CPU_PIN")
 CPU_MODEL=$(strip "$CPU_MODEL")
 CPU_FLAGS=$(strip "$CPU_FLAGS")
-
-enabled "$DEBUG" && echo "Configuring KVM..."
 
 detectBigLittleCores() {
 
@@ -172,11 +171,11 @@ composeCpuFlags() {
   return 0
 }
 
+removeCpuArgument
 detectBigLittleCores
 limitCpuCoresToPinnedCores
-removeCpuArgument
 
-if ! disabled "$KVM"; then
+if ! disabled "${KVM:-}"; then
   configureKvm
 else
   configureTcg
