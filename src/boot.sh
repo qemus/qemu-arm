@@ -196,6 +196,7 @@ prepareUefiVars() {
 configureUefi() {
 
   case "${BOOT_MODE,,}" in
+
     "uefi" | "secure" | "windows" | "windows_secure" )
 
       AAVMF="/usr/share/AAVMF"
@@ -204,9 +205,8 @@ configureUefi() {
       prepareUefiVars
 
       BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
-      BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw"
+      BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw" ;;
 
-      ;;
   esac
 
   return 0
@@ -275,6 +275,8 @@ html "$msg"
 enabled "$DEBUG" && echo "$msg"
 
 configureBootMode
+
+[ -z "$SECURE" ] && SECURE="N"
 
 clearNvram
 configureUefi
