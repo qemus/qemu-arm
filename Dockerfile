@@ -9,7 +9,6 @@ ARG TARGETARCH
 ARG VERSION_ARG="0.0"
 ARG VERSION_QMP="0.0.6"
 ARG VERSION_UTK="1.2.0"
-ARG VERSION_VNC="1.7.0"
 ARG VERSION_PASST="2026_07_16"
 
 ARG DEBCONF_NOWARNINGS="yes"
@@ -69,13 +68,6 @@ RUN <<EOF
   # Configure QEMU
   mkdir -p /etc/qemu
   echo "allow br0" > /etc/qemu/bridge.conf
-
-  # Install noVNC
-  mkdir -p /usr/share/novnc
-  wget "https://github.com/novnc/noVNC/archive/refs/tags/v${VERSION_VNC}.tar.gz" -O /tmp/novnc.tar.gz -q --timeout=10
-  tar -xf /tmp/novnc.tar.gz -C /tmp/
-  cd "/tmp/noVNC-${VERSION_VNC}"
-  mv app core vendor package.json ./*.html /usr/share/novnc
 
   # Configure nginx
   unlink /etc/nginx/sites-enabled/default
