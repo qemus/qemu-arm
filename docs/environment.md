@@ -102,11 +102,11 @@ An empty default means the variable is unset and its value is determined automat
 | `BOOT_MODE` | `uefi` | Boot configuration, such as `uefi` or `secure`. |
 | `BOOT_INDEX` | `9` | Boot priority index for the installation media. |
 | `MEDIA_TYPE` |  | Device type used for installation media. |
+| `SECURE` | `N` | QEMU Secure Boot flag, usually set by `BOOT_MODE`. |
+| `USB` | `qemu-xhci` | QEMU USB controller configuration. |
 | `BIOS` |  | Custom firmware file. |
-| `SECURE` | `off` | QEMU Secure Boot flag, usually set by `BOOT_MODE`. |
 | `LOGO` | `Y` | Enables the custom boot logo. |
 | `CLEAR` | `N` | Resets the NVRAM variables on the next boot. |
-| `USB` | `qemu-xhci` | QEMU USB controller configuration. |
 
 ## 🎈 Memory Ballooning
 
