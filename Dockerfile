@@ -65,13 +65,8 @@ RUN <<EOF
 
   apt-get clean
 
-  # Configure QEMU
-  mkdir -p /etc/qemu
-  echo "allow br0" > /etc/qemu/bridge.conf
-
-  # Configure nginx
+  # Disable the default nginx site
   unlink /etc/nginx/sites-enabled/default
-  sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf
 
   # Set version file
   echo "$VERSION_ARG" > /etc/version
@@ -83,6 +78,9 @@ COPY --from=src /run/*.sh /run/
 COPY --from=src /run/*.py /run/
 COPY --from=src /var/www /var/www
 COPY --from=src /usr/share/novnc /usr/share/novnc
+
+COPY --from=src /etc/qemu/bridge.conf /etc/qemu/bridge.conf
+COPY --from=src /etc/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 
 COPY --chmod=755 ./src /run/
