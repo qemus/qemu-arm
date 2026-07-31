@@ -9,6 +9,7 @@ ARG TARGETARCH
 ARG VERSION_ARG="0.0"
 ARG VERSION_QMP="0.0.6"
 ARG VERSION_UTK="1.2.0"
+ARG VERSION_EFI="2025.11-5"
 ARG VERSION_PASST="2026_07_28"
 
 ARG DEBCONF_NOWARNINGS="yes"
@@ -52,7 +53,6 @@ RUN <<EOF
     netcat-openbsd \
     ca-certificates \
     qemu-system-arm \
-    qemu-efi-aarch64 \
     python3 \
     python3-pip
 
@@ -62,6 +62,10 @@ RUN <<EOF
   # Install Passt package
   wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q --timeout=10
   dpkg -i /tmp/passt.deb
+
+  # Install AArch64 UEFI firmware
+  wget "https://deb.debian.org/debian/pool/main/e/edk2/qemu-efi-aarch64_${VERSION_EFI}_all.deb" -O /tmp/qemu-efi-aarch64.deb -q --timeout=10
+  dpkg -i /tmp/qemu-efi-aarch64.deb
 
   apt-get clean
 
