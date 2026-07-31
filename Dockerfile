@@ -34,7 +34,6 @@ RUN <<EOF
     procps \
     ipcalc \
     ethtool \
-    seabios \
     iptables \
     iproute2 \
     dnsmasq \
