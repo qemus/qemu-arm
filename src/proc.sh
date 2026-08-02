@@ -14,6 +14,9 @@ CPU_PIN=$(strip "$CPU_PIN")
 CPU_MODEL=$(strip "$CPU_MODEL")
 CPU_FLAGS=$(strip "$CPU_FLAGS")
 
+CPUINFO_SIGNATURES_LOADED="N"
+declare -A CPUINFO_SIGNATURES=()
+
 CPUINFO_FILE="${CPUINFO_FILE:-/proc/cpuinfo}"
 CPU_STATUS_FILE="${CPU_STATUS_FILE:-/proc/self/status}"
 CPU_SYSFS_ROOT="${CPU_SYSFS_ROOT:-/sys/devices/system/cpu}"
@@ -125,42 +128,78 @@ getAllowedCpuList() {
   return 0
 }
 
+loadCpuInfoSignatures() {
+
+  local cpu signature
+
+  enabled "$CPUINFO_SIGNATURES_LOADED" && return 0
+  CPUINFO_SIGNATURES_LOADED="Y"
+
+  [ -r "$CPUINFO_FILE" ] || return 0
+
+  while IFS=$'\t' read -r cpu signature; do
+
+    [[ "$cpu" =~ ^[0-9]+$ ]] || continue
+    [ -n "$signature" ] || continue
+
+    CPUINFO_SIGNATURES["$cpu"]="$signature"
+
+  done < <(
+    awk -F ':' '
+      function trim(value) {
+        sub(/^[[:space:]]+/, "", value)
+        sub(/[[:space:]]+$/, "", value)
+        return value
+      }
+
+      function emit() {
+        if (current != "" && implementer != "" && part != "") {
+          print current "\t" tolower(implementer ":" architecture ":" variant ":" part ":" revision)
+        }
+      }
+
+      /^[[:space:]]*processor[[:space:]]*:/ {
+        emit()
+        current = trim($2)
+        implementer = architecture = variant = part = revision = ""
+        next
+      }
+
+      /^[[:space:]]*CPU implementer[[:space:]]*:/ { implementer = trim($2); next }
+      /^[[:space:]]*CPU architecture[[:space:]]*:/ { architecture = trim($2); next }
+      /^[[:space:]]*CPU variant[[:space:]]*:/ { variant = trim($2); next }
+      /^[[:space:]]*CPU part[[:space:]]*:/ { part = trim($2); next }
+      /^[[:space:]]*CPU revision[[:space:]]*:/ { revision = trim($2); next }
+
+      END { emit() }
+    ' "$CPUINFO_FILE"
+  )
+
+  return 0
+}
+
 getCpuInfoSignature() {
 
   local cpu="$1"
 
-  [ -r "$CPUINFO_FILE" ] || return 0
+  echo "${CPUINFO_SIGNATURES[$cpu]:-}"
 
-  awk -F ':' -v target="$cpu" '
-    function trim(value) {
-      sub(/^[[:space:]]+/, "", value)
-      sub(/[[:space:]]+$/, "", value)
-      return value
-    }
+  return 0
+}
 
-    function emit() {
-      if (!found && current == target && implementer != "" && part != "") {
-        print tolower(implementer ":" architecture ":" variant ":" part ":" revision)
-        found = 1
-      }
-    }
+getCpuMidr() {
 
-    /^[[:space:]]*processor[[:space:]]*:/ {
-      emit()
-      current = trim($2)
-      implementer = architecture = variant = part = revision = ""
-      next
-    }
+  local cpu="$1"
+  local file="$CPU_SYSFS_ROOT/cpu${cpu}/regs/identification/midr_el1"
+  local midr
 
-    /^[[:space:]]*CPU implementer[[:space:]]*:/ { implementer = trim($2); next }
-    /^[[:space:]]*CPU architecture[[:space:]]*:/ { architecture = trim($2); next }
-    /^[[:space:]]*CPU variant[[:space:]]*:/ { variant = trim($2); next }
-    /^[[:space:]]*CPU part[[:space:]]*:/ { part = trim($2); next }
-    /^[[:space:]]*CPU revision[[:space:]]*:/ { revision = trim($2); next }
+  [ -r "$file" ] || return 1
 
-    END { emit() }
-  ' "$CPUINFO_FILE"
+  midr=$(<"$file")
+  midr="${midr//[[:space:]]/}"
+  [[ "$midr" =~ ^0[xX][0-9a-fA-F]+$ ]] || return 1
 
+  echo "${midr,,}"
   return 0
 }
 
@@ -196,10 +235,8 @@ getCpuSignature() {
   local model=""
   local cache
 
-  if [ -r "$CPU_SYSFS_ROOT/cpu${cpu}/regs/identification/midr_el1" ]; then
-    midr=$(<"$CPU_SYSFS_ROOT/cpu${cpu}/regs/identification/midr_el1")
-    midr="${midr//[[:space:]]/}"
-    [[ "$midr" =~ ^0[xX][0-9a-fA-F]+$ ]] && model="midr:${midr,,}"
+  if midr=$(getCpuMidr "$cpu"); then
+    model="midr:$midr"
   fi
 
   if [ -z "$model" ]; then
@@ -240,9 +277,9 @@ getCpuMaxFrequency() {
 detectBigLittleCores() {
 
   local -a online_cpus=()
-  local allowed cpu online signature capacity frequency key
-  local selected="" best_capacity="-1" best_frequency="-1" best_count="-1"
-  local -A group_cpus=() group_count=() group_capacity=() group_frequency=()
+  local allowed cpu online signature capacity frequency key count first_cpu
+  local selected="" best_capacity="-1" best_frequency="-1" best_count="-1" best_first_cpu="-1"
+  local -A group_cpus=() group_count=() group_capacity=() group_frequency=() needs_cpuinfo="N"
 
   if [[ "${ARCH,,}" != "arm64" ]] || [ -n "$CPU_PIN" ] || disabled "${KVM:-}"; then
     return 0
@@ -264,6 +301,15 @@ detectBigLittleCores() {
   (( ${#online_cpus[@]} > 1 )) || return 0
 
   for cpu in "${online_cpus[@]}"; do
+    if ! getCpuMidr "$cpu" >/dev/null; then
+      needs_cpuinfo="Y"
+      break
+    fi
+  done
+
+  enabled "$needs_cpuinfo" && loadCpuInfoSignatures
+
+  for cpu in "${online_cpus[@]}"; do
 
     signature=$(getCpuSignature "$cpu")
     capacity=$(getCpuMetric "$CPU_SYSFS_ROOT/cpu${cpu}/cpu_capacity")
@@ -283,17 +329,20 @@ detectBigLittleCores() {
 
     capacity="${group_capacity[$key]:-0}"
     frequency="${group_frequency[$key]:-0}"
+    count="${group_count[$key]}"
+    first_cpu="${group_cpus[$key]%%,*}"
 
     if (( capacity > best_capacity )) ||
        (( capacity == best_capacity && frequency > best_frequency )) ||
-       (( capacity == best_capacity && frequency == best_frequency && group_count["$key"] > best_count )) ||
-       { (( capacity == best_capacity && frequency == best_frequency && group_count["$key"] == best_count )) &&
-         [[ -z "$selected" || "${group_cpus[$key]}" < "${group_cpus[$selected]}" ]]; }; then
+       (( capacity == best_capacity && frequency == best_frequency && count > best_count )) ||
+       (( capacity == best_capacity && frequency == best_frequency && count == best_count &&
+          (best_first_cpu < 0 || first_cpu < best_first_cpu) )); then
 
       selected="$key"
       best_capacity="$capacity"
       best_frequency="$frequency"
-      best_count="${group_count[$key]}"
+      best_count="$count"
+      best_first_cpu="$first_cpu"
 
     fi
 
