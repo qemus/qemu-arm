@@ -139,7 +139,7 @@ prepareUefiRom() {
       error "Failed to copy UEFI boot file to $DEST.tmp" && exit 44
     fi
   else
-    if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then
+    if /run/boot-logo.bin "$logo" "$AAVMF/$ROM" --output "$DEST.tmp"; then
       if ! dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none; then
         rm -f "$DEST.tmp" "$DEST.logo"
         error "Failed to copy custom UEFI boot file to $DEST.tmp" && exit 44
