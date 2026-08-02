@@ -10,8 +10,9 @@ ARG VERSION_ARG="0.0"
 ARG VERSION_QMP="0.0.6"
 ARG VERSION_UTK="1.1.0"
 ARG VERSION_EFI="2025.11-5"
-ARG VERSION_SEABIOS="1.17.0-1"
 ARG VERSION_PASST="2026_07_28"
+ARG VERSION_SEABIOS="1.17.0-1"
+ARG VERSION_QEMU="1:11.0.2+ds-2"
 
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -44,7 +45,6 @@ RUN <<EOF
     net-tools \
     e2fsprogs \
     diffutils \
-    qemu-utils \
     util-linux \
     websocketd \
     iputils-ping \
@@ -52,9 +52,18 @@ RUN <<EOF
     inotify-tools \
     netcat-openbsd \
     ca-certificates \
-    qemu-system-arm \
     python3 \
     python3-pip
+
+  # Install QEMU 11 and AArch64 UEFI firmware from Debian Sid
+  echo "deb https://deb.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list
+  printf 'Package: *\nPin: release n=sid\nPin-Priority: 100\n' > /etc/apt/preferences.d/sid
+  apt-get update
+  apt-get --no-install-recommends -y -t sid install \
+    "seabios=${VERSION_SEABIOS}" \
+    "qemu-utils=${VERSION_QEMU}" \
+    "qemu-efi-aarch64=${VERSION_EFI}" \
+    "qemu-system-arm=${VERSION_QEMU}"
 
   # Install QMP
   pip3 install --no-cache-dir --break-system-packages --root-user-action=ignore "qemu.qmp==${VERSION_QMP}"
@@ -62,14 +71,6 @@ RUN <<EOF
   # Install Passt package
   wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q --timeout=10
   dpkg -i /tmp/passt.deb
-
-  # Install SeaBIOS package
-  wget "https://deb.debian.org/debian/pool/main/s/seabios/seabios_${VERSION_SEABIOS}_all.deb" -O /tmp/seabios.deb -q --timeout=10
-  dpkg -i /tmp/seabios.deb
-
-  # Install AArch64 UEFI firmware
-  wget "https://deb.debian.org/debian/pool/main/e/edk2/qemu-efi-aarch64_${VERSION_EFI}_all.deb" -O /tmp/qemu-efi-aarch64.deb -q --timeout=10
-  dpkg -i /tmp/qemu-efi-aarch64.deb
 
   apt-get clean
 

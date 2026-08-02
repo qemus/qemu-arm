@@ -5,7 +5,7 @@ set -Eeuo pipefail
 : "${SOUND:="usb-audio"}"
 : "${SERIAL:="mon:stdio"}"
 : "${USB:="qemu-xhci,id=xhci,p2=7,p3=7"}"
-: "${MONITOR:="unix:$QEMU_DIR/monitor.sock,server,wait=off,nodelay"}"
+: "${MONITOR:="unix:$QEMU_DIR/monitor.sock,server=on,wait=off,nodelay=on"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
 msg="Configuring QEMU..."
@@ -46,10 +46,10 @@ configureMonitor() {
   MON_OPTS="-monitor $MONITOR"
 
  if enabled "$SHUTDOWN" && [ -n "${ACPI_SOCKET:-}" ]; then
-    MON_OPTS+=" -monitor unix:$ACPI_SOCKET,server,wait=off,nodelay"
+    MON_OPTS+=" -monitor unix:$ACPI_SOCKET,server=on,wait=off,nodelay=on"
  fi
 
-  MON_OPTS+=" -name $PROCESS,process=$PROCESS,debug-threads=on"
+  MON_OPTS+=" -name $PROCESS,process=$PROCESS"
   MON_OPTS+=" -pidfile $QEMU_PID"
 
   return 0
@@ -60,7 +60,7 @@ configureMachine() {
   local secure="off"
   enabled "$SECURE" && secure="on"
 
-  MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max"
+  MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max,msi=gicv2m"
   MAC_OPTS+=",dump-guest-core=off${KVM_OPTS}"
 
   UUID=$(strip "$UUID")
@@ -84,7 +84,7 @@ configureVirtioDevices() {
     if ! enabled "${BALLOONING:-}"; then
       DEV_OPTS+=" -device virtio-balloon-pci,id=balloon0,bus=$bus"
     else
-      MON_OPTS+=" -qmp unix:${BALLOONING_SOCKET},server,nowait"
+      MON_OPTS+=" -qmp unix:${BALLOONING_SOCKET},server=on,wait=off"
       DEV_OPTS+=" -device virtio-balloon-pci,free-page-reporting=on,guest-stats-polling-interval=1,id=balloon0,bus=$bus"
     fi
   fi
