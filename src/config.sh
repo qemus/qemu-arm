@@ -153,7 +153,6 @@ configureCompatibility() {
   esac
 
   CMP_OPTS="-fw_cfg name=opt/org.tianocore/UninstallMemAttrProtocol,string=y"
-  CMP_OPTS+=" -fw_cfg name=opt/ovmf/PcdSetNxForStack,string=no"
 
   return 0
 }
