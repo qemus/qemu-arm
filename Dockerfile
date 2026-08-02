@@ -63,12 +63,10 @@ RUN <<EOF
     "seabios=${VERSION_SEABIOS}" \
     "qemu-utils=${VERSION_QEMU}" \
     "qemu-efi-aarch64=${VERSION_EFI}" \
-    "qemu-system-arm=${VERSION_QEMU}" \
-    "qemu-system-data=${VERSION_QEMU}" \
-    "qemu-system-common=${VERSION_QEMU}"
+    "qemu-system-arm=${VERSION_QEMU}"
 
   # Install QMP
-  pip3 install --no-cache-dir --break-system-packages --root-user-action=ignore "qemu.qmp==${VERSION_QMP}"
+  pip3 install --no-cache-dir --break-sysgnore "qemu.qmp==${VERSION_QMP}"
 
   # Install Passt package
   wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q --timeout=10
