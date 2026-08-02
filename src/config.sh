@@ -75,7 +75,7 @@ configureVirtioDevices() {
   local bus
   bus=$(getPciBus)
 
-  if [[ "${BOOT_MODE,,}" != "windows"* ]]
+  if [[ "${BOOT_MODE,,}" != windows* ]]; then
     DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
     DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=$bus"
   fi
