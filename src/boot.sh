@@ -123,7 +123,11 @@ prepareUefiRom() {
 
   local logo="/var/www/img/${PROCESS,,}.bmp"
   [ ! -s "$logo" ] && logo="/var/www/img/qemu.bmp"
-  [ ! -s "$logo" ] && LOGO="N"
+
+  if ! disabled "$LOGO" && [ ! -s "$logo" ]; then
+    LOGO="N"
+    warn "boot logo file ($logo) not found!"
+  fi
 
   rm -f "$DEST.tmp" "$DEST.logo"
 
@@ -133,10 +137,10 @@ prepareUefiRom() {
   fi
 
   if ! disabled "$LOGO"; then
-    if /run/boot-logo.bin "$logo" "$rom" --output "$DEST.logo"; then
+    if /run/boot-logo "$logo" "$rom" --output "$DEST.logo" -q; then
       rom="$DEST.logo"
     else
-      warn "failed to add custom logo to BIOS!"
+      warn "failed to add custom logo ($logo) to BIOS!"
     fi
   fi
 
