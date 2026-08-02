@@ -84,18 +84,26 @@ expandCpuList() {
     item="${item//[[:space:]]/}"
     [ -n "$item" ] || continue
 
-    if [[ "$item" == *-* ]]; then
-      start="${item%%-*}"
-      end="${item#*-}"
-    else
-      start="$item"
-      end="$item"
+    local range="$item"
+    local stride="1"
+
+    if [[ "$range" == *:* ]]; then
+      stride="${range##*:}"
+      range="${range%:*}"
     fi
 
-    [[ "$start" =~ ^[0-9]+$ && "$end" =~ ^[0-9]+$ ]] || return 1
-    (( end >= start )) || return 1
+    if [[ "$range" == *-* ]]; then
+      start="${range%%-*}"
+      end="${range#*-}"
+    else
+      start="$range"
+      end="$range"
+    fi
 
-    for (( cpu=start; cpu<=end; cpu++ )); do
+    [[ "$start" =~ ^[0-9]+$ && "$end" =~ ^[0-9]+$ && "$stride" =~ ^[0-9]+$ ]] || return 1
+    (( stride >= 1 && end >= start )) || return 1
+
+    for (( cpu=start; cpu<=end; cpu+=stride )); do
       echo "$cpu"
     done
 
