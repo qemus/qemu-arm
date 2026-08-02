@@ -140,7 +140,7 @@ prepareUefiRom() {
     if /run/boot-logo "$logo" "$rom" --output "$DEST.logo" -q; then
       rom="$DEST.logo"
     else
-      warn "failed to add custom logo ($logo) to BIOS!"
+      warn "failed to add custom logo ($logo) to UEFI firmware!"
     fi
   fi
 
