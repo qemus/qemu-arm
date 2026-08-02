@@ -231,7 +231,7 @@ getCpuMaxFrequency() {
 
 detectBigLittleCores() {
 
-  local -a cpus=()
+  local -a online_cpus=()
   local allowed cpu online signature capacity frequency key
   local selected="" best_capacity="-1" best_frequency="-1" best_count="-1"
   local -A group_cpus=() group_count=() group_capacity=() group_frequency=()
@@ -249,13 +249,13 @@ detectBigLittleCores() {
 
     online="1"
     [ -r "$CPU_SYSFS_ROOT/cpu${cpu}/online" ] && online=$(<"$CPU_SYSFS_ROOT/cpu${cpu}/online")
-    [[ "$online" == "1" ]] && cpus+=("$cpu")
+    [[ "$online" == "1" ]] && online_cpus+=("$cpu")
 
   done < <(expandCpuList "$allowed" 2>/dev/null || :)
 
-  (( ${#cpus[@]} > 1 )) || return 0
+  (( ${#online_cpus[@]} > 1 )) || return 0
 
-  for cpu in "${cpus[@]}"; do
+  for cpu in "${online_cpus[@]}"; do
 
     signature=$(getCpuSignature "$cpu")
     capacity=$(getCpuMetric "$CPU_SYSFS_ROOT/cpu${cpu}/cpu_capacity")
@@ -308,7 +308,7 @@ countPinnedCores() {
   local list="${1//[[:space:]]/}"
   local item cpu
   local -a items
-  local -A cpus
+  local -A pinned_cpus=()
 
   IFS=',' read -r -a items <<< "$list"
 
@@ -340,12 +340,12 @@ countPinnedCores() {
     fi
 
     for (( cpu=start; cpu<=end; cpu+=stride )); do
-      cpus["$cpu"]=1
+      pinned_cpus["$cpu"]=1
     done
 
   done
 
-  echo "${#cpus[@]}"
+  echo "${#pinned_cpus[@]}"
   return 0
 }
 
