@@ -111,8 +111,6 @@ writePflashImage() {
 
 prepareUefiRom() {
 
-  local logo
-
   if [ -e "$DEST.rom" ] && [ ! -f "$DEST.rom" ]; then
     error "UEFI boot path \"$DEST.rom\" is not a regular file!"
     exit 44
@@ -120,40 +118,38 @@ prepareUefiRom() {
 
   [ -s "$DEST.rom" ] && return 0
 
-  [ ! -s "$AAVMF/$ROM" ] && error "UEFI boot file ($AAVMF/$ROM) not found!" && exit 44
+  local rom="$AAVMF/$ROM"
+  [ ! -s "$rom" ] && error "UEFI boot file ($rom) not found!" && exit 44
 
-  rm -f "$DEST.tmp"
+  local logo="/var/www/img/${PROCESS,,}.bmp"
+  [ ! -s "$logo" ] && logo="/var/www/img/qemu.bmp"
 
-  logo="/var/www/img/${PROCESS,,}.ffs"
-  [ ! -s "$logo" ] && logo="/var/www/img/qemu.ffs"
-  [ ! -s "$logo" ] && LOGO="N"
+  if ! disabled "$LOGO" && [ ! -s "$logo" ]; then
+    LOGO="N"
+    warn "boot logo file ($logo) not found!"
+  fi
+
+  rm -f "$DEST.tmp" "$DEST.logo"
 
   if ! dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none; then
     rm -f "$DEST.tmp"
     error "Failed to create UEFI boot file $DEST.tmp" && exit 44
   fi
 
-  if disabled "$LOGO"; then
-    if ! dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none; then
-      rm -f "$DEST.tmp"
-      error "Failed to copy UEFI boot file to $DEST.tmp" && exit 44
-    fi
-  else
-    if /run/utk.bin "$AAVMF/$ROM" replace_ffs LogoDXE "$logo" save "$DEST.logo"; then
-      if ! dd "if=$DEST.logo" "of=$DEST.tmp" conv=notrunc status=none; then
-        rm -f "$DEST.tmp" "$DEST.logo"
-        error "Failed to copy custom UEFI boot file to $DEST.tmp" && exit 44
-      fi
+  if ! disabled "$LOGO"; then
+    if /run/boot-logo "$logo" "$rom" --output "$DEST.logo" -q; then
+      rom="$DEST.logo"
     else
-      warn "failed to add custom logo to BIOS!"
-
-      if ! dd "if=$AAVMF/$ROM" "of=$DEST.tmp" conv=notrunc status=none; then
-        rm -f "$DEST.tmp" "$DEST.logo"
-        error "Failed to copy UEFI boot file to $DEST.tmp" && exit 44
-      fi
+      warn "failed to add custom logo ($logo) to UEFI firmware!"
     fi
-    rm -f "$DEST.logo"
   fi
+
+  if ! dd "if=$rom" "of=$DEST.tmp" conv=notrunc status=none; then
+    rm -f "$DEST.tmp" "$DEST.logo"
+    error "Failed to copy UEFI boot file to $DEST.tmp" && exit 44
+  fi
+
+  rm -f "$DEST.logo"
 
   if ! mv "$DEST.tmp" "$DEST.rom"; then
     rm -f "$DEST.tmp"
@@ -174,11 +170,12 @@ prepareUefiVars() {
 
   [ -s "$DEST.vars" ] && return 0
 
-  [ ! -s "$AAVMF/$VARS" ] && error "UEFI vars file ($AAVMF/$VARS) not found!" && exit 45
+  local vars="$AAVMF/$VARS"
+  [ ! -s "$vars" ] && error "UEFI vars file ($vars) not found!" && exit 45
 
   rm -f "$DEST.tmp"
 
-  if ! writePflashImage "$AAVMF/$VARS" "$DEST.tmp"; then
+  if ! writePflashImage "$vars" "$DEST.tmp"; then
     rm -f "$DEST.tmp"
     error "Failed to copy UEFI vars file to $DEST.tmp" && exit 45
   fi
