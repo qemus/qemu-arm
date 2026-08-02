@@ -75,8 +75,10 @@ configureVirtioDevices() {
   local bus
   bus=$(getPciBus)
 
-  DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
-  DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=$bus"
+  if [[ "${BOOT_MODE,,}" != "windows"* ]]
+    DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
+    DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=$bus"
+  fi
 
   if [[ "${BOOT_MODE,,}" != "windows"* ]] || enabled "${BALLOONING:-}"; then
     if ! enabled "${BALLOONING:-}"; then
@@ -148,7 +150,7 @@ configureCompatibility() {
   CMP_OPTS=""
 
   case "${BOOT_MODE,,}" in
-    "legacy" | "windows_legacy" | "custom" )
+    "windows"* ) ;;
       return 0 ;;
   esac
 
