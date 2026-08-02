@@ -223,7 +223,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
     VGA: "virtio-gpu"
   ```
 
-  to add a virtual graphics cards to your machine that allows for higher resolutions.
+  to add a virtual graphics cards to your machine that allows for better picture quality and higher resolutions.
   
 > [!NOTE]
 > Using this method, your screen will stay black during the initial boot process, until the point where the driver is actually loaded.
