@@ -59,11 +59,11 @@ RUN <<EOF
   printf 'Package: *\nPin: release n=sid\nPin-Priority: 100\n' > /etc/apt/preferences.d/sid
   apt-get update
   apt-get --no-install-recommends -y -t sid install \
-    "qemu-system-arm=${VERSION_QEMU}" \
-    "qemu-system-common=${VERSION_QEMU}" \
-    "qemu-system-data=${VERSION_QEMU}" \
     "qemu-utils=${VERSION_QEMU}" \
-    "qemu-efi-aarch64=${VERSION_EFI}"
+    "qemu-efi-aarch64=${VERSION_EFI}" \
+    "qemu-system-arm=${VERSION_QEMU}" \
+    "qemu-system-data=${VERSION_QEMU}" \
+    "qemu-system-common=${VERSION_QEMU}"
 
   # Install QMP
   pip3 install --no-cache-dir --break-system-packages --root-user-action=ignore "qemu.qmp==${VERSION_QMP}"
