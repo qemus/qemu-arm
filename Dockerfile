@@ -8,7 +8,7 @@ FROM debian:trixie-slim
 ARG TARGETARCH
 ARG VERSION_ARG="0.0"
 ARG VERSION_QMP="0.0.6"
-ARG VERSION_UTK="1.2.0"
+ARG VERSION_UTK="1.1.0"
 ARG VERSION_EFI="2025.11-5"
 ARG VERSION_SEABIOS="1.17.0-1"
 ARG VERSION_PASST="2026_07_28"
@@ -94,7 +94,7 @@ COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 COPY --chmod=755 ./src /run/
 COPY --chmod=755 ./web /var/www/
 
-ADD --chmod=755 "https://github.com/qemus/fiano/releases/download/v${VERSION_UTK}/utk_${VERSION_UTK}_${TARGETARCH}.bin" /run/utk.bin
+ADD --chmod=755 "https://github.com/qemus/boot-logo/releases/download/v${VERSION_UTK}/boot-logo_${TARGETARCH}.bin" /run/boot-logo
 
 VOLUME /storage
 EXPOSE 22 5900 8006
