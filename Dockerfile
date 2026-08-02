@@ -11,6 +11,7 @@ ARG VERSION_QMP="0.0.6"
 ARG VERSION_UTK="1.1.0"
 ARG VERSION_EFI="2025.11-5"
 ARG VERSION_PASST="2026_07_28"
+ARG VERSION_SEABIOS="1.17.0-1"
 ARG VERSION_QEMU="1:11.0.2+ds-2"
 
 ARG DEBCONF_NOWARNINGS="yes"
@@ -59,6 +60,7 @@ RUN <<EOF
   printf 'Package: *\nPin: release n=sid\nPin-Priority: 100\n' > /etc/apt/preferences.d/sid
   apt-get update
   apt-get --no-install-recommends -y -t sid install \
+    "seabios=${VERSION_SEABIOS}" \
     "qemu-utils=${VERSION_QEMU}" \
     "qemu-efi-aarch64=${VERSION_EFI}" \
     "qemu-system-arm=${VERSION_QEMU}" \
