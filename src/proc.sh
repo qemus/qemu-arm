@@ -279,7 +279,8 @@ detectBigLittleCores() {
   local -a online_cpus=()
   local allowed cpu online signature capacity frequency key count first_cpu
   local selected="" best_capacity="-1" best_frequency="-1" best_count="-1" best_first_cpu="-1"
-  local -A group_cpus=() group_count=() group_capacity=() group_frequency=() needs_cpuinfo="N"
+  local needs_cpuinfo="N"
+  local -A group_cpus=() group_count=() group_capacity=() group_frequency=()
 
   if [[ "${ARCH,,}" != "arm64" ]] || [ -n "$CPU_PIN" ] || disabled "${KVM:-}"; then
     return 0
