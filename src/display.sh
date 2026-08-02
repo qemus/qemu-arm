@@ -12,6 +12,12 @@ VGA=$(strip "$VGA")
 LOSSY=$(strip "$LOSSY")
 DISPLAY=$(strip "$DISPLAY")
 
+case "${VGA,,}" in
+  "virtio" | "virtio-gpu" | "viogpu" )
+    VGA="virtio-gpu-pci,bus=$(getPciBus)"
+    ;;
+esac
+
 VGA_OPTS=""
 [ -n "$VGA" ] && [[ "${VGA,,}" != "none" ]] && VGA_OPTS="-device $VGA"
 
