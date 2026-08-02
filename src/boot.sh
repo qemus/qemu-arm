@@ -170,7 +170,7 @@ prepareUefiVars() {
 
   [ -s "$DEST.vars" ] && return 0
 
-  local vars="$AAVMF/$ROM"
+  local vars="$AAVMF/$VARS"
   [ ! -s "$vars" ] && error "UEFI vars file ($vars) not found!" && exit 45
 
   rm -f "$DEST.tmp"
