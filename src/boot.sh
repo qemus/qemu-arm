@@ -12,6 +12,8 @@ BOOT_OPTS=""
 
 configureBootMode() {
 
+  # Supplying BIOS explicitly takes precedence over BOOT_MODE because
+  # QEMU cannot combine a custom firmware image with managed AAVMF state.
   [ -n "$BIOS" ] && BOOT_MODE="custom"
 
   case "${BOOT_MODE,,}" in
@@ -37,6 +39,8 @@ configureBootMode() {
       VARS="AAVMF_VARS.fd"
       ROM="AAVMF_CODE.no-secboot.fd"
 
+      # Windows expects the emulated RTC to contain local time rather than
+      # UTC, unlike the default convention used by most Unix guests.
       BOOT_OPTS="-rtc base=localtime" ;;
 
     "windows_secure" )
@@ -96,6 +100,8 @@ writePflashImage() {
 
   rm -f "$target"
 
+  # AAVMF pflash devices are exposed as fixed 64 MiB images, so pad the
+  # firmware payload before copying it without truncating the container.
   if ! dd if=/dev/zero "of=$target" bs=1M count=64 status=none; then
     rm -f "$target"
     return 1
@@ -116,6 +122,8 @@ prepareUefiRom() {
     exit 44
   fi
 
+  # Keep the prepared firmware persistent across restarts. CLEAR must be
+  # used when a changed firmware or boot logo should be regenerated.
   [ -s "$DEST.rom" ] && return 0
 
   local rom="$AAVMF/$ROM"
@@ -129,6 +137,8 @@ prepareUefiRom() {
     warn "boot logo file ($logo) not found!"
   fi
 
+  # Build the ROM through a temporary file so an interrupted logo patch or
+  # copy cannot replace the last usable firmware image.
   rm -f "$DEST.tmp" "$DEST.logo"
 
   if ! dd if=/dev/zero "of=$DEST.tmp" bs=1M count=64 status=none; then
@@ -168,6 +178,8 @@ prepareUefiVars() {
     exit 44
   fi
 
+  # NVRAM variables are guest-writable and therefore persist separately
+  # from the read-only firmware code image.
   [ -s "$DEST.vars" ] && return 0
 
   local vars="$AAVMF/$VARS"
@@ -201,6 +213,8 @@ configureUefi() {
       prepareUefiRom
       prepareUefiVars
 
+      # Unit 0 is immutable firmware code; unit 1 is the writable variable
+      # store that carries boot entries and Secure Boot state.
       BOOT_OPTS+=" -drive file=$DEST.rom,if=pflash,unit=0,format=raw,readonly=on"
       BOOT_OPTS+=" -drive file=$DEST.vars,if=pflash,unit=1,format=raw" ;;
 
@@ -213,6 +227,8 @@ enableIgnoreMsrs() {
 
   MSRS="/sys/module/kvm/parameters/ignore_msrs"
 
+  # Unsupported guest MSR accesses should not terminate KVM. This is
+  # best-effort because containers may not be allowed to change the module.
   if [ -e "$MSRS" ]; then
     result=$(<"$MSRS")
     result="${result//[![:print:]]/}"
@@ -235,6 +251,8 @@ checkClocksource() {
   else
     result=$(<"$CLOCK")
     result="${result//[![:print:]]/}"
+    # Native ARM and x86 hosts have different preferred clocksources;
+    # paravirtual clocks identify expected nested-virtualization setups.
     case "${result,,}" in
       "${CLOCKSOURCE,,}" ) ;;
       "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
@@ -258,6 +276,8 @@ detectSmbiosSerial() {
     BIOS_SERIAL="${BIOS_SERIAL//[![:alnum:]]/}"
 
     if [ -n "$BIOS_SERIAL" ]; then
+      # Reuse a sanitized host product serial to provide a stable guest
+      # machine identity without passing punctuation into QEMU's option list.
       SM_BIOS="-smbios type=1,serial=$BIOS_SERIAL"
     fi
 
