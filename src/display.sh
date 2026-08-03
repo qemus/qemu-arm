@@ -12,6 +12,8 @@ VGA=$(strip "$VGA")
 LOSSY=$(strip "$LOSSY")
 DISPLAY=$(strip "$DISPLAY")
 
+# Resolve friendly VirtIO aliases to the PCI device and place it on the
+# machine-specific bus selected by the shared QEMU helpers.
 case "${VGA,,}" in
   "virtio" | "virtio-gpu" | "viogpu" )
     VGA="virtio-gpu-pci,bus=$(getPciBus)"
@@ -24,7 +26,10 @@ VGA_OPTS=""
 LOSSY_OPT=""
 enabled "${LOSSY}" && LOSSY_OPT=",lossy=on"
 
+# QEMU accepts a VNC display number rather than a TCP port, so translate
+# the configured port back to its :N display index.
 port=$(( VNC_PORT - 5900 ))
+# Preserve the historic :0 setting as an alias for the managed web display.
 [[ "$DISPLAY" == ":0" ]] && DISPLAY="web"
 
 case "${DISPLAY,,}" in
@@ -37,6 +42,8 @@ case "${DISPLAY,,}" in
   "ramfb" )
     DISPLAY_OPTS="-display vnc=:${port},websocket=${WSS_PORT}${LOSSY_OPT} -device ramfb"
     ;;
+  # disabled keeps the configured display device available to the guest
+  # without a frontend; none removes both the frontend and VGA device.
   "disabled" )
     DISPLAY_OPTS="-display none ${VGA_OPTS}"
     ;;

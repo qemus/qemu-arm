@@ -39,6 +39,8 @@ configureTcg() {
   KVM_OPTS=" -accel tcg,thread=multi"
 
   if [ -z "$CPU_MODEL" ]; then
+    # TCG needs an explicit ARM CPU model; max with implementation-defined
+    # pointer authentication provides the broadest current guest support.
     if [[ "${ARCH,,}" == "arm64" ]]; then
       CPU_MODEL="max,pauth-impdef=on"
     else
@@ -51,6 +53,8 @@ configureTcg() {
 
 removeCpuArgument() {
 
+  # CPU configuration has dedicated variables. Remove every raw -cpu option
+  # so argument ordering cannot silently override the validated settings.
   local args=" ${ARGUMENTS:-} "
 
   while [[ "$args" =~ [[:space:]]-cpu([[:space:]][^[:space:]]+|=[^[:space:]]+)? ]]; do
@@ -119,6 +123,8 @@ getAllowedCpuList() {
 
   local list=""
 
+  # Respect the process/cgroup cpuset first; the host-wide online list is
+  # only a fallback when no container-specific restriction is available.
   [ -r "$CPU_STATUS_FILE" ] &&
     list=$(awk '$1 == "Cpus_allowed_list:" { print $2; exit }' "$CPU_STATUS_FILE")
 
@@ -137,6 +143,8 @@ loadCpuInfoSignatures() {
 
   [ -r "$CPUINFO_FILE" ] || return 0
 
+  # MIDR registers are often hidden from containers. Build an equivalent
+  # per-CPU identity from /proc/cpuinfo only when that fallback is needed.
   while IFS=$'\t' read -r cpu signature; do
 
     [[ "$cpu" =~ ^[0-9]+$ ]] || continue
@@ -210,6 +218,8 @@ getCpuCacheSignature() {
 
   [ -d "$root" ] || return 0
 
+  # Cache topology is part of the signature because heterogeneous ARM cores
+  # may expose the same model fields while differing materially in cache.
   while read -r index; do
 
     [ -d "$index" ] || continue
@@ -282,6 +292,8 @@ detectBigLittleCores() {
   local needs_cpuinfo="N"
   local -A group_cpus=() group_count=() group_capacity=() group_frequency=()
 
+  # Automatic big.LITTLE selection applies only to native ARM KVM and never
+  # replaces an explicit CPU_PIN supplied by the user.
   if [[ "${ARCH,,}" != "arm64" ]] || [ -n "$CPU_PIN" ] || disabled "${KVM:-}"; then
     return 0
   fi
@@ -310,6 +322,8 @@ detectBigLittleCores() {
 
   enabled "$needs_cpuinfo" && loadCpuInfoSignatures
 
+  # Group cores by model and cache identity, then retain each group's best
+  # scheduler capacity and maximum frequency as performance signals.
   for cpu in "${online_cpus[@]}"; do
 
     signature=$(getCpuSignature "$cpu")
@@ -333,6 +347,8 @@ detectBigLittleCores() {
     count="${group_count[$key]}"
     first_cpu="${group_cpus[$key]%%,*}"
 
+    # Prefer capacity, then frequency, group size, and lowest CPU number.
+    # The final tie-break makes selection deterministic across hash ordering.
     if (( capacity > best_capacity )) ||
        (( capacity == best_capacity && frequency > best_frequency )) ||
        (( capacity == best_capacity && frequency == best_frequency && count > best_count )) ||
@@ -420,6 +436,8 @@ limitCpuCoresToPinnedCores() {
     return 0
   fi
 
+  # QEMU cannot schedule more virtual CPUs concurrently than the affinity
+  # mask exposes, so cap the guest topology to the unique pinned CPUs.
   if [ "$CPU_CORES" -gt "$cores" ]; then
     info "The amount for CPU_CORES (${CPU_CORES}) exceeds the amount of pinned cores, so will be limited to ${cores}."
     CPU_CORES="$cores"
@@ -430,6 +448,8 @@ limitCpuCoresToPinnedCores() {
 
 composeCpuFlags() {
 
+  # Compose one -cpu value in precedence order: model, automatic features,
+  # then user-supplied feature overrides.
   CPU_FLAGS="${CPU_MODEL}${CPU_FEATURES:+,$CPU_FEATURES}${CPU_FLAGS:+,$CPU_FLAGS}"
 
   return 0
