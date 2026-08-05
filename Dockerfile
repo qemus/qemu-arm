@@ -13,6 +13,7 @@ ARG VERSION_EFI="2025.11-5"
 ARG VERSION_PASST="2026_07_28"
 ARG VERSION_SEABIOS="1.17.0-1"
 ARG VERSION_QEMU="1:11.0.2+ds-2"
+ARG DEBIAN_SNAPSHOT="20260720T000000Z"
 
 ARG DEBCONF_NOWARNINGS="yes"
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -56,8 +57,9 @@ RUN <<EOF
     python3-pip
 
   # Install QEMU 11 and AArch64 UEFI firmware from Debian Sid
-  echo "deb https://deb.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list
-  printf 'Package: *\nPin: release n=sid\nPin-Priority: 100\n' > /etc/apt/preferences.d/sid
+  echo "deb [check-valid-until=no] https://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}/ sid main" \
+    > /etc/apt/sources.list.d/qemu-snapshot.list
+
   apt-get update
   apt-get --no-install-recommends -y -t sid install \
     "seabios=${VERSION_SEABIOS}" \
@@ -72,6 +74,7 @@ RUN <<EOF
   wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q --timeout=10
   dpkg -i /tmp/passt.deb
 
+  rm -f /etc/apt/sources.list.d/qemu-snapshot.list
   apt-get clean
 
   # Disable the default nginx site
