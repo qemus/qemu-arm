@@ -185,8 +185,10 @@ buildArguments() {
   return 0
 }
 
-configureSerial
+finalizeMemory
+
 configureMemory
+configureSerial
 configureMonitor
 configureMachine
 configureProcessor
@@ -198,5 +200,6 @@ configureAudio
 configureCompatibility
 
 buildArguments
+enableTrap
 
 return 0
