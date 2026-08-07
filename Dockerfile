@@ -77,9 +77,6 @@ RUN <<EOF
   rm -f /etc/apt/sources.list.d/qemu-snapshot.list
   apt-get clean
 
-  # Disable the default nginx site
-  unlink /etc/nginx/sites-enabled/default
-
   # Set version file
   echo "$VERSION_ARG" > /etc/version
 
