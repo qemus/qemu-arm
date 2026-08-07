@@ -74,7 +74,7 @@ RUN <<EOF
   wget "https://github.com/qemus/passt/releases/download/v${VERSION_PASST}/passt_${VERSION_PASST}_${TARGETARCH}.deb" -O /tmp/passt.deb -q --timeout=10
   dpkg -i /tmp/passt.deb
 
-  # Install websocketd package
+  # Install Websocketd package
   wget "https://github.com/qemus/websocketd/releases/download/v${VERSION_WSD}/websocketd-${VERSION_WSD}_${TARGETARCH}.deb" -O /tmp/wsd.deb -q --timeout=10
   dpkg -i /tmp/wsd.deb
 
@@ -91,6 +91,7 @@ COPY --from=src /run/*.sh /run/
 COPY --from=src /run/*.py /run/
 COPY --from=src /var/www /var/www
 COPY --from=src /usr/share/novnc /usr/share/novnc
+COPY --from=src /etc/nginx/default.conf /etc/nginx/default.conf
 
 COPY --chmod=755 ./src /run/
 COPY --chmod=755 ./web /var/www/
