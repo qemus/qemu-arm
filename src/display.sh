@@ -37,10 +37,10 @@ case "${DISPLAY,,}" in
     DISPLAY_OPTS="-display vnc=:${port}${LOSSY_OPT} ${VGA_OPTS}"
     ;;
   "web" )
-    DISPLAY_OPTS="-display vnc=:${port},unix:${WSS_SOCKET}${LOSSY_OPT} ${VGA_OPTS}"
+    DISPLAY_OPTS="-display vnc=:${port},websocket=unix:${WSS_SOCKET}${LOSSY_OPT} ${VGA_OPTS}"
     ;;
   "ramfb" )
-    DISPLAY_OPTS="-display vnc=:${port},unix:${WSS_SOCKET}${LOSSY_OPT} -device ramfb"
+    DISPLAY_OPTS="-display vnc=:${port},websocket=unix:${WSS_SOCKET}${LOSSY_OPT} -device ramfb"
     ;;
   # disabled keeps the configured display device available to the guest
   # without a frontend; none removes both the frontend and VGA device.
