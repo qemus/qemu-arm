@@ -35,6 +35,7 @@ RUN <<EOF
     aria2 \
     fdisk \
     nginx \
+    unzip \
     procps \
     ipcalc \
     ethtool \
