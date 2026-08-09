@@ -72,6 +72,7 @@ configureMachine() {
   # frame required by guests that cannot use ITS-based interrupts.
   MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max,msi=gicv2m"
   MAC_OPTS+=",dump-guest-core=off${KVM_OPTS}"
+  disabled "$USB" && MAC_OPTS+=",usb=off"
 
   UUID=$(strip "$UUID")
   [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
