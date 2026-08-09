@@ -72,6 +72,7 @@ configureMachine() {
   # frame required by guests that cannot use ITS-based interrupts.
   MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max,msi=gicv2m"
   MAC_OPTS+=",dump-guest-core=off${KVM_OPTS}"
+  disabled "$USB" && MAC_OPTS+=",usb=off"
 
   UUID=$(strip "$UUID")
   [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
@@ -133,6 +134,7 @@ configureAudio() {
   enabled "${AUDIO:-N}" || return 0
 
   if [ -z "${AUDIO_FIFO:-}" ] || [ ! -p "$AUDIO_FIFO" ]; then
+    AUDIO="N"
     warn "Audio support failed to initialize, ignoring AUDIO=Y."
     return 0
   fi
@@ -142,11 +144,15 @@ configureAudio() {
 
   AUDIO_OPTS+=" -audiodev wav,id=snd,path=$AUDIO_FIFO,out.frequency=48000,out.channels=2,out.format=s16"
 
-  # A USB audio model still needs a controller when the main USB stack was
-  # disabled, so attach it to a dedicated xHCI controller.
-  if [[ "$model" == usb-* ]] && { [ -z "$USB" ] || disabled "$USB"; }; then
-    AUDIO_OPTS+=" -device qemu-xhci,id=audio-xhci"
-    [[ ",$sound," == *,bus=* ]] || sound+=",bus=audio-xhci.0"
+  if [[ "$model" == usb-* ]]; then
+
+    if disabled "$USB" || [ -z "$USB" ]; then
+      AUDIO="N"
+      AUDIO_OPTS=""
+      warn "Cannot initialize audio device $model as USB is disabled, ignoring AUDIO=Y."
+      return 0
+    fi
+
   fi
 
   case "$model" in
