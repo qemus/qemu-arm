@@ -17,10 +17,13 @@ WSS_SOCKET="${WSS_SOCKET:-$QEMU_DIR/vnc-ws.sock}"
 
 # Resolve friendly VirtIO aliases to the PCI device and place it on the
 # machine-specific bus selected by the shared QEMU helpers.
+
 case "${VGA,,}" in
+
   "virtio" | "virtio-gpu" | "viogpu" )
-    VGA="virtio-gpu-pci,bus=$(getPciBus)"
-    ;;
+
+    VGA="virtio-gpu-pci,bus=$(getPciBus)" ;;
+
 esac
 
 VGA_OPTS=""
@@ -37,26 +40,20 @@ port=$(( VNC_PORT - 5900 ))
 [[ "$DISPLAY" == ":0" ]] && DISPLAY="web"
 
 case "${DISPLAY,,}" in
+
   "vnc" )
-    DISPLAY_OPTS="-display vnc=:${port}${LOSSY_OPT} ${VGA_OPTS}"
-    ;;
+    DISPLAY_OPTS="-display vnc=:${port}${LOSSY_OPT} ${VGA_OPTS}" ;;
   "web" )
-    DISPLAY_OPTS="-display vnc=:${port},websocket=unix:${WSS_SOCKET}${LOSSY_OPT} ${VGA_OPTS}"
-    ;;
+    DISPLAY_OPTS="-display vnc=:${port},websocket=unix:${WSS_SOCKET}${LOSSY_OPT} ${VGA_OPTS}" ;;
   "ramfb" )
-    DISPLAY_OPTS="-display vnc=:${port},websocket=unix:${WSS_SOCKET}${LOSSY_OPT} -device ramfb"
-    ;;
-  # disabled keeps the configured display device available to the guest
-  # without a frontend; none removes both the frontend and VGA device.
+    DISPLAY_OPTS="-display vnc=:${port},websocket=unix:${WSS_SOCKET}${LOSSY_OPT} -device ramfb" ;;
   "disabled" )
-    DISPLAY_OPTS="-display none ${VGA_OPTS}"
-    ;;
+    DISPLAY_OPTS="-display none ${VGA_OPTS}" ;;
   "none" )
-    DISPLAY_OPTS="-display none"
-    ;;
+    DISPLAY_OPTS="-display none" ;;
   *)
-    DISPLAY_OPTS="-display ${DISPLAY} ${VGA_OPTS}"
-    ;;
+    DISPLAY_OPTS="-display ${DISPLAY} ${VGA_OPTS}" ;;
+
 esac
 
 return 0
