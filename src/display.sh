@@ -6,11 +6,14 @@ set -Eeuo pipefail
 : "${VGA:="ramfb"}"         # VGA adaptor
 : "${DISPLAY:="web"}"       # Display type
 : "${LOSSY:="N"}"           # Lossy VNC compression
+: "${VNC_PORT:="5900"}"     # VNC port
 
 # Sanitize variables
 VGA=$(strip "$VGA")
 LOSSY=$(strip "$LOSSY")
 DISPLAY=$(strip "$DISPLAY")
+VNC_PORT=$(strip "$VNC_PORT")
+WSS_SOCKET="${WSS_SOCKET:-$QEMU_DIR/vnc-ws.sock}"
 
 # Resolve friendly VirtIO aliases to the PCI device and place it on the
 # machine-specific bus selected by the shared QEMU helpers.
@@ -29,6 +32,7 @@ enabled "${LOSSY}" && LOSSY_OPT=",lossy=on"
 # QEMU accepts a VNC display number rather than a TCP port, so translate
 # the configured port back to its :N display index.
 port=$(( VNC_PORT - 5900 ))
+
 # Preserve the historic :0 setting as an alias for the managed web display.
 [[ "$DISPLAY" == ":0" ]] && DISPLAY="web"
 
