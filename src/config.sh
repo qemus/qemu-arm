@@ -65,26 +65,6 @@ configureMonitor() {
 
 configureMachine() {
 
-  local smm="off"
-  enabled "$SMM" && smm="on"
-
-  local usb=""
-  if disabled "$USB" || [ -z "$USB" ]; then
-    usb=",usb=off"
-  fi
-
-  MAC_OPTS="-machine type=${MACHINE},smm=${smm},graphics=off${usb}"
-  MAC_OPTS+=",vmport=${VMPORT},dump-guest-core=off,hpet=${HPET}${KVM_OPTS}"
-
-  UUID=$(strip "$UUID")
-  [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
-  [ -n "$SM_BIOS" ] && MAC_OPTS+=" $SM_BIOS"
-
-  return 0
-}
-
-configureMachine() {
-
   local secure="off"
   enabled "$SECURE" && secure="on"
 
