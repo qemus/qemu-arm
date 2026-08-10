@@ -68,11 +68,15 @@ configureMachine() {
   local secure="off"
   enabled "$SECURE" && secure="on"
 
+  local usb=""
+  if disabled "$USB" || [ -z "$USB" ]; then
+    usb=",usb=off"
+  fi
+
   # Let QEMU select the newest available GIC while exposing the GICv2m MSI
   # frame required by guests that cannot use ITS-based interrupts.
   MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max,msi=gicv2m"
-  MAC_OPTS+=",dump-guest-core=off${KVM_OPTS}"
-  disabled "$USB" && MAC_OPTS+=",usb=off"
+  MAC_OPTS+="${usb},dump-guest-core=off${KVM_OPTS}"
 
   UUID=$(strip "$UUID")
   [ -n "$UUID" ] && MAC_OPTS+=" -uuid $UUID"
