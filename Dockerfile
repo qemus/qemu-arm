@@ -31,6 +31,7 @@ RUN <<EOF
     tini \
     wget \
     7zip \
+    7zip-rar \
     curl \
     aria2 \
     fdisk \
@@ -39,6 +40,8 @@ RUN <<EOF
     procps \
     ipcalc \
     ethtool \
+    python3 \
+    python3-pip
     iptables \
     iproute2 \
     dnsmasq \
@@ -53,9 +56,7 @@ RUN <<EOF
     genisoimage \
     inotify-tools \
     netcat-openbsd \
-    ca-certificates \
-    python3 \
-    python3-pip
+    ca-certificates
 
   # Install QEMU 11 and AArch64 UEFI firmware from Debian Sid
   echo "deb [check-valid-until=no] https://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}/ sid main" \
