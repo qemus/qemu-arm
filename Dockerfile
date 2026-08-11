@@ -23,8 +23,9 @@ ARG DEBCONF_NONINTERACTIVE_SEEN="true"
 RUN <<EOF
   set -eu
 
-  echo "deb https://deb.debian.org/debian trixie non-free" > /etc/apt/sources.list.d/non-free.list  apt-get update
+  echo "deb https://deb.debian.org/debian trixie non-free" > /etc/apt/sources.list.d/non-free.list
 
+  apt-get update
   apt-get --no-install-recommends -y install \
     bc \
     jq \
