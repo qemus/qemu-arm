@@ -138,7 +138,9 @@ configureAudio() {
   enabled "${AUDIO:-N}" || return 0
 
   if [ -z "${AUDIO_FIFO:-}" ] || [ ! -p "$AUDIO_FIFO" ]; then
-    AUDIO="N"
+
+    disableAudio
+
     warn "Audio support failed to initialize, ignoring AUDIO=Y."
     return 0
   fi
@@ -151,8 +153,10 @@ configureAudio() {
   if [[ "$model" == usb-* ]]; then
 
     if disabled "$USB" || [ -z "$USB" ]; then
-      AUDIO="N"
+
       AUDIO_OPTS=""
+      disableAudio
+
       warn "Cannot initialize audio device $model as USB is disabled, ignoring AUDIO=Y."
       return 0
     fi
@@ -161,13 +165,15 @@ configureAudio() {
 
   case "$model" in
     intel-hda|ich9-intel-hda)
+
       AUDIO_OPTS+=" -device $sound"
-      AUDIO_OPTS+=" -device hda-output,audiodev=snd"
-      ;;
+      AUDIO_OPTS+=" -device hda-output,audiodev=snd" ;;
+
     *)
+
       [[ ",$sound," == *,audiodev=* ]] || sound+=",audiodev=snd"
-      AUDIO_OPTS+=" -device $sound"
-      ;;
+      AUDIO_OPTS+=" -device $sound" ;;
+
   esac
 
   return 0
@@ -192,6 +198,7 @@ configureCompatibility() {
 buildArguments() {
 
   ARGS="$DEF_OPTS $CPU_OPTS $RAM_OPTS $MAC_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS ${USB_OPTS:-} $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
+
   # Collapse whitespace after optional argument groups are assembled so
   # empty features do not leave malformed spacing in the final command.
   ARGS=$(echo "$ARGS" | sed 's/\t/ /g' | tr -s ' ')
