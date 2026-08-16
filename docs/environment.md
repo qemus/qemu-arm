@@ -30,7 +30,7 @@ An empty default means the variable is unset and its value is determined automat
 |---|---|---|
 | `DISK_SIZE` | `64G` | Size of the primary VM disk. |
 | `DISK_FMT` | `raw` | Disk image format: `raw` or `qcow2`. |
-| `DISK_TYPE` | `scsi` | Disk device type, such as `sata`, `scsi`, `nvme`, or `blk`. |
+| `DISK_TYPE` | `scsi` | Disk device type, such as `ide`, `scsi`, or `blk`. |
 | `DISK_CACHE` | `none` | Disk cache mode, such as `none` or `writeback`. |
 | `DISK_IO` | `native` | Disk I/O mode, such as `native`, `threads`, or `io_uring`. |
 | `DISK_DISCARD` | `unmap` | Discard/TRIM mode for the primary disk. |
@@ -68,7 +68,6 @@ An empty default means the variable is unset and its value is determined automat
 | Variable | Default | Description |
 |---|---|---|
 | `DISPLAY` | `web` | Display backend, such as `web`, `vnc`, `ramfb`, `disabled`, or `none`. |
-| `LOSSY` | `N` | Enables lossy VNC compression to reduce bandwidth usage. |
 | `VGA` | `ramfb` | QEMU video adapter model. Can be set to `virtio-gpu` after installation. |
 
 ## 🌍 Web UI
@@ -78,8 +77,8 @@ An empty default means the variable is unset and its value is determined automat
 | `WEB` | `Y` | Enables the web interface. |
 | `WEB_PORT` | `8006` | Port for the web interface. |
 | `VNC_PORT` | `5900` | Port for the VNC server. |
+| `LOSSY` | `N` | Enables lossy VNC compression to reduce bandwidth usage. |
 | `AUDIO` | `N` | Streams guest audio to the web viewer. |
-| `SOUND` | `usb-audio` | QEMU audio device used by the web viewer. |
 | `PROTECT` | `N` | Enables password protection for the web interface. |
 
 ## ⚙️ System
@@ -88,7 +87,9 @@ An empty default means the variable is unset and its value is determined automat
 |---|---|---|
 | `MACHINE` | `virt` | QEMU machine type. |
 | `PCI_BUS` | `pcie.0` | Overrides the PCI bus used for attached devices. |
+| `RNG` | `Y` | Adds the Virtio RNG device to the machine. |
 | `UUID` |  | UUID assigned to the VM. |
+| `SOUND` | `usb-audio` | QEMU audio device used when `AUDIO=Y`. |
 | `SM_BIOS` |  | Additional arguments passed to QEMU’s `-smbios` option. |
 | `ARGUMENTS` |  | Additional raw arguments appended to the QEMU command line. |
 
