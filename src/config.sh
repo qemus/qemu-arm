@@ -51,8 +51,8 @@ configureMonitor() {
     MON_OPTS+=" -monitor unix:$ACPI_SOCKET,server=on,wait=off,nodelay=on"
   fi
 
-  [ -n "$QMP" ] && MON_OPTS+=" -qmp $QMP"
   [ -n "$MONITOR" ] && MON_OPTS+=" -monitor $MONITOR"
+  [ -n "$QMP" ] && MON_OPTS+=" -qmp $QMP"
 
   local name="${APP// /-}"
   MON_OPTS+=" -name $name,process=$PROCESS"
