@@ -91,7 +91,7 @@ configureVirtioDevices() {
 
   # Windows installation media may not contain the VirtIO RNG driver, so
   # omit the device there instead of risking an unknown-device dependency.
-  if ! disabled "$RNG"  && [[ "${BOOT_MODE,,}" != "windows"* ]]; then
+  if ! disabled "$RNG" && [[ "${BOOT_MODE,,}" != "windows"* ]]; then
     DEV_OPTS+=" -object rng-random,id=objrng0,filename=/dev/urandom"
     DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=$bus"
   fi
@@ -145,7 +145,9 @@ configureAudio() {
   enabled "${AUDIO:-N}" || return 0
 
   if [ -z "${AUDIO_FIFO:-}" ] || [ ! -p "$AUDIO_FIFO" ]; then
-    AUDIO="N"
+
+    disableAudio
+
     warn "Audio support failed to initialize, ignoring AUDIO=Y."
     return 0
   fi
@@ -158,8 +160,10 @@ configureAudio() {
   if [[ "$model" == usb-* ]]; then
 
     if disabled "$USB" || [ -z "$USB" ]; then
-      AUDIO="N"
+
       AUDIO_OPTS=""
+      disableAudio
+
       warn "Cannot initialize audio device $model as USB is disabled, ignoring AUDIO=Y."
       return 0
     fi
@@ -168,13 +172,15 @@ configureAudio() {
 
   case "$model" in
     intel-hda|ich9-intel-hda)
+
       AUDIO_OPTS+=" -device $sound"
-      AUDIO_OPTS+=" -device hda-output,audiodev=snd"
-      ;;
+      AUDIO_OPTS+=" -device hda-output,audiodev=snd" ;;
+
     *)
+
       [[ ",$sound," == *,audiodev=* ]] || sound+=",audiodev=snd"
-      AUDIO_OPTS+=" -device $sound"
-      ;;
+      AUDIO_OPTS+=" -device $sound" ;;
+
   esac
 
   return 0
