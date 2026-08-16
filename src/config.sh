@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+: "${RNG:=""}"
 : "${QMP:=""}"
 : "${UUID:=""}"
 : "${SOUND:="usb-audio"}"
@@ -11,10 +12,6 @@ set -Eeuo pipefail
 
 msg="Configuring QEMU..."
 enabled "$DEBUG" && echo "$msg"
-
-DEF_OPTS="-nodefaults"
-DEV_OPTS=""
-AUDIO_OPTS=""
 
 configureProcessor() {
 
@@ -52,7 +49,7 @@ configureMonitor() {
 
   # Keep the user monitor and the automation monitor separate; power and
   # boot-key helpers need a private socket they can control safely.
-  if enabled "$SHUTDOWN" && [ -n "${ACPI_SOCKET:-}" ]; then
+  if enabled "${SHUTDOWN:-}" && [ -n "${ACPI_SOCKET:-}" ]; then
     MON_OPTS+=" -monitor unix:$ACPI_SOCKET,server=on,wait=off,nodelay=on"
   fi
 
@@ -90,10 +87,12 @@ configureVirtioDevices() {
   local bus
   bus=$(getPciBus)
 
+  DEV_OPTS=""
+
   # Windows installation media may not contain the VirtIO RNG driver, so
   # omit the device there instead of risking an unknown-device dependency.
-  if [[ "${BOOT_MODE,,}" != windows* ]]; then
-    DEV_OPTS="-object rng-random,id=objrng0,filename=/dev/urandom"
+  if ! disabled "$RNG"  && [[ "${BOOT_MODE,,}" != "windows"* ]]; then
+    DEV_OPTS+=" -object rng-random,id=objrng0,filename=/dev/urandom"
     DEV_OPTS+=" -device virtio-rng-pci,rng=objrng0,id=rng0,bus=$bus"
   fi
 
@@ -108,6 +107,8 @@ configureVirtioDevices() {
     fi
   fi
 
+  DEV_OPTS="${DEV_OPTS# }"
+
   return 0
 }
 
@@ -120,10 +121,14 @@ configureSharedFolder() {
     DEV_OPTS+=" -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=shared"
   fi
 
+  DEV_OPTS="${DEV_OPTS# }"
+
   return 0
 }
 
 configureUsb() {
+
+  USB_OPTS=""
 
   if ! disabled "$USB" && [ -n "$USB" ]; then
     USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
@@ -133,6 +138,8 @@ configureUsb() {
 }
 
 configureAudio() {
+
+  AUDIO_OPTS=""
 
   disabled "${WEB:-}" && return 0
   enabled "${AUDIO:-N}" || return 0
@@ -191,7 +198,8 @@ configureCompatibility() {
 
 buildArguments() {
 
-  ARGS="$DEF_OPTS $CPU_OPTS $RAM_OPTS $MAC_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS ${USB_OPTS:-} $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
+  ARGS="-nodefaults $CPU_OPTS $RAM_OPTS $MAC_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS $USB_OPTS $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
+
   # Collapse whitespace after optional argument groups are assembled so
   # empty features do not leave malformed spacing in the final command.
   ARGS=$(echo "$ARGS" | sed 's/\t/ /g' | tr -s ' ')
