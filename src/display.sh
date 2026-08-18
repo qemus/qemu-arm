@@ -56,4 +56,8 @@ case "${DISPLAY,,}" in
 
 esac
 
+if enabled "${GPU:-}"; then
+  warn "GPU acceleration is only supported for the AMD64 platform, ignoring GPU=Y."
+fi
+
 return 0
