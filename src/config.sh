@@ -5,7 +5,9 @@ set -Eeuo pipefail
 : "${QMP:=""}"
 : "${UUID:=""}"
 : "${MONITOR:=""}"
+: "${KBD:="usb-kbd"}"
 : "${SOUND:="usb-audio"}"
+: "${MOUSE:="usb-tablet"}"
 : "${SERIAL:="mon:stdio"}"
 : "${USB:="qemu-xhci,id=xhci,p2=7,p3=7"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
@@ -84,12 +86,16 @@ configureMachine() {
   return 0
 }
 
-configureVirtioDevices() {
+configureDevices() {
 
   local bus
   bus=$(getPciBus)
 
   DEV_OPTS=""
+
+  if [ -n "$MOUSE" ] && [[ "${MOUSE,,}" != "usb"* ]]; then
+    DEV_OPTS+=" -device $MOUSE"
+  fi
 
   # Windows installation media may not contain the VirtIO RNG driver, so
   # omit the device there instead of risking an unknown-device dependency.
@@ -133,7 +139,13 @@ configureUsb() {
   USB_OPTS=""
 
   if ! disabled "$USB" && [ -n "$USB" ]; then
-    USB_OPTS="-device $USB -device usb-kbd -device usb-tablet"
+    USB_OPTS="-device $USB"
+    if [[ "${KBD,,}" == "usb"* ]]; then
+      USB_OPTS+=" -device $KBD"
+    fi
+    if [[ "${MOUSE,,}" == "usb"* ]]; then
+      USB_OPTS+=" -device $MOUSE"
+    fi
   fi
 
   return 0
@@ -223,7 +235,7 @@ configureMonitor
 configureMachine
 configureProcessor
 
-configureVirtioDevices
+configureDevices
 configureSharedFolder
 configureUsb
 configureAudio
