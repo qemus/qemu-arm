@@ -15,6 +15,17 @@ set -Eeuo pipefail
 msg="Configuring QEMU..."
 enabled "$DEBUG" && echo "$msg"
 
+# Sanitize variables
+SMP=$(strip "$SMP")
+USB=$(strip "$USB")
+QMP=$(strip "$QMP")
+KBD=$(strip "$KBD")
+UUID=$(strip "$UUID")
+SOUND=$(strip "$SOUND")
+MOUSE=$(strip "$MOUSE")
+SERIAL=$(strip "$SERIAL")
+MONITOR=$(strip "$MONITOR")
+
 configureProcessor() {
 
   CPU_OPTS="-cpu $CPU_FLAGS -smp $SMP"
@@ -79,7 +90,6 @@ configureMachine() {
   MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max,msi=gicv2m"
   MAC_OPTS+="${usb},dump-guest-core=off${KVM_OPTS}"
 
-  UUID=$(strip "$UUID")
   [ -n "$UUID" ] && ID_OPTS+=" -uuid $UUID"
   [ -n "$SM_BIOS" ] && ID_OPTS+=" $SM_BIOS"
 
