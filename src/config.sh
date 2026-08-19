@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+: "${USB:=""}"
 : "${RNG:=""}"
 : "${QMP:=""}"
 : "${UUID:=""}"
@@ -9,7 +10,6 @@ set -Eeuo pipefail
 : "${SOUND:="usb-audio"}"
 : "${MOUSE:="usb-tablet"}"
 : "${SERIAL:="mon:stdio"}"
-: "${USB:="qemu-xhci,id=xhci,p2=7,p3=7"}"
 : "${SMP:="$CPU_CORES,sockets=1,dies=1,cores=$CPU_CORES,threads=1"}"
 
 msg="Configuring QEMU..."
@@ -67,11 +67,10 @@ configureMonitor() {
   [ -n "$MONITOR" ] && MON_OPTS+=" -monitor $MONITOR"
   [ -n "$QMP" ] && MON_OPTS+=" -qmp $QMP"
 
-  local name="${APP// /-}"
-  ID_OPTS="-name $name,process=$PROCESS"
+  ID_OPTS="-name ${APP// /-},process=$PROCESS"
   PID_OPTS="-pidfile $QEMU_PID"
-  MON_OPTS="${MON_OPTS# }"
 
+  MON_OPTS="${MON_OPTS# }"
   return 0
 }
 
@@ -81,9 +80,7 @@ configureMachine() {
   enabled "$SECURE" && secure="on"
 
   local usb=""
-  if disabled "$USB" || [ -z "$USB" ]; then
-    usb=",usb=off"
-  fi
+  disabled "$USB" && usb=",usb=off"
 
   # Let QEMU select the newest available GIC while exposing the GICv2m MSI
   # frame required by guests that cannot use ITS-based interrupts.
@@ -148,7 +145,11 @@ configureUsb() {
 
   USB_OPTS=""
 
-  if ! disabled "$USB" && [ -n "$USB" ]; then
+  if enabled "$USB" || [ -z "$USB" ]; then
+    USB="qemu-xhci,id=xhci,p2=7,p3=7"
+  fi
+
+  if ! disabled "$USB"; then
     USB_OPTS="-device $USB"
     if [[ "${KBD,,}" == "usb"* ]]; then
       USB_OPTS+=" -device $KBD"
@@ -183,7 +184,7 @@ configureAudio() {
 
   if [[ "$model" == usb-* ]]; then
 
-    if disabled "$USB" || [ -z "$USB" ]; then
+    if disabled "$USB"; then
 
       AUDIO_OPTS=""
       disableAudio
