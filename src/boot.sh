@@ -2,7 +2,6 @@
 set -Eeuo pipefail
 
 # Docker environment variables
-: "${BIOS:=""}"         # BIOS file
 : "${LOGO:=""}"         # Enable logo
 : "${CLEAR:=""}"        # Clear NVRAM
 : "${SECURE:=""}"       # Secure Boot
@@ -11,10 +10,6 @@ BOOT_DESC=""
 BOOT_OPTS=""
 
 configureBootMode() {
-
-  # Supplying BIOS explicitly takes precedence over BOOT_MODE because
-  # QEMU cannot combine a custom firmware image with managed AAVMF state.
-  [ -n "$BIOS" ] && BOOT_MODE="custom"
 
   case "${BOOT_MODE,,}" in
 
@@ -54,24 +49,6 @@ configureBootMode() {
 
       BOOT_OPTS="-rtc base=localtime" ;;
 
-    "legacy" )
-
-      error "BOOT_MODE=$BOOT_MODE is not supported!"
-      exit 33 ;;
-
-    "custom" )
-
-      BOOT_DESC=" with custom BIOS file"
-
-      BIOS=$(strip "$BIOS")
-
-      if [ -z "$BIOS" ]; then
-        error "BOOT_MODE is custom but BIOS is empty!"
-        exit 33
-      fi
-
-      BOOT_OPTS="-bios $BIOS" ;;
-
     *)
       error "Unknown BOOT_MODE, value \"${BOOT_MODE}\" is not recognized!"
       exit 33 ;;
@@ -85,10 +62,10 @@ clearNvram() {
 
   DEST="$STORAGE/${BOOT_MODE,,}"
 
-  if enabled "$CLEAR"; then
-    # Clear NVRAM (helps to fix corruptions)
-    rm -f "$DEST.rom" "$DEST.vars" "$DEST.tpm"
-  fi
+  enabled "$CLEAR" || return 0
+
+  # Clear NVRAM (helps to fix corruptions)
+  rm -f "$DEST.rom" "$DEST.vars" "$DEST.tpm"
 
   return 0
 }
@@ -227,14 +204,15 @@ enableIgnoreMsrs() {
 
   MSRS="/sys/module/kvm/parameters/ignore_msrs"
 
+  [ -e "$MSRS" ] || return 0
+
   # Unsupported guest MSR accesses should not terminate KVM. This is
   # best-effort because containers may not be allowed to change the module.
-  if [ -e "$MSRS" ]; then
-    result=$(<"$MSRS")
-    result="${result//[![:print:]]/}"
-    if [[ "$result" == "0" || "${result^^}" == "N" ]]; then
-      echo 1 | tee "$MSRS" > /dev/null 2>&1 || true
-    fi
+  result=$(<"$MSRS")
+  result="${result//[![:print:]]/}"
+
+  if [[ "$result" == "0" || "${result^^}" == "N" ]]; then
+    echo 1 | tee "$MSRS" > /dev/null 2>&1 || true
   fi
 
   return 0
@@ -248,19 +226,21 @@ checkClocksource() {
 
   if [ ! -f "$CLOCK" ]; then
     warn "file \"$CLOCK\" cannot be found?"
-  else
-    result=$(<"$CLOCK")
-    result="${result//[![:print:]]/}"
-    # Native ARM and x86 hosts have different preferred clocksources;
-    # paravirtual clocks identify expected nested-virtualization setups.
-    case "${result,,}" in
-      "${CLOCKSOURCE,,}" ) ;;
-      "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
-      "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
-      "hpet" ) warn "unsupported clock source detected: '$result'. Please set host clock source to '$CLOCKSOURCE'." ;;
-      *) warn "unexpected clock source detected: '$result'. Please set host clock source to '$CLOCKSOURCE'." ;;
-    esac
+    return 0
   fi
+
+  result=$(<"$CLOCK")
+  result="${result//[![:print:]]/}"
+
+  # Native ARM and x86 hosts have different preferred clocksources;
+  # paravirtual clocks identify expected nested-virtualization setups.
+  case "${result,,}" in
+    "${CLOCKSOURCE,,}" ) ;;
+    "kvm-clock" ) info "Nested KVM virtualization detected.." ;;
+    "hyperv_clocksource_tsc_page" ) info "Nested Hyper-V virtualization detected.." ;;
+    "hpet" ) warn "unsupported clock source detected: '$result'. Please set host clock source to '$CLOCKSOURCE'." ;;
+    *) warn "unexpected clock source detected: '$result'. Please set host clock source to '$CLOCKSOURCE'." ;;
+  esac
 
   return 0
 }
@@ -270,17 +250,15 @@ detectSmbiosSerial() {
   SM_BIOS=""
   PS="/sys/class/dmi/id/product_serial"
 
-  if [ -r "$PS" ]; then
+  [ -r "$PS" ] || return 0
 
-    BIOS_SERIAL=$(<"$PS")
-    BIOS_SERIAL="${BIOS_SERIAL//[![:alnum:]]/}"
+  BIOS_SERIAL=$(<"$PS")
+  BIOS_SERIAL="${BIOS_SERIAL//[![:alnum:]]/}"
 
-    if [ -n "$BIOS_SERIAL" ]; then
-      # Reuse a sanitized host product serial to provide a stable guest
-      # machine identity without passing punctuation into QEMU's option list.
-      SM_BIOS="-smbios type=1,serial=$BIOS_SERIAL"
-    fi
-
+  if [ -n "$BIOS_SERIAL" ]; then
+    # Reuse a sanitized host product serial to provide a stable guest
+    # machine identity without passing punctuation into QEMU's option list.
+    SM_BIOS="-smbios type=1,serial=$BIOS_SERIAL"
   fi
 
   return 0
