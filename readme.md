@@ -209,7 +209,23 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   ```
 
   Then enable **Audio** under **Settings → Advanced** in the web viewer. The stream is only active while this option is enabled, so it uses no extra bandwidth otherwise.
- 
+
+### How do I improve the graphical performance?
+
+  By default, the VM uses `bochs-display`, which is supported by standard Linux kernels.
+
+  For better graphical performance, you can switch to `virtio-gpu` if your guest OS includes its driver, as most modern Linux distributions do:
+
+  ```yaml
+  environment:
+    VGA: "virtio-gpu"
+  ```
+
+  `virtio-gpu` uses a paravirtualized graphics device and can provide better desktop responsiveness than the default display adapter.
+
+> [!NOTE]
+> With `virtio-gpu`, the screen may remain black during the initial boot process until the Linux driver is loaded. For this reason, `bochs-display` remains the default and provides the most reliable display output during boot and installation.
+
 ### How do I boot Windows?
 
   Use [dockur/windows-arm](https://github.com/dockur/windows-arm) instead, as it includes all the drivers required during installation, amongst many other features.
