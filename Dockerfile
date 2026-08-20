@@ -71,11 +71,6 @@ RUN <<EOF
     "qemu-efi-aarch64=${VERSION_EFI}" \
     "qemu-system-arm=${VERSION_QEMU}"
 
-  # Replace Debian's AAVMF CODE images with the matching QemuVideoDxe-enabled build.
-  wget "https://github.com/qemus/aavmf/releases/download/v${VERSION_EFI}/aavmf_${VERSION_EFI}_arm64.tar.xz" -O /tmp/aavmf.tar.xz -q --timeout=10
-  tar -xJf /tmp/aavmf.tar.xz -C /usr/share/AAVMF
-  rm -f /tmp/aavmf.tar.xz
-
   # Install QMP
   pip3 install --no-cache-dir --break-system-packages --root-user-action=ignore "qemu.qmp==${VERSION_QMP}"
 
