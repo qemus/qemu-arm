@@ -212,7 +212,7 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
 
 ### How do I improve the graphical performance?
 
-  By default, the VM uses `bochs-display`, which is supported by standard Linux kernels.
+  By default, the `bochs-display` adapter is used as it doesn't require any additional graphics drivers.
 
   For better graphical performance, you can switch to `virtio-gpu` if your guest OS includes its driver, as most modern Linux distributions do:
 
@@ -221,10 +221,10 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
     VGA: "virtio-gpu"
   ```
 
-  `virtio-gpu` uses a paravirtualized graphics device and can provide better desktop responsiveness than the default display adapter.
+  It uses a dedicated paravirtualized display driver and can provide better desktop responsiveness than the `bochs-display` adapter.
 
 > [!NOTE]
-> With `virtio-gpu`, the screen may remain black during the initial boot process until the Linux driver is loaded. For this reason, `bochs-display` remains the default and provides the most reliable display output during boot and installation.
+> With `virtio-gpu`, the screen may remain black during the initial boot process until the Linux driver is loaded. For this reason, `bochs-display` remains the default and provides the most reliable display output during boot.
 
 ### How do I boot Windows?
 
