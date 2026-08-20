@@ -3,10 +3,10 @@ set -Eeuo pipefail
 
 # Docker environment variables
 
-: "${VGA:="ramfb"}"         # VGA adaptor
-: "${DISPLAY:="web"}"       # Display type
-: "${LOSSY:="N"}"           # Lossy VNC compression
-: "${VNC_PORT:="5900"}"     # VNC port
+: "${VGA:="bochs-display"}"  # VGA adapter
+: "${DISPLAY:="web"}"        # Display type
+: "${LOSSY:="N"}"            # Lossy VNC compression
+: "${VNC_PORT:="5900"}"      # VNC port
 
 # Sanitize variables
 VGA=$(strip "$VGA")

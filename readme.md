@@ -209,22 +209,6 @@ kubectl apply -f https://raw.githubusercontent.com/qemus/qemu-arm/refs/heads/mas
   ```
 
   Then enable **Audio** under **Settings → Advanced** in the web viewer. The stream is only active while this option is enabled, so it uses no extra bandwidth otherwise.
-
-### How do I increase the display resolution?
-
-  For maximum compatibility, the display output will be a simple framebuffer by default. While this isn't the most optimal, it doesn't require any drivers.
-  
-  If your guest OS bundles the `virtio-gpu` driver (as most Linux distributions do), you can add the following to your compose file:
-
-  ```yaml
-  environment:
-    VGA: "virtio-gpu"
-  ```
-
-  This adds a virtual graphics card to your machine, enabling better picture quality and higher resolutions.
-  
-> [!NOTE]
-> Using this method, your screen will stay black during the initial boot process, until the point where the driver is actually loaded.
  
 ### How do I boot Windows?
 
