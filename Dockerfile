@@ -48,6 +48,7 @@ RUN <<EOF
     iproute2 \
     dnsmasq \
     xorriso \
+    pciutils \
     xz-utils \
     apt-utils \
     net-tools \
