@@ -6,6 +6,7 @@ set -Eeuo pipefail
 : "${QMP:=""}"
 : "${UUID:=""}"
 : "${MONITOR:=""}"
+: "${RAM_BACKEND:=""}"
 : "${KBD:="usb-kbd"}"
 : "${SOUND:="usb-audio"}"
 : "${MOUSE:="usb-tablet"}"
@@ -25,6 +26,7 @@ SOUND=$(strip "$SOUND")
 MOUSE=$(strip "$MOUSE")
 SERIAL=$(strip "$SERIAL")
 MONITOR=$(strip "$MONITOR")
+RAM_BACKEND=$(strip "$RAM_BACKEND")
 
 configureProcessor() {
 
@@ -35,7 +37,22 @@ configureProcessor() {
 
 configureMemory() {
 
-  RAM_OPTS=$(echo "-m ${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
+  local ram
+  ram=$(echo "${RAM_SIZE^^}" | sed 's/MB/M/g;s/GB/G/g;s/TB/T/g')
+
+  RAM_OPTS="-m $ram"
+  MEM_OPTS=""
+  RAM_MACHINE_OPTS=""
+
+  case "${RAM_BACKEND,,}" in
+    "" ) ;;
+    "memfd" )
+      MEM_OPTS="-object memory-backend-memfd,id=ram,size=$ram,share=on"
+      RAM_MACHINE_OPTS=",memory-backend=ram" ;;
+    * )
+      error "Invalid RAM_BACKEND value '$RAM_BACKEND', supported value is 'memfd'."
+      exit 78 ;;
+  esac
 
   return 0
 }
@@ -85,7 +102,7 @@ configureMachine() {
   # Let QEMU select the newest available GIC while exposing the GICv2m MSI
   # frame required by guests that cannot use ITS-based interrupts.
   MAC_OPTS="-machine type=${MACHINE},secure=${secure},gic-version=max,msi=gicv2m"
-  MAC_OPTS+="${usb},dump-guest-core=off${KVM_OPTS}"
+  MAC_OPTS+="${usb}$RAM_MACHINE_OPTS,dump-guest-core=off${KVM_OPTS}"
 
   [ -n "$UUID" ] && ID_OPTS+=" -uuid $UUID"
   [ -n "$SM_BIOS" ] && ID_OPTS+=" $SM_BIOS"
@@ -229,7 +246,7 @@ configureCompatibility() {
 
 buildArguments() {
 
-  ARGS="-nodefaults $MAC_OPTS $CPU_OPTS $RAM_OPTS $ID_OPTS $PID_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS $USB_OPTS $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
+  ARGS="-nodefaults $MEM_OPTS $MAC_OPTS $CPU_OPTS $RAM_OPTS $ID_OPTS $PID_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS $USB_OPTS $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
 
   # Collapse whitespace after optional argument groups are assembled so
   # empty features do not leave malformed spacing in the final command.
