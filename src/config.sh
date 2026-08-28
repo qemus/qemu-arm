@@ -4,6 +4,7 @@ set -Eeuo pipefail
 : "${USB:=""}"
 : "${RNG:=""}"
 : "${QMP:=""}"
+: "${QGA:=""}"
 : "${UUID:=""}"
 : "${MONITOR:=""}"
 : "${RAM_BACKEND:=""}"
@@ -20,6 +21,7 @@ enabled "$DEBUG" && echo "$msg"
 SMP=$(strip "$SMP")
 USB=$(strip "$USB")
 QMP=$(strip "$QMP")
+QGA=$(strip "$QGA")
 KBD=$(strip "$KBD")
 UUID=$(strip "$UUID")
 SOUND=$(strip "$SOUND")
@@ -57,13 +59,52 @@ configureMemory() {
   return 0
 }
 
+normalizeSocket() {
+
+  local value="$1"
+  local backend="${value%%,*}"
+
+  if [[ "$backend" == *.sock && "$backend" != *:* ]]; then
+    value="unix:$value"
+    [[ ",$value," == *,server=* ]] || value+=",server=on"
+    if [[ ",$value," != *,wait=* ]] && [[ ",$value," != *,server=off,* ]]; then
+      value+=",wait=off"
+    fi
+  fi
+
+  echo "$value"
+}
+
+normalizePort() {
+
+  local value="$1"
+  local protocol="$2"
+
+  if [[ "$value" =~ ^[0-9]+$ ]]; then
+    value="$protocol:0.0.0.0:$value,server=on,wait=off"
+  fi
+
+  echo "$value"
+}
+
 configureSerial() {
 
-  # Interactive graceful shutdown uses a reconnecting socket so the console
-  # helper can detach without tying QEMU directly to the container terminal.
+  SERIAL=$(normalizePort "$SERIAL" "telnet")
+  SERIAL=$(normalizeSocket "$SERIAL")
+
+  # The interactive console owns stdio, so use the socket relay
+  # and keep any non-stdio SERIAL as an additional serial port.
   if enabled "${SHUTDOWN:-}" && interactive; then
-    SERIAL_OPTS="-chardev socket,id=console0,path=$CONSOLE_SOCKET,reconnect-ms=1000"
+
+    SERIAL_OPTS=""
+
+    if [[ "${SERIAL,,}" != "stdio" && "${SERIAL,,}" != "mon:stdio" ]]; then
+      SERIAL_OPTS="-serial $SERIAL"
+    fi
+
+    SERIAL_OPTS+="${SERIAL_OPTS:+ }-chardev socket,id=console0,path=$CONSOLE_SOCKET,reconnect-ms=1000"
     SERIAL_OPTS+=" -serial chardev:console0"
+
   else
     SERIAL_OPTS="-serial $SERIAL"
   fi
@@ -81,13 +122,56 @@ configureMonitor() {
     MON_OPTS+=" -monitor unix:$ACPI_SOCKET,server=on,wait=off,nodelay=on"
   fi
 
-  [ -n "$MONITOR" ] && MON_OPTS+=" -monitor $MONITOR"
-  [ -n "$QMP" ] && MON_OPTS+=" -qmp $QMP"
+  if [ -n "$MONITOR" ]; then
+    MONITOR=$(normalizePort "$MONITOR" "telnet")
+    MONITOR=$(normalizeSocket "$MONITOR")
+    MON_OPTS+=" -monitor $MONITOR"
+  fi
+
+  if [ -n "$QMP" ]; then
+    QMP=$(normalizePort "$QMP" "tcp")
+    QMP=$(normalizeSocket "$QMP")
+    MON_OPTS+=" -qmp $QMP"
+  fi
 
   ID_OPTS="-name ${APP// /-},process=$PROCESS"
   PID_OPTS="-pidfile $QEMU_PID"
 
   MON_OPTS="${MON_OPTS# }"
+  return 0
+}
+
+configureGuestAgent() {
+
+  QGA_OPTS=""
+
+  [ -n "$QGA" ] || return 0
+
+  local qga="$QGA"
+
+  if [[ "$qga" =~ ^[0-9]+$ ]]; then
+
+    qga="host=0.0.0.0,port=$qga,server=on,wait=off"
+
+  else
+
+    local backend="${qga%%,*}"
+
+    if [[ "$backend" == *.sock && "$backend" != *:* ]]; then
+      qga=$(normalizeSocket "$qga")
+    elif [[ "$backend" != unix:*.sock ]]; then
+      error "Invalid QGA value '$QGA', expected a Unix socket path ending in '.sock' or a TCP port."
+      exit 78
+    fi
+
+    qga="path=${qga#unix:}"
+
+  fi
+
+  QGA_OPTS="-chardev socket,$qga,id=qga0"
+  QGA_OPTS+=" -device virtio-serial"
+  QGA_OPTS+=" -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0"
+
   return 0
 }
 
@@ -246,7 +330,7 @@ configureCompatibility() {
 
 buildArguments() {
 
-  ARGS="-nodefaults $MEM_OPTS $MAC_OPTS $CPU_OPTS $RAM_OPTS $ID_OPTS $PID_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS $USB_OPTS $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
+  ARGS="-nodefaults $MEM_OPTS $MAC_OPTS $CPU_OPTS $RAM_OPTS $ID_OPTS $PID_OPTS $DISPLAY_OPTS $MON_OPTS $SERIAL_OPTS $QGA_OPTS $USB_OPTS $NET_OPTS $DISK_OPTS $BOOT_OPTS $DEV_OPTS $AUDIO_OPTS $CMP_OPTS $ARGUMENTS"
 
   # Collapse whitespace after optional argument groups are assembled so
   # empty features do not leave malformed spacing in the final command.
@@ -260,6 +344,7 @@ finalizeMemory
 configureMemory
 configureSerial
 configureMonitor
+configureGuestAgent
 configureMachine
 configureProcessor
 
