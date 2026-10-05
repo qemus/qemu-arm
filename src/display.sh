@@ -26,6 +26,8 @@ case "${VGA_DEVICE,,}" in
     VGA_DEVICE="virtio-gpu-pci"
     VGA_OPTIONS+=",bus=$(getPciBus)"
     VGA_ARG="-device" ;;
+  "ramfb" )
+    VGA_ARG="-device" ;;
   * )
     VGA_ARG="-vga" ;;
 esac
